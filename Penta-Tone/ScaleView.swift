@@ -13,6 +13,7 @@ struct ScaleView: View {
     var onCycleIntonation: ((Bool) -> Void)? = nil
     var onCycleCelestial: ((Bool) -> Void)? = nil
     var onCycleTerrestrial: ((Bool) -> Void)? = nil
+    var onCycleRotation: ((Bool) -> Void)? = nil
     
     var body: some View {
         Group {
@@ -174,7 +175,7 @@ struct ScaleView: View {
                         }
                 }
             }
-            ZStack { // Row 9
+            ZStack { // Row 9 - Rotation
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
@@ -187,8 +188,12 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleRotation?(false)
+                        }
                     Spacer()
-                    Text("0")
+                    Text(currentScale.rotation == 0 ? "0" : "\(currentScale.rotation > 0 ? "+" : "−") \(abs(currentScale.rotation))")
                         .foregroundColor(Color("HighlightColour"))
                         .font(.custom("Futura",size:30))
                         .frame(width:200,height:20,alignment:.center)
@@ -202,6 +207,10 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleRotation?(true)
+                        }
                 }
             }
         }
@@ -216,7 +225,8 @@ struct ScaleView: View {
                 currentScale: ScalesCatalog.centerMeridian_JI,
                 onCycleIntonation: { _ in },
                 onCycleCelestial: { _ in },
-                onCycleTerrestrial: { _ in }
+                onCycleTerrestrial: { _ in },
+                onCycleRotation: { _ in }
             )
         }
         .padding(25)

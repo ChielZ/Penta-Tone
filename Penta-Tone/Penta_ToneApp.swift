@@ -42,6 +42,7 @@ struct Penta_ToneApp: App {
         }
         return 0
     }()
+    @State private var rotation: Int = 0 // Range: -2 to +2
     
     var body: some Scene {
         WindowGroup {
@@ -53,7 +54,8 @@ struct Penta_ToneApp: App {
                         currentScale: currentScale,
                         onCycleIntonation: { cycleIntonation(forward: $0) },
                         onCycleCelestial: { cycleCelestial(forward: $0) },
-                        onCycleTerrestrial: { cycleTerrestrial(forward: $0) }
+                        onCycleTerrestrial: { cycleTerrestrial(forward: $0) },
+                        onCycleRotation: { cycleRotation(forward: $0) }
                     )
                     .transition(.opacity)
                 } else {
@@ -69,7 +71,9 @@ struct Penta_ToneApp: App {
     // MARK: - Computed Properties
     
     private var currentScale: Scale {
-        ScalesCatalog.all[currentScaleIndex]
+        var scale = ScalesCatalog.all[currentScaleIndex]
+        scale.rotation = rotation
+        return scale
     }
     
     // MARK: - Audio Initialization
@@ -97,8 +101,8 @@ struct Penta_ToneApp: App {
     
     private func applyCurrentScale() {
         let rootFreq: Double = 200
-        let scale = ScalesCatalog.all[currentScaleIndex]
-        let frequencies = makeKeyFrequencies(for: scale, baseFrequency: rootFreq)
+        // Use the computed currentScale property which includes rotation
+        let frequencies = makeKeyFrequencies(for: currentScale, baseFrequency: rootFreq)
         
         // Pass Double array directly (no conversion needed)
         EngineManager.applyScale(frequencies: frequencies)
@@ -193,5 +197,17 @@ struct Penta_ToneApp: App {
             currentScaleIndex = newIndex
             applyCurrentScale()
         }
+    }
+    
+    /// Cycle rotation: -2, -1, 0, +1, +2
+    /// Does NOT wrap around (stops at ends)
+    private func cycleRotation(forward: Bool) {
+        let newRotation = forward ? rotation + 1 : rotation - 1
+        
+        // Clamp to range [-2, 2]
+        guard newRotation >= -2 && newRotation <= 2 else { return }
+        
+        rotation = newRotation
+        applyCurrentScale()
     }
 }

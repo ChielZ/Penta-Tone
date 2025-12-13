@@ -45,6 +45,7 @@ struct MainKeyboardView: View {
     var onCycleIntonation: ((Bool) -> Void)? = nil
     var onCycleCelestial: ((Bool) -> Void)? = nil
     var onCycleTerrestrial: ((Bool) -> Void)? = nil
+    var onCycleRotation: ((Bool) -> Void)? = nil
     
     @State private var showingOptions: Bool = false
     
@@ -84,7 +85,8 @@ struct MainKeyboardView: View {
                                     currentScale: currentScale,
                                     onCycleIntonation: onCycleIntonation,
                                     onCycleCelestial: onCycleCelestial,
-                                    onCycleTerrestrial: onCycleTerrestrial
+                                    onCycleTerrestrial: onCycleTerrestrial,
+                                    onCycleRotation: onCycleRotation
                                 )
                                        .transition(.opacity)
                             } else {
@@ -93,7 +95,8 @@ struct MainKeyboardView: View {
                                     currentScale: currentScale,
                                     onCycleIntonation: onCycleIntonation,
                                     onCycleCelestial: onCycleCelestial,
-                                    onCycleTerrestrial: onCycleTerrestrial
+                                    onCycleTerrestrial: onCycleTerrestrial,
+                                    onCycleRotation: onCycleRotation
                                 )
                                     .transition(.opacity)
                             }
@@ -155,7 +158,7 @@ private struct NavigationStrip: View {
                 
                 VStack {
                     Text("•UNFOLD•")
-                        .font(.custom("Futura Medium", size: 20))
+                        .font(.custom("Futura Medium", size: 17))
                         .foregroundColor(Color("BackgroundColour"))
                         .minimumScaleFactor(0.3)
                         .lineLimit(1)
@@ -243,6 +246,7 @@ private struct KeyButton: View {
         currentScale: ScalesCatalog.centerMeridian_JI,
         onCycleIntonation: { _ in },
         onCycleCelestial: { _ in },
-        onCycleTerrestrial: { _ in }
+        onCycleTerrestrial: { _ in },
+        onCycleRotation: { _ in }
     )
 }

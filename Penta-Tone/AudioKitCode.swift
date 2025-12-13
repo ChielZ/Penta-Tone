@@ -66,7 +66,7 @@ final class OscVoice {
     private var initialised = false
 
     init() {
-        self.osc = Oscillator(waveform: sharedSineTable)
+        self.osc = Oscillator(waveform: Table(.sine))
         self.env = AmplitudeEnvelope(osc,
                                      attackDuration: 0.002,
                                      decayDuration: 0.12,

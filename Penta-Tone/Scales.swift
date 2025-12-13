@@ -32,6 +32,7 @@ struct Scale: Equatable, Identifiable {
     let terrestrial: Terrestrial
     // Five-note scale as frequency ratios relative to tonic (1.0 == 1/1)
     let notes: [Double]
+    var rotation: Int = 0 // Range: -2 to +2
 }
 
 // MARK: - Helpers
@@ -40,16 +41,62 @@ private func et(_ semitoneSteps: [Int]) -> [Double] {
     semitoneSteps.map { step in pow(2.0, Double(step) / 12.0) }
 }
 
+// Apply rotation to scale notes
+// Rotation determines which note of the scale is mapped to the lowest key
+// Positive rotation: shift notes to the left (later notes become earlier)
+// Negative rotation: shift notes to the right (earlier notes become later, divided by 2)
+private func applyRotation(to notes: [Double], rotation: Int) -> [Double] {
+    guard rotation != 0 else { return notes }
+    let count = notes.count
+    var rotatedNotes: [Double] = []
+    
+    if rotation > 0 {
+        // Positive rotation: notes shift left
+        // e.g., rotation +1: [1, 9/8, 4/3, 3/2, 16/9] -> [9/8, 4/3, 3/2, 16/9, 1*2]
+        for i in 0..<count {
+            let sourceIndex = (i + rotation) % count
+            var note = notes[sourceIndex]
+            
+            // If we wrapped around, multiply by 2 (next octave)
+            if sourceIndex < rotation {
+                note *= 2.0
+            }
+            rotatedNotes.append(note)
+        }
+    } else {
+        // Negative rotation: notes shift right
+        // e.g., rotation -1: [1, 9/8, 4/3, 3/2, 16/9] -> [16/9 / 2, 1, 9/8, 4/3, 3/2]
+        let absRotation = abs(rotation)
+        for i in 0..<count {
+            let sourceIndex = (i - absRotation + count) % count
+            var note = notes[sourceIndex]
+            
+            // If we wrapped around (sourceIndex >= count - absRotation), divide by 2 (previous octave)
+            if sourceIndex >= count - absRotation {
+                note /= 2.0
+            }
+            rotatedNotes.append(note)
+        }
+    }
+    
+    return rotatedNotes
+}
+
 // Given a scale and a base frequency (RootFreq), produce 18 key frequencies
 // Mapping (1-based keys):
 // 1..5:  note1..note5
 // 6..10: note1..note5 * 2
 // 11..15: note1..note5 * 4
 // 16..18: note1..note3 * 8
+// With rotation applied, the starting note changes accordingly
 func makeKeyFrequencies(for scale: Scale, baseFrequency: Double) -> [Double] {
     precondition(scale.notes.count == 5, "Scale must be pentatonic (5 notes).")
+    
+    // Apply rotation to get the reordered notes
+    let rotatedNotes = applyRotation(to: scale.notes, rotation: scale.rotation)
+    
     // Expand notes to absolute frequencies for the base octave
-    let baseNotes = scale.notes.map { $0 * baseFrequency }
+    let baseNotes = rotatedNotes.map { $0 * baseFrequency }
 
     var result: [Double] = []
     // Octave multipliers for groups

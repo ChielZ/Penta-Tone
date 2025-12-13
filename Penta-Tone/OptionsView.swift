@@ -28,6 +28,7 @@ struct OptionsView: View {
     var onCycleIntonation: ((Bool) -> Void)? = nil
     var onCycleCelestial: ((Bool) -> Void)? = nil
     var onCycleTerrestrial: ((Bool) -> Void)? = nil
+    var onCycleRotation: ((Bool) -> Void)? = nil
 
     var body: some View {
         
@@ -107,7 +108,8 @@ struct OptionsView: View {
                             currentScale: currentScale,
                             onCycleIntonation: onCycleIntonation,
                             onCycleCelestial: onCycleCelestial,
-                            onCycleTerrestrial: onCycleTerrestrial
+                            onCycleTerrestrial: onCycleTerrestrial,
+                            onCycleRotation: onCycleRotation
                         )
                     case .sound:
                         SoundView()
@@ -236,6 +238,7 @@ struct OptionsView: View {
         currentScale: ScalesCatalog.centerMeridian_JI,
         onCycleIntonation: { _ in },
         onCycleCelestial: { _ in },
-        onCycleTerrestrial: { _ in }
+        onCycleTerrestrial: { _ in },
+        onCycleRotation: { _ in }
     )
 }
