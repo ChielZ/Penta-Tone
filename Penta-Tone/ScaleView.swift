@@ -8,9 +8,15 @@
 import SwiftUI
 
 struct ScaleView: View {
+    // Current scale and navigation callbacks
+    var currentScale: Scale = ScalesCatalog.centerMeridian_JI
+    var onCycleIntonation: ((Bool) -> Void)? = nil
+    var onCycleCelestial: ((Bool) -> Void)? = nil
+    var onCycleTerrestrial: ((Bool) -> Void)? = nil
+    
     var body: some View {
         Group {
-            ZStack { // Row 3
+            ZStack { // Row 3 - Intonation
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
@@ -23,8 +29,12 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleIntonation?(false)
+                        }
                     Spacer()
-                    Text("JI")
+                    Text(currentScale.intonation.rawValue)
                         .foregroundColor(Color("HighlightColour"))
                         .font(.custom("Futura",size:30))
                         .frame(width:200,height:20,alignment:.center)
@@ -38,6 +48,10 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleIntonation?(true)
+                        }
                 }
             }
             ZStack { // Row 4
@@ -84,7 +98,7 @@ struct ScaleView: View {
                         )
                 }
             }
-            ZStack { // Row 7
+            ZStack { // Row 7 - Celestial
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
@@ -97,8 +111,12 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleCelestial?(false)
+                        }
                     Spacer()
-                    Text("MOON")
+                    Text(currentScale.celestial.rawValue)
                         .foregroundColor(Color("HighlightColour"))
                         .font(.custom("Futura",size:30))
                         .frame(width:200,height:20,alignment:.center)
@@ -112,9 +130,13 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleCelestial?(true)
+                        }
                 }
             }
-            ZStack { // Row 8
+            ZStack { // Row 8 - Terrestrial
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
@@ -127,8 +149,12 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleTerrestrial?(false)
+                        }
                     Spacer()
-                    Text("ORIENT")
+                    Text(currentScale.terrestrial.rawValue)
                         .foregroundColor(Color("HighlightColour"))
                         .font(.custom("Futura",size:30))
                         .frame(width:200,height:20,alignment:.center)
@@ -142,6 +168,10 @@ struct ScaleView: View {
                                 .font(.custom("Futura",size:30))
                                 .frame(width:40,height:20,alignment:.center)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleTerrestrial?(true)
+                        }
                 }
             }
             ZStack { // Row 9
@@ -182,7 +212,12 @@ struct ScaleView: View {
     ZStack {
         Color("BackgroundColour").ignoresSafeArea()
         VStack {
-            ScaleView()
+            ScaleView(
+                currentScale: ScalesCatalog.centerMeridian_JI,
+                onCycleIntonation: { _ in },
+                onCycleCelestial: { _ in },
+                onCycleTerrestrial: { _ in }
+            )
         }
         .padding(25)
     }

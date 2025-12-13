@@ -40,6 +40,12 @@ struct MainKeyboardView: View {
     var onPrevScale: (() -> Void)? = nil
     var onNextScale: (() -> Void)? = nil
     
+    // Current scale info and property-based navigation
+    var currentScale: Scale = ScalesCatalog.centerMeridian_JI
+    var onCycleIntonation: ((Bool) -> Void)? = nil
+    var onCycleCelestial: ((Bool) -> Void)? = nil
+    var onCycleTerrestrial: ((Bool) -> Void)? = nil
+    
     @State private var showingOptions: Bool = false
     
     var body: some View {
@@ -73,10 +79,22 @@ struct MainKeyboardView: View {
                             // Add border for iPad, no border for iPhone
                             if centerConfig.isIPad {
                                 
-                                OptionsView(showingOptions: $showingOptions)
+                                OptionsView(
+                                    showingOptions: $showingOptions,
+                                    currentScale: currentScale,
+                                    onCycleIntonation: onCycleIntonation,
+                                    onCycleCelestial: onCycleCelestial,
+                                    onCycleTerrestrial: onCycleTerrestrial
+                                )
                                        .transition(.opacity)
                             } else {
-                                OptionsView(showingOptions: $showingOptions)
+                                OptionsView(
+                                    showingOptions: $showingOptions,
+                                    currentScale: currentScale,
+                                    onCycleIntonation: onCycleIntonation,
+                                    onCycleCelestial: onCycleCelestial,
+                                    onCycleTerrestrial: onCycleTerrestrial
+                                )
                                     .transition(.opacity)
                             }
                         } else {
@@ -218,5 +236,12 @@ private struct KeyButton: View {
 }
 
 #Preview {
-    MainKeyboardView(onPrevScale: {}, onNextScale: {})
+    MainKeyboardView(
+        onPrevScale: {},
+        onNextScale: {},
+        currentScale: ScalesCatalog.centerMeridian_JI,
+        onCycleIntonation: { _ in },
+        onCycleCelestial: { _ in },
+        onCycleTerrestrial: { _ in }
+    )
 }

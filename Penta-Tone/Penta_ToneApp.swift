@@ -49,7 +49,11 @@ struct Penta_ToneApp: App {
                 if isReady {
                     MainKeyboardView(
                         onPrevScale: { decrementScale() },
-                        onNextScale: { incrementScale() }
+                        onNextScale: { incrementScale() },
+                        currentScale: currentScale,
+                        onCycleIntonation: { cycleIntonation(forward: $0) },
+                        onCycleCelestial: { cycleCelestial(forward: $0) },
+                        onCycleTerrestrial: { cycleTerrestrial(forward: $0) }
                     )
                     .transition(.opacity)
                 } else {
@@ -60,6 +64,12 @@ struct Penta_ToneApp: App {
             .animation(.easeInOut(duration: 1.0), value: isReady)
             .task {await initializeAudio()}
         }
+    }
+    
+    // MARK: - Computed Properties
+    
+    private var currentScale: Scale {
+        ScalesCatalog.all[currentScaleIndex]
     }
     
     // MARK: - Audio Initialization
@@ -104,5 +114,67 @@ struct Penta_ToneApp: App {
         guard currentScaleIndex > 0 else { return }
         currentScaleIndex -= 1
         applyCurrentScale()
+    }
+    
+    // MARK: - Property-Based Scale Navigation
+    
+    /// Cycle through scales with different intonation but same celestial/terrestrial
+    private func cycleIntonation(forward: Bool) {
+        let current = currentScale
+        let targetIntonation: Intonation = (current.intonation == .ji) ? .et : .ji
+        
+        if let newScale = ScalesCatalog.find(
+            intonation: targetIntonation,
+            celestial: current.celestial,
+            terrestrial: current.terrestrial
+        ),
+           let newIndex = ScalesCatalog.all.firstIndex(where: { $0 == newScale }) {
+            currentScaleIndex = newIndex
+            applyCurrentScale()
+        }
+    }
+    
+    /// Cycle through scales with different celestial but same intonation/terrestrial
+    private func cycleCelestial(forward: Bool) {
+        let current = currentScale
+        let allCases = Celestial.allCases
+        guard let currentIdx = allCases.firstIndex(of: current.celestial) else { return }
+        
+        let nextIdx = forward 
+            ? (currentIdx + 1) % allCases.count
+            : (currentIdx - 1 + allCases.count) % allCases.count
+        let targetCelestial = allCases[nextIdx]
+        
+        if let newScale = ScalesCatalog.find(
+            intonation: current.intonation,
+            celestial: targetCelestial,
+            terrestrial: current.terrestrial
+        ),
+           let newIndex = ScalesCatalog.all.firstIndex(where: { $0 == newScale }) {
+            currentScaleIndex = newIndex
+            applyCurrentScale()
+        }
+    }
+    
+    /// Cycle through scales with different terrestrial but same intonation/celestial
+    private func cycleTerrestrial(forward: Bool) {
+        let current = currentScale
+        let allCases = Terrestrial.allCases
+        guard let currentIdx = allCases.firstIndex(of: current.terrestrial) else { return }
+        
+        let nextIdx = forward 
+            ? (currentIdx + 1) % allCases.count
+            : (currentIdx - 1 + allCases.count) % allCases.count
+        let targetTerrestrial = allCases[nextIdx]
+        
+        if let newScale = ScalesCatalog.find(
+            intonation: current.intonation,
+            celestial: current.celestial,
+            terrestrial: targetTerrestrial
+        ),
+           let newIndex = ScalesCatalog.all.firstIndex(where: { $0 == newScale }) {
+            currentScaleIndex = newIndex
+            applyCurrentScale()
+        }
     }
 }
