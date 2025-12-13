@@ -22,9 +22,9 @@ struct CenterStripConfig {
         
         if isIPad {
             if isLandscape {
-                percentage = isUnfolded ? 0.50 : 0.05  // 50% or 5%
+                percentage = isUnfolded ? 0.33 : 0.05  // 50% or 5%
             } else {
-                percentage = isUnfolded ? 0.70 : 0.07  // 70% or 7%
+                percentage = isUnfolded ? 0.65 : 0.07  // 70% or 7%
             }
         } else {
             // iPhone (always portrait for this app)
@@ -125,20 +125,23 @@ private struct NavigationStrip: View {
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("HighlightColour"))
                 
-                Text("Penta-Tone")
+                Text("Pentatone")
                     .font(.custom("SignPainter", size: 35))
                     .foregroundColor(Color("BackgroundColour"))
                     .minimumScaleFactor(0.3)
                     .lineLimit(1)
-                    .frame(width: stripWidth * 0.7, height: 200, alignment: .center)
+                    .fixedSize()
+                    .frame(width: stripWidth * 0.95, height: 250, alignment: .center)
                     .rotationEffect(Angle(degrees: 90))
+                   
                 
                 VStack {
                     Text("•UNFOLD•")
-                        .font(.custom("Futura Medium", size: 15))
+                        .font(.custom("Futura Medium", size: 20))
                         .foregroundColor(Color("BackgroundColour"))
                         .minimumScaleFactor(0.3)
                         .lineLimit(1)
+                        .fixedSize()
                         .frame(width: stripWidth * 0.7, height: 135, alignment: .center)
                         .rotationEffect(Angle(degrees: 90))
                         .contentShape(Rectangle())

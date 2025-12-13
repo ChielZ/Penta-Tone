@@ -32,7 +32,7 @@ struct OptionsView: View {
             
             RoundedRectangle(cornerRadius: radius)
                 .fill(Color("BackgroundColour"))
-                .padding(12)
+                .padding(9)
             
             VStack {
                 ZStack{ // Row 1
