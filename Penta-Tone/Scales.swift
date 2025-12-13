@@ -13,15 +13,15 @@ enum Intonation: String, CaseIterable, Equatable {
 }
 
 enum Celestial: String, CaseIterable, Equatable {
-    case moon = "Moon"
-    case center = "Center"
-    case sun = "Sun"
+    case moon = "MOON"
+    case center = "CENTER"
+    case sun = "SUN"
 }
 
 enum Terrestrial: String, CaseIterable, Equatable {
-    case orient = "Orient"
-    case meridian = "Meridian"
-    case occident = "Occident"
+    case occident = "OCCIDENT"
+    case meridian = "MERIDIAN"
+    case orient = "ORIENT"
 }
 
 struct Scale: Equatable, Identifiable {

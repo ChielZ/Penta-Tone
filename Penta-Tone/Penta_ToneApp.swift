@@ -119,6 +119,7 @@ struct Penta_ToneApp: App {
     // MARK: - Property-Based Scale Navigation
     
     /// Cycle through scales with different intonation but same celestial/terrestrial
+    /// This one wraps around: JI <-> ET
     private func cycleIntonation(forward: Bool) {
         let current = currentScale
         let targetIntonation: Intonation = (current.intonation == .ji) ? .et : .ji
@@ -135,14 +136,22 @@ struct Penta_ToneApp: App {
     }
     
     /// Cycle through scales with different celestial but same intonation/terrestrial
+    /// Does NOT wrap around: Moon -> Center -> Sun (stops at ends)
     private func cycleCelestial(forward: Bool) {
         let current = currentScale
         let allCases = Celestial.allCases
         guard let currentIdx = allCases.firstIndex(of: current.celestial) else { return }
         
-        let nextIdx = forward 
-            ? (currentIdx + 1) % allCases.count
-            : (currentIdx - 1 + allCases.count) % allCases.count
+        // Calculate next index, but don't wrap
+        let nextIdx: Int
+        if forward {
+            nextIdx = currentIdx + 1
+            guard nextIdx < allCases.count else { return } // Stop at end
+        } else {
+            nextIdx = currentIdx - 1
+            guard nextIdx >= 0 else { return } // Stop at beginning
+        }
+        
         let targetCelestial = allCases[nextIdx]
         
         if let newScale = ScalesCatalog.find(
@@ -157,14 +166,22 @@ struct Penta_ToneApp: App {
     }
     
     /// Cycle through scales with different terrestrial but same intonation/celestial
+    /// Does NOT wrap around: Occident -> Meridian -> Orient (stops at ends)
     private func cycleTerrestrial(forward: Bool) {
         let current = currentScale
         let allCases = Terrestrial.allCases
         guard let currentIdx = allCases.firstIndex(of: current.terrestrial) else { return }
         
-        let nextIdx = forward 
-            ? (currentIdx + 1) % allCases.count
-            : (currentIdx - 1 + allCases.count) % allCases.count
+        // Calculate next index, but don't wrap
+        let nextIdx: Int
+        if forward {
+            nextIdx = currentIdx + 1
+            guard nextIdx < allCases.count else { return } // Stop at end
+        } else {
+            nextIdx = currentIdx - 1
+            guard nextIdx >= 0 else { return } // Stop at beginning
+        }
+        
         let targetTerrestrial = allCases[nextIdx]
         
         if let newScale = ScalesCatalog.find(

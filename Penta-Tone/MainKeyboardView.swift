@@ -168,7 +168,7 @@ private struct NavigationStrip: View {
                         }
                     Spacer()
                 }
-                
+                /*
                 VStack(spacing: 25) {
                     Spacer()
                     
@@ -196,6 +196,7 @@ private struct NavigationStrip: View {
                         .frame(width: stripWidth * 0.7, height: 20, alignment: .center)
                         .foregroundColor(Color("HighlightColour"))
                 }
+                */
             }
         }
         .padding(5)
