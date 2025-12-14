@@ -7,14 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7F698A9E2EE4ADCF00E09768 /* AKC_CLAUDE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F698A9D2EE4ADCF00E09768 /* AKC_CLAUDE.swift */; };
 		7F94C6D22EDE355800CEE22F /* AudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7F94C6D12EDE355800CEE22F /* AudioKit */; };
 		7F94C6DB2EDE3A4D00CEE22F /* SoundpipeAudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7F94C6DA2EDE3A4D00CEE22F /* SoundpipeAudioKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7F3D45E12EDCF9AC00538543 /* Penta-Tone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Penta-Tone.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7F698A9D2EE4ADCF00E09768 /* AKC_CLAUDE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKC_CLAUDE.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -56,7 +54,6 @@
 			children = (
 				7F3D45E32EDCF9AC00538543 /* Penta-Tone */,
 				7F3D45E22EDCF9AC00538543 /* Products */,
-				7F698A9D2EE4ADCF00E09768 /* AKC_CLAUDE.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -148,7 +145,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7F698A9E2EE4ADCF00E09768 /* AKC_CLAUDE.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
