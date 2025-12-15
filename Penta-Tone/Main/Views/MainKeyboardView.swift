@@ -256,8 +256,13 @@ private struct KeyButton: View {
                     .onEnded { _ in
                         hasFiredCurrentTouch = false
                         //print("onEnded")
-                        isDimmed = false
                         release()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                            withAnimation(.easeOut(duration: 0.28)) {
+                                isDimmed = false
+                            }
+                        }
+                        
                     }
             )
     }
