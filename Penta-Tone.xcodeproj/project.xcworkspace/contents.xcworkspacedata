@@ -4,4 +4,10 @@
    <FileRef
       location = "self:">
    </FileRef>
+   <FileRef
+      location = "group:AudioParameterIntegrationExamples.swift">
+   </FileRef>
+   <FileRef
+      location = "group:PARAMETER_SYSTEM_README.md">
+   </FileRef>
 </Workspace>

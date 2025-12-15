@@ -8,14 +8,13 @@
 
 import AudioKit
 import SoundpipeAudioKit
-internal import AudioKitEX
+import AudioKitEX
 import AVFAudio
 import DunneAudioKit
 
 // Shared engine and mixer for the entire app (single engine architecture)
 let sharedEngine = AudioEngine()
 private(set) var voiceMixer: Mixer!
-private(set) var fxChorus: Chorus!
 private(set) var fxDelay: StereoDelay!
 private(set) var fxReverb: CostelloReverb!
 private(set) var reverbDryWet: DryWetMixer!
@@ -65,44 +64,44 @@ enum AudioSessionManager {
 // Shared wavetable - created once and reused by all oscillators
 //private let sharedSineTable = Table(.sine)
 
-// A single voice: oscillator -> amplitude envelope -> shared mixer
+// A single voice: oscillator -> filter -> amplitude envelope -> pan -> shared mixer
 final class OscVoice {
     let osc: FMOscillator
     let voiceEnv: AmplitudeEnvelope
     let filter: LowPassFilter
     let pan: Panner
-  //  let filterenv: AmplitudeEnvelope
 
     private var frequency: AUValue = 200.0
     private var initialised = false
 
-    init() {
+    init(parameters: VoiceParameters = .default) {
+        // Initialize with parameters from the parameter system
         self.osc = FMOscillator(
                         waveform: Table(.sine),
                         baseFrequency: frequency,
-                        carrierMultiplier: 1,
-                        modulatingMultiplier: 2.00,
-                        modulationIndex: 0.95,
-                        amplitude: 1
+                        carrierMultiplier: AUValue(parameters.oscillator.carrierMultiplier),
+                        modulatingMultiplier: AUValue(parameters.oscillator.modulatingMultiplier),
+                        modulationIndex: AUValue(parameters.oscillator.modulationIndex),
+                        amplitude: AUValue(parameters.oscillator.amplitude)
                         )
         
         self.filter = LowPassFilter(
                         osc,
-                        cutoffFrequency: 8800,
-                        resonance: 0
+                        cutoffFrequency: AUValue(parameters.filter.clampedCutoff),
+                        resonance: AUValue(parameters.filter.resonance)
                         )
         
         self.voiceEnv = AmplitudeEnvelope(
                         filter,
-                        attackDuration: 0.02,
-                        decayDuration: 0.5,
-                        sustainLevel: 0.0,
-                        releaseDuration: 0.02
+                        attackDuration: AUValue(parameters.envelope.attackDuration),
+                        decayDuration: AUValue(parameters.envelope.decayDuration),
+                        sustainLevel: AUValue(parameters.envelope.sustainLevel),
+                        releaseDuration: AUValue(parameters.envelope.releaseDuration)
                         )
         
         self.pan = Panner(
                         voiceEnv,
-                        pan: 0
+                        pan: AUValue(parameters.pan.clampedPan)
                         )
 
         voiceMixer.addInput(pan)
@@ -111,8 +110,6 @@ final class OscVoice {
     func initialise() {
         if !initialised {
             initialised = true
-            //osc.baseFrequency = frequency
-            //osc.amplitude = 0.15
             osc.start()
         }
     }
@@ -130,12 +127,10 @@ final class OscVoice {
         }
         voiceEnv.reset()
         voiceEnv.openGate()
-        //print("trigger invoked- frequency: \(frequency)")
     }
     
     func release() {
         voiceEnv.closeGate()
-        //print("release invoked- frequency: \(frequency)")
     }
 }
 
@@ -148,47 +143,39 @@ enum EngineManager {
         guard !started else { return }
         
         AudioSessionManager.configureSession()
+        
+        // Get default parameters from parameter manager
+        let masterParams = MasterParameters.default
+        
         voiceMixer = Mixer()
         
-        
-        fxChorus = Chorus(
-                                voiceMixer,
-                                frequency: 10,
-                                depth: 0.2,
-                                feedback: 0.5,
-                                dryWetMix: 1.0
-                                )
-
-        
-        // Delay processes the mixed signal
+        // Delay processes the mixed signal - initialized with parameters
         fxDelay = StereoDelay(
-                                fxChorus,
-                                time: 0.01,
-                                feedback:0.0,
-                                dryWetMix: 0,
-                                pingPong: true,
+                                voiceMixer,
+                                time: AUValue(masterParams.delay.time),
+                                feedback: AUValue(masterParams.delay.feedback),
+                                dryWetMix: AUValue(masterParams.delay.dryWetMix),
+                                pingPong: masterParams.delay.pingPong,
                                 maximumDelayTime: 10
                                 )
-
         
-        
-        // Reverb processes the mixed signal
+        // Reverb processes the delayed signal - initialized with parameters
         fxReverb = CostelloReverb(
                                 fxDelay,
-                                feedback: 0.9,
-                                cutoffFrequency: 10000
+                                feedback: AUValue(masterParams.reverb.feedback),
+                                cutoffFrequency: AUValue(masterParams.reverb.cutoffFrequency)
                                 )
         
-        // DryWetMixer blends dry (sharedMixer) and wet (reverb) signals
+        // DryWetMixer blends dry (delay) and wet (reverb) signals
         reverbDryWet = DryWetMixer(
                                 fxDelay, fxReverb,
-                                balance: 0.0
+                                balance: AUValue(masterParams.reverb.dryWetBalance)
                                 )
         
         // Final output is the dry/wet mix
         sharedEngine.output = reverbDryWet
         
-        
+        // Create all voices with default parameters
         if !voicesCreated {
             createAllVoices()
             voicesCreated = true
@@ -217,6 +204,7 @@ enum EngineManager {
             return
         }
         
+        // Initialize all oscillators (starts the audio processing)
         oscillator01.initialise()
         oscillator02.initialise()
         oscillator03.initialise()
@@ -288,26 +276,28 @@ var oscillator16: OscVoice!
 var oscillator17: OscVoice!
 var oscillator18: OscVoice!
 
-// Helper to create all oscillators
+// Helper to create all oscillators using default parameters
 private func createAllVoices() {
-    oscillator01 = OscVoice()
-    oscillator02 = OscVoice()
-    oscillator03 = OscVoice()
-    oscillator04 = OscVoice()
-    oscillator05 = OscVoice()
-    oscillator06 = OscVoice()
-    oscillator07 = OscVoice()
-    oscillator08 = OscVoice()
-    oscillator09 = OscVoice()
-    oscillator10 = OscVoice()
-    oscillator11 = OscVoice()
-    oscillator12 = OscVoice()
-    oscillator13 = OscVoice()
-    oscillator14 = OscVoice()
-    oscillator15 = OscVoice()
-    oscillator16 = OscVoice()
-    oscillator17 = OscVoice()
-    oscillator18 = OscVoice()
+    let voiceParams = VoiceParameters.default
+    
+    oscillator01 = OscVoice(parameters: voiceParams)
+    oscillator02 = OscVoice(parameters: voiceParams)
+    oscillator03 = OscVoice(parameters: voiceParams)
+    oscillator04 = OscVoice(parameters: voiceParams)
+    oscillator05 = OscVoice(parameters: voiceParams)
+    oscillator06 = OscVoice(parameters: voiceParams)
+    oscillator07 = OscVoice(parameters: voiceParams)
+    oscillator08 = OscVoice(parameters: voiceParams)
+    oscillator09 = OscVoice(parameters: voiceParams)
+    oscillator10 = OscVoice(parameters: voiceParams)
+    oscillator11 = OscVoice(parameters: voiceParams)
+    oscillator12 = OscVoice(parameters: voiceParams)
+    oscillator13 = OscVoice(parameters: voiceParams)
+    oscillator14 = OscVoice(parameters: voiceParams)
+    oscillator15 = OscVoice(parameters: voiceParams)
+    oscillator16 = OscVoice(parameters: voiceParams)
+    oscillator17 = OscVoice(parameters: voiceParams)
+    oscillator18 = OscVoice(parameters: voiceParams)
 }
 
 
@@ -323,6 +313,9 @@ struct AudioEngineTestView: View {
     @State private var isAudioReady = false
     @State private var currentScaleIndex = 0
     @State private var statusMessage = "Initializing audio..."
+    
+    // Access the parameter manager
+    private let paramManager = AudioParameterManager.shared
     
     // Test scale - you can change this to test different scales
     private var testScale: Scale {
@@ -358,6 +351,60 @@ struct AudioEngineTestView: View {
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .disabled(currentScaleIndex >= ScalesCatalog.all.count - 1)
+                            }
+                        }
+                        .padding()
+                        
+                        // Parameter controls for testing
+                        VStack(spacing: 15) {
+                            Text("Master Effects")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            // Delay mix control
+                            HStack {
+                                Text("Delay Mix:")
+                                    .foregroundColor(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                Slider(value: Binding(
+                                    get: { paramManager.master.delay.dryWetMix },
+                                    set: { paramManager.updateDelayMix($0) }
+                                ), in: 0...1)
+                                Text("\(Int(paramManager.master.delay.dryWetMix * 100))%")
+                                    .foregroundColor(.white)
+                                    .frame(width: 50)
+                            }
+                            
+                            // Reverb mix control
+                            HStack {
+                                Text("Reverb Mix:")
+                                    .foregroundColor(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                Slider(value: Binding(
+                                    get: { paramManager.master.reverb.dryWetBalance },
+                                    set: { paramManager.updateReverbMix($0) }
+                                ), in: 0...1)
+                                Text("\(Int(paramManager.master.reverb.dryWetBalance * 100))%")
+                                    .foregroundColor(.white)
+                                    .frame(width: 50)
+                            }
+                            
+                            // Filter cutoff control (affects template)
+                            HStack {
+                                Text("Filter Cutoff:")
+                                    .foregroundColor(.white)
+                                    .frame(width: 100, alignment: .leading)
+                                Slider(value: Binding(
+                                    get: { paramManager.voiceTemplate.filter.cutoffFrequency },
+                                    set: { newValue in
+                                        var params = paramManager.voiceTemplate.filter
+                                        params.cutoffFrequency = newValue
+                                        paramManager.updateTemplateFilter(params)
+                                    }
+                                ), in: 200...12000)
+                                Text("\(Int(paramManager.voiceTemplate.filter.cutoffFrequency)) Hz")
+                                    .foregroundColor(.white)
+                                    .frame(width: 70)
                             }
                         }
                         .padding()
@@ -452,19 +499,15 @@ struct AudioEngineTestView: View {
                                 .font(.headline)
                                 .foregroundColor(.white)
                             
-                            Text("Edit AudioKitCode.swift to change:")
+                            Text("Edit AudioParameters.swift to change defaults")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             
-                            Text("• Waveform: OscVoice.init() - waveform parameter")
+                            Text("Use AudioParameterManager to control parameters")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             
-                            Text("• Envelope: AmplitudeEnvelope parameters")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            
-                            Text("• Volume: osc.amplitude in initialise()")
+                            Text("Try the sliders above to test parameter changes")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
