@@ -20,15 +20,6 @@ private(set) var fxReverb: CostelloReverb!
 private(set) var reverbDryWet: DryWetMixer!
 
 
-
-
-// NOTE: AudioKit Parameter Errors
-// During initialization, AudioKit will log approximately 198 kAudioUnitErr_InvalidParameter
-// errors to the console. These are caused by AudioKit's internal parameter-setting mechanism
-// and are harmless - the parameters are correctly applied despite the errors. This is a known
-// characteristic of AudioKit's initialization process and cannot be easily eliminated without
-// modifying AudioKit's source code. The app functions correctly despite these console messages.
-
 // Configure and activate the audio session explicitly (iOS)
 enum AudioSessionManager {
     static func configureSession() {
@@ -54,16 +45,6 @@ enum AudioSessionManager {
 
 
 
-
-
-
-
-
-
-
-// Shared wavetable - created once and reused by all oscillators
-//private let sharedSineTable = Table(.sine)
-
 // A single voice: oscillator -> filter -> amplitude envelope -> pan -> shared mixer
 final class OscVoice {
     let osc: FMOscillator
@@ -71,7 +52,7 @@ final class OscVoice {
     let filter: LowPassFilter
     let pan: Panner
 
-    private var frequency: AUValue = 200.0
+    private var frequency: AUValue = 146.83
     private var initialised = false
 
     init(parameters: VoiceParameters = .default) {

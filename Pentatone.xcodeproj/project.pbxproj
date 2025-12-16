@@ -110,7 +110,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7F3D45DC2EDCF9AC00538543 /* Build configuration list for PBXProject "Penta-Tone" */;
+			buildConfigurationList = 7F3D45DC2EDCF9AC00538543 /* Build configuration list for PBXProject "Pentatone" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -345,7 +345,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7F3D45DC2EDCF9AC00538543 /* Build configuration list for PBXProject "Penta-Tone" */ = {
+		7F3D45DC2EDCF9AC00538543 /* Build configuration list for PBXProject "Pentatone" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7F3D45EA2EDCF9AD00538543 /* Debug */,
