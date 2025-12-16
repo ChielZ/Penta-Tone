@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import AudioKit
 import DunneAudioKit
 import AudioKitEX
@@ -149,8 +150,7 @@ struct AudioParameterSet: Codable, Equatable, Identifiable {
 /// Central manager for all audio parameters
 /// This provides the interface between UI and the AudioKit engine
 @MainActor
-@Observable
-final class AudioParameterManager {
+final class AudioParameterManager: ObservableObject {
     
     // MARK: - Singleton
     
@@ -159,10 +159,10 @@ final class AudioParameterManager {
     // MARK: - Current Parameters
     
     /// Current master parameters (delay, reverb)
-    private(set) var master: MasterParameters = .default
+    @Published private(set) var master: MasterParameters = .default
     
     /// Current voice template - used as base for all voices
-    private(set) var voiceTemplate: VoiceParameters = .default
+    @Published private(set) var voiceTemplate: VoiceParameters = .default
     
     /// Per-voice parameter overrides (indexed 0-17 for 18 voices)
     /// These are temporary overrides that don't affect the template

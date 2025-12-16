@@ -81,7 +81,7 @@ struct ParameterControlPanel_Example: View {
                 .foregroundColor(.white)
             
             // Master Effects Section
-            GroupBox("Master Effects") {
+            GroupBox {
                 VStack(spacing: 15) {
                     // Delay Mix
                     HStack {
@@ -122,11 +122,14 @@ struct ParameterControlPanel_Example: View {
                             .frame(width: 50)
                     }
                 }
+            } label: {
+                Text("Master Effects")
+                    .foregroundColor(.white)
             }
-            .backgroundStyle(Color.black.opacity(0.3))
+            .background(Color.black.opacity(0.3))
             
             // Voice Parameters Section
-            GroupBox("Voice Timbre") {
+            GroupBox {
                 VStack(spacing: 15) {
                     // Filter Cutoff
                     HStack {
@@ -179,11 +182,14 @@ struct ParameterControlPanel_Example: View {
                             .frame(width: 50)
                     }
                 }
+            } label: {
+                Text("Voice Timbre")
+                    .foregroundColor(.white)
             }
-            .backgroundStyle(Color.black.opacity(0.3))
+            .background(Color.black.opacity(0.3))
             
             // Envelope Section
-            GroupBox("Envelope") {
+            GroupBox {
                 VStack(spacing: 15) {
                     HStack {
                         Text("Attack:")
@@ -217,8 +223,11 @@ struct ParameterControlPanel_Example: View {
                             .frame(width: 60)
                     }
                 }
+            } label: {
+                Text("Envelope")
+                    .foregroundColor(.white)
             }
-            .backgroundStyle(Color.black.opacity(0.3))
+            .background(Color.black.opacity(0.3))
         }
         .padding()
         .background(Color("BackgroundColour"))
