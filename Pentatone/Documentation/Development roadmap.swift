@@ -33,4 +33,28 @@ MINOR IMPROVEMENTS
  - Check font warning
  - check delay dry/wet mix parameter direction, 0.0 is now fully wet and 1.0 is fully dry (?)
  
+ 
+ 
+ Presets
+ 
+ 1.  Keys (Wurlitzer-esque sound)
+ 2.  Mallets (Marimba-esque sound)
+ 3.  Sticks (Glockenspiel-esque sound)
+ 4.  Pluck (Harp-esque sound)
+ 5.  Pick (Koto-esque sound)
+ 
+ 6   Bow (Cello-esque sound)
+ 7.  Breath (Low whistle-esque sound)
+ 
+ 8.  Tube (Rock Organ-esque sound)
+ 9.  Transistor (Analog polysynth-esque sound)
+ 10. Chip (Square Lead-esque sound)
+ 
+ 11. Ocean (Analog bass-esque sound)
+ 12. Forest (lively, organic sound)
+ 13. Field (warm, airy sound)
+ 14. Nebula (Warm, ethereal sound)
+ 15. Haze (Granular-esque sound)
+ 
+ 
  */

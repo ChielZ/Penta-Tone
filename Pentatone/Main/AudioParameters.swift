@@ -319,6 +319,23 @@ final class AudioParameterManager: ObservableObject {
             voice.pan.pan = AUValue(voiceParams.pan.clampedPan)
         }
     }
+
+    /// CZ Update amplitude for a specific voice
+    func updateVoiceAmplitude(at voiceIndex: Int, amplitude: Double) {
+        guard (0..<18).contains(voiceIndex) else { return }
+        
+        var voiceParams = voiceOverrides[voiceIndex] ?? voiceTemplate
+        voiceParams.oscillator.amplitude = amplitude
+        voiceOverrides[voiceIndex] = voiceParams
+        
+        if let voice = getVoice(at: voiceIndex) {
+            voice.osc.amplitude = AUValue(voiceParams.oscillator.amplitude)
+        }
+    }
+
+    
+    
+    
     
     /// Clear all per-voice overrides (revert to template)
     func clearVoiceOverrides() {
@@ -472,7 +489,7 @@ extension AudioParameterManager {
         voiceIndex: Int,
         touchX: CGFloat,
         viewWidth: CGFloat,
-        range: ClosedRange<Double> = 20...20_000
+        range: ClosedRange<Double> = 150...20_000
     ) {
         guard viewWidth > 0 else { return }
         
@@ -497,6 +514,16 @@ extension AudioParameterManager {
         }
     }
     
+    
+    
+  
+    
+    
+    
+    
+    
+    
+    
     /// Maps a touch location to pan position for a voice
     /// - Parameters:
     ///   - voiceIndex: The voice to modify (0-17)
@@ -513,6 +540,24 @@ extension AudioParameterManager {
         let pan = (normalized * 2.0) - 1.0
         updateVoicePan(at: voiceIndex, pan: pan)
     }
+    
+    
+    /// Maps a touch location to pan position for a voice
+    /// - Parameters:
+    ///   - voiceIndex: The voice to modify (0-17)
+    ///   - touchX: The x position of the touch in the view's coordinate space
+    ///   - viewWidth: The total width of the touchable area
+    func mapTouchToAmplitude(
+        voiceIndex: Int,
+        touchX: CGFloat,
+        viewWidth: CGFloat
+    ) {
+        guard viewWidth > 0 else { return }
+        let normalized = max(0, min(1, touchX / viewWidth))
+        updateVoiceAmplitude(at: voiceIndex, amplitude: normalized)
+    }
+    
+    
     
     /// Maps touch Y position to resonance (experimental - useful for 2D touch control)
     /// - Parameters:

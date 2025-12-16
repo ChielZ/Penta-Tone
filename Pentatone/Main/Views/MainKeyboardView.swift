@@ -251,11 +251,15 @@ private struct KeyButton: View {
                                 // Left side: outer edge = high cutoff, center edge = low cutoff
                                 // Right side: center edge = low cutoff, outer edge = high cutoff
                                 let touchX = isLeftSide 
-                                    ? geometry.size.width - value.location.x  // Reverse for left side
-                                    : value.location.x
+                                    ? value.location.x  // Reverse for left side
+                                    : geometry.size.width - value.location.x
+                                
+                                // Clear the previous override so the voice returns to template settings (is this necessary? commented out for now)
+                                //AudioParameterManager.shared.clearVoiceOverride(at: voiceIndex)
+                                
                                 
                                 // Map touch X position to filter cutoff
-                                AudioParameterManager.shared.mapTouchToFilterCutoff(
+                                AudioParameterManager.shared.mapTouchToAmplitude(
                                     voiceIndex: voiceIndex,
                                     touchX: touchX,
                                     viewWidth: geometry.size.width
@@ -269,8 +273,8 @@ private struct KeyButton: View {
                             hasFiredCurrentTouch = false
                             release()
                             
-                            // Clear the override so the voice returns to template settings
-                            AudioParameterManager.shared.clearVoiceOverride(at: voiceIndex)
+                            
+                            
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
                                 withAnimation(.easeOut(duration: 0.28)) {
