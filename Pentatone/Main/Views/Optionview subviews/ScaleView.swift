@@ -7,6 +7,39 @@
 
 import SwiftUI
 
+// MARK: - Adaptive Font Modifier
+struct AdaptiveFont: ViewModifier {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    let fontName: String
+    let baseSize: CGFloat
+    
+    var adaptiveSize: CGFloat {
+        // Regular width and height = iPad in any orientation
+        if horizontalSizeClass == .regular && verticalSizeClass == .regular {
+            return baseSize
+        } else if horizontalSizeClass == .regular {
+            // iPhone Plus/Max in landscape
+            return baseSize * 0.75
+        } else {
+            // iPhone in portrait (compact width)
+            return baseSize * 0.65
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .font(.custom(fontName, size: adaptiveSize))
+    }
+}
+
+extension View {
+    func adaptiveFont(_ name: String, size: CGFloat) -> some View {
+        modifier(AdaptiveFont(fontName: name, baseSize: size))
+    }
+}
+
 struct ScaleView: View {
     // Current scale and navigation callbacks
     var currentScale: Scale = ScalesCatalog.centerMeridian_JI
@@ -27,8 +60,7 @@ struct ScaleView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -37,8 +69,7 @@ struct ScaleView: View {
                     Spacer()
                     Text(currentScale.intonation.rawValue)
                         .foregroundColor(Color("HighlightColour"))
-                        .font(.custom("Futura",size:30))
-                        .frame(width:200,height:20,alignment:.center)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -46,8 +77,7 @@ struct ScaleView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -79,14 +109,12 @@ struct ScaleView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                     Spacer()
                     Text("D")
                         .foregroundColor(Color("HighlightColour"))
-                        .font(.custom("Futura",size:30))
-                        .frame(width:200,height:20,alignment:.center)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -94,8 +122,7 @@ struct ScaleView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                 }
             }
@@ -109,8 +136,7 @@ struct ScaleView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -119,8 +145,7 @@ struct ScaleView: View {
                     Spacer()
                     Text(currentScale.celestial.rawValue)
                         .foregroundColor(Color("HighlightColour"))
-                        .font(.custom("Futura",size:30))
-                        .frame(width:200,height:20,alignment:.center)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -128,8 +153,7 @@ struct ScaleView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -147,8 +171,7 @@ struct ScaleView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -157,8 +180,7 @@ struct ScaleView: View {
                     Spacer()
                     Text(currentScale.terrestrial.rawValue)
                         .foregroundColor(Color("HighlightColour"))
-                        .font(.custom("Futura",size:30))
-                        .frame(width:200,height:20,alignment:.center)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -166,8 +188,7 @@ struct ScaleView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -185,8 +206,7 @@ struct ScaleView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -195,8 +215,7 @@ struct ScaleView: View {
                     Spacer()
                     Text(currentScale.rotation == 0 ? "0" : "\(currentScale.rotation > 0 ? "+" : "−") \(abs(currentScale.rotation))")
                         .foregroundColor(Color("HighlightColour"))
-                        .font(.custom("Futura",size:30))
-                        .frame(width:200,height:20,alignment:.center)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -204,8 +223,7 @@ struct ScaleView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .font(.custom("Futura",size:30))
-                                .frame(width:40,height:20,alignment:.center)
+                                .adaptiveFont("Futura", size: 30)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
