@@ -41,7 +41,7 @@ struct OptionsView: View {
                 .fill(Color("BackgroundColour"))
                 .padding(9)
             
-            VStack {
+            VStack(spacing: 11) {
                 ZStack{ // Row 1
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("HighlightColour"))
@@ -56,6 +56,7 @@ struct OptionsView: View {
                             showingOptions = false
                         }
                 }
+                .frame(maxHeight: .infinity)
                 
                 ZStack{ // Row 2
                     RoundedRectangle(cornerRadius: radius)
@@ -99,6 +100,7 @@ struct OptionsView: View {
                             }
                     }
                 }
+                .frame(maxHeight: .infinity)
                 
                 // Rows 3-9: Show the current subview
                 Group {
@@ -117,6 +119,7 @@ struct OptionsView: View {
                         VoiceView()
                     }
                 }
+                .frame(maxHeight: .infinity)
                 
                 ZStack{ // Row 10
                     RoundedRectangle(cornerRadius: radius)
@@ -178,6 +181,7 @@ struct OptionsView: View {
                             )
                     }
                 }
+                .frame(maxHeight: .infinity)
                 
                 ZStack{ // Row 11
                     RoundedRectangle(cornerRadius: radius)
@@ -204,6 +208,7 @@ struct OptionsView: View {
                             .aspectRatio(1.0, contentMode: .fit)
                     }
                 }
+                .frame(maxHeight: .infinity)
             }.padding(19)
             
         }
