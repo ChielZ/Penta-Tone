@@ -7,39 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Adaptive Font Modifier
-struct AdaptiveFontVoice: ViewModifier {
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @Environment(\.verticalSizeClass) var verticalSizeClass
-    
-    let fontName: String
-    let baseSize: CGFloat
-    
-    var adaptiveSize: CGFloat {
-        // Regular width and height = iPad in any orientation
-        if horizontalSizeClass == .regular && verticalSizeClass == .regular {
-            return baseSize
-        } else if horizontalSizeClass == .regular {
-            // iPhone Plus/Max in landscape
-            return baseSize * 0.75
-        } else {
-            // iPhone in portrait (compact width)
-            return baseSize * 0.65
-        }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .font(.custom(fontName, size: adaptiveSize))
-    }
-}
-
-extension View {
-    func adaptiveFontVoice(_ name: String, size: CGFloat) -> some View {
-        modifier(AdaptiveFontVoice(fontName: name, baseSize: size))
-    }
-}
-
 struct VoiceView: View {
     var body: some View {
         Group {
@@ -53,12 +20,12 @@ struct VoiceView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFontVoice("Futura", size: 30)
+                                .adaptiveFont("Futura", size: 30)
                         )
                     Spacer()
                     Text("TUNE: 0 CT")
                         .foregroundColor(Color("HighlightColour"))
-                        .adaptiveFontVoice("Futura", size: 30)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -66,7 +33,7 @@ struct VoiceView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFontVoice("Futura", size: 30)
+                                .adaptiveFont("Futura", size: 30)
                         )
                 }
             }
@@ -108,12 +75,12 @@ struct VoiceView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFontVoice("Futura", size: 30)
+                                .adaptiveFont("Futura", size: 30)
                         )
                     Spacer()
                     Text("POLY")
                         .foregroundColor(Color("HighlightColour"))
-                        .adaptiveFontVoice("Futura", size: 30)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -121,7 +88,7 @@ struct VoiceView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFontVoice("Futura", size: 30)
+                                .adaptiveFont("Futura", size: 30)
                         )
                 }
             }
@@ -135,12 +102,12 @@ struct VoiceView: View {
                         .overlay(
                             Text("<")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFontVoice("Futura", size: 30)
+                                .adaptiveFont("Futura", size: 30)
                         )
                     Spacer()
                     Text("TENOR")
                         .foregroundColor(Color("HighlightColour"))
-                        .adaptiveFontVoice("Futura", size: 30)
+                        .adaptiveFont("Futura", size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -148,7 +115,7 @@ struct VoiceView: View {
                         .overlay(
                             Text(">")
                                 .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFontVoice("Futura", size: 30)
+                                .adaptiveFont("Futura", size: 30)
                         )
                 }
             }

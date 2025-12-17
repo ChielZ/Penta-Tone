@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-// MARK: - Adaptive Font Modifier
-struct AdaptiveFontOptions: ViewModifier {
+// MARK: - Adaptive Font Modifier (Shared across all option views)
+struct AdaptiveFont: ViewModifier {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
@@ -35,8 +35,8 @@ struct AdaptiveFontOptions: ViewModifier {
 }
 
 extension View {
-    func adaptiveFontOptions(_ name: String, size: CGFloat) -> some View {
-        modifier(AdaptiveFontOptions(fontName: name, baseSize: size))
+    func adaptiveFont(_ name: String, size: CGFloat) -> some View {
+        modifier(AdaptiveFont(fontName: name, baseSize: size))
     }
 }
 
@@ -80,7 +80,7 @@ struct OptionsView: View {
                         .fill(Color("HighlightColour"))
                     Text("•FOLD•")
                         .foregroundColor(Color("BackgroundColour"))
-                        .adaptiveFontOptions("Futura", size: 30)
+                        .adaptiveFont("Futura", size: 30)
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
                         .padding(.horizontal, 10)
@@ -101,7 +101,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text("<")
                                     .foregroundColor(Color("BackgroundColour"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.5)
                                     .lineLimit(1)
                             )
@@ -112,7 +112,7 @@ struct OptionsView: View {
                         Spacer()
                         Text(currentSubView.displayName)
                             .foregroundColor(Color("HighlightColour"))
-                            .adaptiveFontOptions("Futura", size: 30)
+                            .adaptiveFont("Futura", size: 30)
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
                             .padding(.horizontal, 10)
@@ -123,7 +123,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text(">")
                                     .foregroundColor(Color("BackgroundColour"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.5)
                                     .lineLimit(1)
                             )
@@ -164,7 +164,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text("A")
                                     .foregroundColor(Color("KeyColour4"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.3)
                                     .lineLimit(1)
                             )
@@ -175,7 +175,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text("Bb")
                                     .foregroundColor(Color("KeyColour5"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.3)
                                     .lineLimit(1)
                             )
@@ -186,7 +186,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text("D")
                                     .foregroundColor(Color("KeyColour1"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.3)
                                     .lineLimit(1)
                             )
@@ -197,7 +197,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text("F#")
                                     .foregroundColor(Color("KeyColour2"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.3)
                                     .lineLimit(1)
                             )
@@ -208,7 +208,7 @@ struct OptionsView: View {
                             .overlay(
                                 Text("G")
                                     .foregroundColor(Color("KeyColour3"))
-                                    .adaptiveFontOptions("Futura", size: 30)
+                                    .adaptiveFont("Futura", size: 30)
                                     .minimumScaleFactor(0.3)
                                     .lineLimit(1)
                             )
