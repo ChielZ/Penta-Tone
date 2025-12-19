@@ -43,6 +43,7 @@ struct Penta_ToneApp: App {
         return 0
     }()
     @State private var rotation: Int = 0 // Range: -2 to +2
+    @State private var musicalKey: MusicalKey = .D // Default to D (center key)
     
     var body: some Scene {
         WindowGroup {
@@ -52,10 +53,12 @@ struct Penta_ToneApp: App {
                         onPrevScale: { decrementScale() },
                         onNextScale: { incrementScale() },
                         currentScale: currentScale,
+                        currentKey: musicalKey,
                         onCycleIntonation: { cycleIntonation(forward: $0) },
                         onCycleCelestial: { cycleCelestial(forward: $0) },
                         onCycleTerrestrial: { cycleTerrestrial(forward: $0) },
-                        onCycleRotation: { cycleRotation(forward: $0) }
+                        onCycleRotation: { cycleRotation(forward: $0) },
+                        onCycleKey: { cycleKey(forward: $0) }
                     )
                     .transition(.opacity)
                 } else {
@@ -100,9 +103,13 @@ struct Penta_ToneApp: App {
     // MARK: - Scale Management
     
     private func applyCurrentScale() {
-        let rootFreq: Double = 200
         // Use the computed currentScale property which includes rotation
-        let frequencies = makeKeyFrequencies(for: currentScale, baseFrequency: rootFreq)
+        // Pass the current musical key for transposition
+        let frequencies = makeKeyFrequencies(
+            for: currentScale,
+            baseFrequency: MusicalKey.baseFrequency,
+            musicalKey: musicalKey
+        )
         
         // Pass Double array directly (no conversion needed)
         EngineManager.applyScale(frequencies: frequencies)
@@ -208,6 +215,27 @@ struct Penta_ToneApp: App {
         guard newRotation >= -2 && newRotation <= 2 else { return }
         
         rotation = newRotation
+        applyCurrentScale()
+    }
+    
+    /// Cycle through musical keys
+    /// Order: Ab -> Eb -> Bb -> F -> C -> G -> D -> A -> E -> B -> F# -> C# -> G#
+    /// Does NOT wrap around (stops at ends)
+    private func cycleKey(forward: Bool) {
+        let allCases = MusicalKey.allCases
+        guard let currentIdx = allCases.firstIndex(of: musicalKey) else { return }
+        
+        // Calculate next index, but don't wrap
+        let nextIdx: Int
+        if forward {
+            nextIdx = currentIdx + 1
+            guard nextIdx < allCases.count else { return } // Stop at end
+        } else {
+            nextIdx = currentIdx - 1
+            guard nextIdx >= 0 else { return } // Stop at beginning
+        }
+        
+        musicalKey = allCases[nextIdx]
         applyCurrentScale()
     }
 }

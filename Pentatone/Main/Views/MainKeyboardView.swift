@@ -42,10 +42,12 @@ struct MainKeyboardView: View {
     
     // Current scale info and property-based navigation
     var currentScale: Scale = ScalesCatalog.centerMeridian_JI
+    var currentKey: MusicalKey = .D
     var onCycleIntonation: ((Bool) -> Void)? = nil
     var onCycleCelestial: ((Bool) -> Void)? = nil
     var onCycleTerrestrial: ((Bool) -> Void)? = nil
     var onCycleRotation: ((Bool) -> Void)? = nil
+    var onCycleKey: ((Bool) -> Void)? = nil
     
     @State private var showingOptions: Bool = true
     
@@ -102,20 +104,24 @@ struct MainKeyboardView: View {
                                 OptionsView(
                                     showingOptions: $showingOptions,
                                     currentScale: currentScale,
+                                    currentKey: currentKey,
                                     onCycleIntonation: onCycleIntonation,
                                     onCycleCelestial: onCycleCelestial,
                                     onCycleTerrestrial: onCycleTerrestrial,
-                                    onCycleRotation: onCycleRotation
+                                    onCycleRotation: onCycleRotation,
+                                    onCycleKey: onCycleKey
                                 )
                                        .transition(.opacity)
                             } else {
                                 OptionsView(
                                     showingOptions: $showingOptions,
                                     currentScale: currentScale,
+                                    currentKey: currentKey,
                                     onCycleIntonation: onCycleIntonation,
                                     onCycleCelestial: onCycleCelestial,
                                     onCycleTerrestrial: onCycleTerrestrial,
-                                    onCycleRotation: onCycleRotation
+                                    onCycleRotation: onCycleRotation,
+                                    onCycleKey: onCycleKey
                                 )
                                     .transition(.opacity)
                             }
@@ -324,10 +330,12 @@ private struct KeyButton: View {
         onPrevScale: {},
         onNextScale: {},
         currentScale: ScalesCatalog.centerMeridian_JI,
+        currentKey: .D,
         onCycleIntonation: { _ in },
         onCycleCelestial: { _ in },
         onCycleTerrestrial: { _ in },
-        onCycleRotation: { _ in }
+        onCycleRotation: { _ in },
+        onCycleKey: { _ in }
     )
 }
 

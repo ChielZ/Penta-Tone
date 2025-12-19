@@ -10,10 +10,12 @@ import SwiftUI
 struct ScaleView: View {
     // Current scale and navigation callbacks
     var currentScale: Scale = ScalesCatalog.centerMeridian_JI
+    var currentKey: MusicalKey = .D
     var onCycleIntonation: ((Bool) -> Void)? = nil
     var onCycleCelestial: ((Bool) -> Void)? = nil
     var onCycleTerrestrial: ((Bool) -> Void)? = nil
     var onCycleRotation: ((Bool) -> Void)? = nil
+    var onCycleKey: ((Bool) -> Void)? = nil
     
     var body: some View {
         Group {
@@ -66,7 +68,7 @@ struct ScaleView: View {
                     
                 }
             }
-            ZStack { // Row 6
+            ZStack { // Row 6 - Musical Key
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
@@ -78,8 +80,12 @@ struct ScaleView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleKey?(false)
+                        }
                     Spacer()
-                    Text("D")
+                    Text(currentKey.rawValue)
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()
@@ -91,6 +97,10 @@ struct ScaleView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onCycleKey?(true)
+                        }
                 }
             }
             ZStack { // Row 7 - Celestial
@@ -208,10 +218,12 @@ struct ScaleView: View {
         VStack {
             ScaleView(
                 currentScale: ScalesCatalog.centerMeridian_JI,
+                currentKey: .D,
                 onCycleIntonation: { _ in },
                 onCycleCelestial: { _ in },
                 onCycleTerrestrial: { _ in },
-                onCycleRotation: { _ in }
+                onCycleRotation: { _ in },
+                onCycleKey: { _ in }
             )
         }
         .padding(25)

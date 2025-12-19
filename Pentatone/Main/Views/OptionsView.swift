@@ -58,10 +58,12 @@ struct OptionsView: View {
     
     // Scale navigation
     var currentScale: Scale = ScalesCatalog.centerMeridian_JI
+    var currentKey: MusicalKey = .D
     var onCycleIntonation: ((Bool) -> Void)? = nil
     var onCycleCelestial: ((Bool) -> Void)? = nil
     var onCycleTerrestrial: ((Bool) -> Void)? = nil
     var onCycleRotation: ((Bool) -> Void)? = nil
+    var onCycleKey: ((Bool) -> Void)? = nil
 
     var body: some View {
         
@@ -141,10 +143,12 @@ struct OptionsView: View {
                     case .scale:
                         ScaleView(
                             currentScale: currentScale,
+                            currentKey: currentKey,
                             onCycleIntonation: onCycleIntonation,
                             onCycleCelestial: onCycleCelestial,
                             onCycleTerrestrial: onCycleTerrestrial,
-                            onCycleRotation: onCycleRotation
+                            onCycleRotation: onCycleRotation,
+                            onCycleKey: onCycleKey
                         )
                     case .sound:
                         SoundView()
@@ -274,9 +278,11 @@ struct OptionsView: View {
     OptionsView(
         showingOptions: .constant(true),
         currentScale: ScalesCatalog.centerMeridian_JI,
+        currentKey: .D,
         onCycleIntonation: { _ in },
         onCycleCelestial: { _ in },
         onCycleTerrestrial: { _ in },
-        onCycleRotation: { _ in }
+        onCycleRotation: { _ in },
+        onCycleKey: { _ in }
     )
 }

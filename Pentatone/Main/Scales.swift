@@ -24,6 +24,74 @@ enum Terrestrial: String, CaseIterable, Equatable {
     case orient = "ORIENT"
 }
 
+enum MusicalKey: String, CaseIterable, Equatable {
+    case Ab = "Ab"
+    case Eb = "Eb"
+    case Bb = "Bb"
+    case F = "F"
+    case C = "C"
+    case G = "G"
+    case D = "D"     // Default/center key
+    case A = "A"
+    case E = "E"
+    case B = "B"
+    case Fs = "F#"   // F# (using Fs to avoid # in enum name)
+    case Cs = "C#"   // C# (using Cs to avoid # in enum name)
+    case Gs = "G#"   // G# (using Gs to avoid # in enum name)
+    
+    /// The base frequency for D (the center/default key)
+    static let baseFrequency: Double = 146.83
+    
+    /// Returns the pitch multiplication factor for equal temperament
+    /// Positive semitones multiply by 2^(n/12), negative divide
+    func pitchFactorET() -> Double {
+        let semitones: Int
+        switch self {
+        case .Ab: semitones = -6
+        case .Eb: semitones = 1
+        case .Bb: semitones = -4
+        case .F:  semitones = 3
+        case .C:  semitones = -2
+        case .G:  semitones = 5
+        case .D:  semitones = 0  // Center/default
+        case .A:  semitones = -5
+        case .E:  semitones = 2
+        case .B:  semitones = -3
+        case .Fs: semitones = 4
+        case .Cs: semitones = -1
+        case .Gs: semitones = 6
+        }
+        return pow(2.0, Double(semitones) / 12.0)
+    }
+    
+    /// Returns the pitch multiplication factor for just intonation
+    func pitchFactorJI() -> Double {
+        switch self {
+        case .Ab: return 512.0 / 729.0
+        case .Eb: return 256.0 / 243.0
+        case .Bb: return 64.0 / 81.0
+        case .F:  return 32.0 / 27.0
+        case .C:  return 8.0 / 9.0
+        case .G:  return 4.0 / 3.0
+        case .D:  return 1.0  // Center/default
+        case .A:  return 3.0 / 4.0
+        case .E:  return 9.0 / 8.0
+        case .B:  return 27.0 / 32.0
+        case .Fs: return 81.0 / 64.0
+        case .Cs: return 243.0 / 256.0
+        case .Gs: return 729.0 / 512.0
+        }
+    }
+    
+    /// Returns the appropriate pitch factor based on the intonation type
+    func pitchFactor(for intonation: Intonation) -> Double {
+        switch intonation {
+        case .et: return pitchFactorET()
+        case .ji: return pitchFactorJI()
+        }
+    }
+}
+
 struct Scale: Equatable, Identifiable {
     let id = UUID()
     let name: String
@@ -89,14 +157,19 @@ private func applyRotation(to notes: [Double], rotation: Int) -> [Double] {
 // 11..15: note1..note5 * 4
 // 16..18: note1..note3 * 8
 // With rotation applied, the starting note changes accordingly
-func makeKeyFrequencies(for scale: Scale, baseFrequency: Double) -> [Double] {
+// If a musicalKey is provided, applies transposition factor
+func makeKeyFrequencies(for scale: Scale, baseFrequency: Double = MusicalKey.baseFrequency, musicalKey: MusicalKey = .D) -> [Double] {
     precondition(scale.notes.count == 5, "Scale must be pentatonic (5 notes).")
     
     // Apply rotation to get the reordered notes
     let rotatedNotes = applyRotation(to: scale.notes, rotation: scale.rotation)
     
+    // Apply key transposition factor
+    let keyFactor = musicalKey.pitchFactor(for: scale.intonation)
+    let transposedBaseFrequency = baseFrequency * keyFactor
+    
     // Expand notes to absolute frequencies for the base octave
-    let baseNotes = rotatedNotes.map { $0 * baseFrequency }
+    let baseNotes = rotatedNotes.map { $0 * transposedBaseFrequency }
 
     var result: [Double] = []
     // Octave multipliers for groups
@@ -250,23 +323,19 @@ struct ScalesCatalog {
 
 /*
  
- KEY TRANSPOSITION
+ KEY TRANSPOSITION IMPLEMENTATION
  
- Key    ET pitch factor     JI pitch factor
- Ab     -6 semitones        * 512/729
- Eb     +1 semitones        * 256/243
- Bb     -4 semitones        * 64/81
- F      +3 semitones        * 32/27
- C      -2 semitones        * 8/9
- G      +5 semitones        * 4/3
- D       0 semitones        * 1
- A      -5 semitones        * 3/4
- E      +2 semitones        * 9/8
- B      -3 semitones        * 27/32
- F#     +4 semitones        * 81/64
- C#     -1 semitones        * 243/256
- G#     +6 semitones        * 729/512
+ Key transposition is implemented via the MusicalKey enum above.
+ Each key has two pitch factors (ET and JI) that multiply the base frequency.
  
-
+ The base frequency is 146.83 Hz (D note), defined as MusicalKey.baseFrequency.
+ When returning to D after multiple key changes, the frequency will always be exactly 146.83 Hz
+ because the pitch factor for D is exactly 1.0 (no cumulative error).
+ 
+ Key order (non-looping, from left to right):
+ Ab -> Eb -> Bb -> F -> C -> G -> D -> A -> E -> B -> F# -> C# -> G#
+ 
+ The makeKeyFrequencies() function accepts a musicalKey parameter and applies
+ the appropriate transposition factor based on the scale's intonation type.
  
  */

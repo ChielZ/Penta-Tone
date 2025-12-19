@@ -564,8 +564,8 @@ struct AudioEngineTestView: View {
     // MARK: - Scale Management
     
     private func applyScale() {
-        let rootFreq: Double = 200
-        let frequencies = makeKeyFrequencies(for: testScale, baseFrequency: rootFreq)
+        // Use default base frequency and key (D)
+        let frequencies = makeKeyFrequencies(for: testScale)
         EngineManager.applyScale(frequencies: frequencies)
     }
     
