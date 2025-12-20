@@ -11,6 +11,9 @@ MAIN
  √ Fix iOS 15 compatibility
  √ Add oscillator waveform to parameters
  √ add initial touch and aftertouch sensitivity
+ - implement fine tune and octave adjustments
+ - switch over to limited polyphony + voice management (round robin)
+ - switch over to stereo architecture
  - implement modulation generators
  - implement modulators in parameter structure
  - create preset management
@@ -24,7 +27,7 @@ MAIN
 UI
  √ ET / JI: display as EQUAL / JUST
  √ Improve spacing/layout
- - Implement scale type graphics display (raw shapes or image files?)
+ √ Implement scale type graphics display (raw shapes or image files?)
  - Implement note name display
  - Implement basic tooltip structure (toggle on/of in voice menu?)
  

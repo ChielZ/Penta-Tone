@@ -25,9 +25,9 @@ enum Terrestrial: String, CaseIterable, Equatable {
 }
 
 enum MusicalKey: String, CaseIterable, Equatable {
-    case Ab = "Ab"
-    case Eb = "Eb"
-    case Bb = "Bb"
+    case Ab = "A♭"
+    case Eb = "E♭"
+    case Bb = "B♭"
     case F = "F"
     case C = "C"
     case G = "G"
@@ -35,9 +35,9 @@ enum MusicalKey: String, CaseIterable, Equatable {
     case A = "A"
     case E = "E"
     case B = "B"
-    case Fs = "F#"   // F# (using Fs to avoid # in enum name)
-    case Cs = "C#"   // C# (using Cs to avoid # in enum name)
-    case Gs = "G#"   // G# (using Gs to avoid # in enum name)
+    case Fs = "F♯"   // F# (using Fs to avoid # in enum name)
+    case Cs = "C♯"   // C# (using Cs to avoid # in enum name)
+    case Gs = "G♯"   // G# (using Gs to avoid # in enum name)
     
     /// The base frequency for D (the center/default key)
     static let baseFrequency: Double = 146.83
