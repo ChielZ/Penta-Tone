@@ -19,6 +19,10 @@ private(set) var fxDelay: StereoDelay!
 private(set) var fxReverb: CostelloReverb!
 private(set) var reverbDryWet: DryWetMixer!
 
+// MARK: - Phase 1: New Voice Pool Architecture
+// New polyphonic voice pool (runs in parallel with old system for testing)
+private(set) var voicePool: VoicePool!
+
 
 // Configure and activate the audio session explicitly (iOS)
 enum AudioSessionManager {
@@ -141,9 +145,15 @@ enum EngineManager {
         
         voiceMixer = Mixer()
         
+        // PHASE 1: Create new voice pool (5 voices by default)
+        voicePool = VoicePool(voiceCount: 5)
+        
+        // Mix old and new voice systems together
+        let combinedMixer = Mixer(voiceMixer, voicePool.voiceMixer)
+        
         // Delay processes the mixed signal - initialized with parameters
         fxDelay = StereoDelay(
-                                voiceMixer,
+                                combinedMixer,  // Changed: now processes both old and new voices
                                 time: AUValue(masterParams.delay.time),
                                 feedback: AUValue(masterParams.delay.feedback),
                                 dryWetMix: AUValue(1-masterParams.delay.dryWetMix),
@@ -176,6 +186,10 @@ enum EngineManager {
         do {
             try sharedEngine.start()
             started = true
+            
+            // PHASE 1: Initialize voice pool after engine starts
+            voicePool.initialize()
+            
         } catch {
             assertionFailure("Failed to start AudioKit engine: \(error)")
         }
@@ -611,7 +625,340 @@ private struct TestKeyButton: View {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Old Voice System") {
     AudioEngineTestView()
+}
+
+#Preview("New Voice Pool System") {
+    NewVoicePoolTestView()
+}
+
+// MARK: - Phase 1: New Voice Pool Test View
+
+/// Test view for the new polyphonic voice pool architecture
+struct NewVoicePoolTestView: View {
+    @State private var isAudioReady = false
+    @State private var statusMessage = "Initializing audio..."
+    @State private var currentScaleIndex = 0
+    @State private var frequencyOffset: Double = 1.0  // 1.0 to 1.01 (0 to 34 cents spread)
+    
+    // Test scale
+    private var testScale: Scale {
+        ScalesCatalog.all[currentScaleIndex]
+    }
+    
+    // Compute test frequencies for the first 9 keys
+    private var testFrequencies: [Double] {
+        let allFreqs = makeKeyFrequencies(for: testScale)
+        return Array(allFreqs.prefix(9))
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color("BackgroundColour").ignoresSafeArea()
+                
+                if isAudioReady {
+                    VStack(spacing: 20) {
+                        // Header
+                        VStack(spacing: 10) {
+                            Text("Phase 1: Voice Pool Test")
+                                .font(.title)
+                                .foregroundColor(Color("HighlightColour"))
+                            
+                            Text("Polyphonic Voice Allocation")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Text(testScale.name)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            HStack {
+                                Button("Previous Scale") {
+                                    changeScale(by: -1)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(currentScaleIndex == 0)
+                                
+                                Button("Next Scale") {
+                                    changeScale(by: 1)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(currentScaleIndex >= ScalesCatalog.all.count - 1)
+                            }
+                        }
+                        .padding()
+                        
+                        // Voice Pool Status
+                        VStack(spacing: 10) {
+                            Text("Voice Pool Status")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            HStack(spacing: 20) {
+                                VStack {
+                                    Text("\(voicePool.voiceCount)")
+                                        .font(.title2)
+                                        .foregroundColor(Color("HighlightColour"))
+                                    Text("Total Voices")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                VStack {
+                                    Text("\(voicePool.activeVoiceCount)")
+                                        .font(.title2)
+                                        .foregroundColor(.green)
+                                    Text("Active")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                VStack {
+                                    Text("\(voicePool.voiceCount - voicePool.activeVoiceCount)")
+                                        .font(.title2)
+                                        .foregroundColor(.blue)
+                                    Text("Available")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .padding()
+                            .background(Color.black.opacity(0.3))
+                            .cornerRadius(10)
+                        }
+                        
+                        // Stereo Spread Control
+                        VStack(spacing: 15) {
+                            Text("Stereo Spread")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            HStack {
+                                Text("Offset:")
+                                    .foregroundColor(.white)
+                                    .frame(width: 80, alignment: .leading)
+                                
+                                Slider(value: $frequencyOffset, in: 1.0...1.01) { _ in
+                                    voicePool.updateFrequencyOffset(frequencyOffset)
+                                }
+                                
+                                Text("\(centsSpread, specifier: "%.1f") cents")
+                                    .foregroundColor(.white)
+                                    .frame(width: 80)
+                            }
+                        }
+                        .padding()
+                        
+                        Spacer()
+                        
+                        // Test keyboard (9 keys)
+                        VStack(spacing: 10) {
+                            Text("Test Keys - Try pressing more than 5!")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            // Top row
+                            HStack(spacing: 10) {
+                                NewVoiceKeyButton(
+                                    label: "Key 1",
+                                    colorName: keyColor(for: 0),
+                                    keyIndex: 0,
+                                    frequency: testFrequencies[0]
+                                )
+                                
+                                NewVoiceKeyButton(
+                                    label: "Key 2",
+                                    colorName: keyColor(for: 1),
+                                    keyIndex: 1,
+                                    frequency: testFrequencies[1]
+                                )
+                                
+                                NewVoiceKeyButton(
+                                    label: "Key 3",
+                                    colorName: keyColor(for: 2),
+                                    keyIndex: 2,
+                                    frequency: testFrequencies[2]
+                                )
+                            }
+                            
+                            // Middle row
+                            HStack(spacing: 10) {
+                                NewVoiceKeyButton(
+                                    label: "Key 4",
+                                    colorName: keyColor(for: 3),
+                                    keyIndex: 3,
+                                    frequency: testFrequencies[3]
+                                )
+                                
+                                NewVoiceKeyButton(
+                                    label: "Key 5",
+                                    colorName: keyColor(for: 4),
+                                    keyIndex: 4,
+                                    frequency: testFrequencies[4]
+                                )
+                                
+                                NewVoiceKeyButton(
+                                    label: "Key 6",
+                                    colorName: keyColor(for: 5),
+                                    keyIndex: 5,
+                                    frequency: testFrequencies[5]
+                                )
+                            }
+                            
+                            // Bottom row
+                            HStack(spacing: 10) {
+                                NewVoiceKeyButton(
+                                    label: "Key 7",
+                                    colorName: keyColor(for: 6),
+                                    keyIndex: 6,
+                                    frequency: testFrequencies[6]
+                                )
+                                
+                                NewVoiceKeyButton(
+                                    label: "Key 8",
+                                    colorName: keyColor(for: 7),
+                                    keyIndex: 7,
+                                    frequency: testFrequencies[7]
+                                )
+                                
+                                NewVoiceKeyButton(
+                                    label: "Key 9",
+                                    colorName: keyColor(for: 8),
+                                    keyIndex: 8,
+                                    frequency: testFrequencies[8]
+                                )
+                            }
+                        }
+                        .padding()
+                        
+                        Spacer()
+                        
+                        // Instructions
+                        VStack(spacing: 5) {
+                            Text("Testing Guide")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Text("• Press multiple keys simultaneously")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("• Try pressing more than 5 keys (voice stealing)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("• Adjust stereo spread slider while playing")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("• Watch voice pool status update")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .padding()
+                    }
+                } else {
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .tint(.white)
+                        
+                        Text(statusMessage)
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+        }
+        .task {
+            await initializeAudioForTest()
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    private var centsSpread: Double {
+        // Convert frequency offset to cents spread (symmetric, so multiply by 2)
+        let cents = 1200.0 * log2(frequencyOffset)
+        return cents * 2.0  // Symmetric spread
+    }
+    
+    // MARK: - Audio Initialization
+    
+    private func initializeAudioForTest() async {
+        do {
+            statusMessage = "Starting audio engine..."
+            try EngineManager.startEngine()
+            try await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            
+            statusMessage = "Voice pool ready!"
+            
+            await MainActor.run {
+                isAudioReady = true
+            }
+        } catch {
+            statusMessage = "Failed to initialize: \(error.localizedDescription)"
+            print("Audio initialization error: \(error)")
+        }
+    }
+    
+    // MARK: - Scale Management
+    
+    private func changeScale(by delta: Int) {
+        let newIndex = currentScaleIndex + delta
+        guard newIndex >= 0 && newIndex < ScalesCatalog.all.count else { return }
+        currentScaleIndex = newIndex
+    }
+    
+    // MARK: - Key Color Calculation
+    
+    private func keyColor(for keyIndex: Int) -> String {
+        let baseColorIndex = keyIndex % 5
+        let rotatedColorIndex = (baseColorIndex + testScale.rotation + 5) % 5
+        return "KeyColour\(rotatedColorIndex + 1)"
+    }
+}
+
+// MARK: - New Voice Key Button
+
+private struct NewVoiceKeyButton: View {
+    let label: String
+    let colorName: String
+    let keyIndex: Int
+    let frequency: Double
+    
+    @State private var isPressed = false
+    
+    var body: some View {
+        VStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(colorName))
+                .opacity(isPressed ? 0.5 : 1.0)
+                .frame(width: 100, height: 80)
+                .overlay(
+                    VStack(spacing: 2) {
+                        Text(label)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                        Text("\(Int(frequency)) Hz")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                )
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            if !isPressed {
+                                isPressed = true
+                                voicePool.allocateVoice(frequency: frequency, forKey: keyIndex)
+                            }
+                        }
+                        .onEnded { _ in
+                            isPressed = false
+                            voicePool.releaseVoice(forKey: keyIndex)
+                        }
+                )
+        }
+    }
 }
 

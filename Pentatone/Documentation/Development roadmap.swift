@@ -11,12 +11,12 @@ MAIN
  √ Fix iOS 15 compatibility
  √ Add oscillator waveform to parameters
  √ add initial touch and aftertouch sensitivity
- - try different filters
- - implement fine tune and octave adjustments
  - switch over to limited polyphony + voice management (round robin)
  - switch over to stereo architecture
+ - try different filters
  - implement modulation generators
  - implement modulators in parameter structure
+ - implement fine tune and octave adjustments
  - create preset management
  >> sanity check code structure
  - create developer view for sound editing/storing presets
@@ -38,10 +38,22 @@ MINOR IMPROVEMENTS
  - distinguish between iPad landscape and iPad portrait for font sizes? (apparently tricky, couldn't get to work on first try - also, looking quite good already anyway)
  √ check delay dry/wet mix parameter direction, 0.0 is now fully wet and 1.0 is fully dry (?)
  - check: what is the update rate for touch (x position) changes? Filter sweep very choppy, cause?
+ - accidentals don't resize properly in key display on iPhone (but they do in scale note display)
  
  
+ CONCEPT FOR IMPROVED SOUND ENGINE:
  
- PRESETS
+ - There will be a polyphonic synth engine with some number of voices (5 would be a good start, this should be adjustable).
+ - Instead of a 1 on 1 connection between keys and voices, there will be a dynamic voice allocation system with a simple round robin voice assignment system
+ - The frequency of each voice will be updated each time it is triggered, dependant on the key that triggers it.
+ - Each voice will get a second oscillator and a more sophisticated internal structure
+ - In addition to the editable parameters, we will create dedicated modulators (LFOs, modulation envelopes), that will be able to update these parameters in realtime (at control rate, not at audio rate)
+ - We will create a temporary 'developer view' allowing the creation of different presets (values for all audio and modulator parameters)
+ - The final app will contain 15 different presets that should be browsable
+ - We will also be creating a macro structure: while the final app will not allow the user to individually sculpt each parameter, there will be 4 macro sliders that map to one or more parameters, this will vary per preset.
+ 
+ 
+ CONCEPT FOR PRESETS
  
  1.1  Keys (Wurlitzer-esque sound)
  1.2  Mallets (Marimba-esque sound)

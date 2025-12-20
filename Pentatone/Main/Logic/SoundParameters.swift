@@ -124,7 +124,7 @@ struct DelayParameters: Codable, Equatable {
     static let `default` = DelayParameters(
         time: 0.5,
         feedback: 0.2,
-        dryWetMix: 0.5,
+        dryWetMix: 0.0,
         pingPong: true
     )
 }
@@ -138,7 +138,7 @@ struct ReverbParameters: Codable, Equatable {
     static let `default` = ReverbParameters(
         feedback: 0.9,
         cutoffFrequency: 10_000,
-        dryWetBalance: 0.2
+        dryWetBalance: 0.0
     )
 }
 
