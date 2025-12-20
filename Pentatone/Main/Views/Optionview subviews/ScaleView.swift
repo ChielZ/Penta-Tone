@@ -1,6 +1,6 @@
 //
 //  ScaleView.swift
-//  Penta-Tone
+//  Pentatone
 //
 //  Created by Chiel Zwinkels on 06/12/2025.
 //

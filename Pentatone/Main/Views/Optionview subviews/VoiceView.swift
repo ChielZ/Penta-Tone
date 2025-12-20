@@ -1,6 +1,6 @@
 //
 //  VoiceView.swift
-//  Penta-Tone
+//  Pentatone
 //
 //  Created by Chiel Zwinkels on 06/12/2025.
 //
@@ -102,7 +102,7 @@ struct VoiceView: View {
                                 .adaptiveFont("Futura", size: 30)
                         )
                     Spacer()
-                    Text("OCTAVE: 0")
+                    Text("OCTAVE 0")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()
@@ -129,7 +129,7 @@ struct VoiceView: View {
                                 .adaptiveFont("Futura", size: 30)
                         )
                     Spacer()
-                    Text("TUNE: 0")
+                    Text("TUNE 0")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()

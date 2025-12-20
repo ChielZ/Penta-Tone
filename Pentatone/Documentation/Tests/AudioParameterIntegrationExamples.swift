@@ -9,6 +9,8 @@
 //  but serve as a reference when you're ready to add parameter control to your UI.
 //
 
+/*
+
 import SwiftUI
 
 // MARK: - Example 1: Enhanced KeyButton with Touch Position → Filter Mapping
@@ -427,3 +429,4 @@ private struct MinimalIntegration_Example {
 #Preview("Parameter Control Panel") {
     ParameterControlPanel_Example()
 }
+*/

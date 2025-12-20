@@ -83,7 +83,7 @@ Key 6: 3/2
    - Created `applyRotation(to:rotation:)` function to handle note reordering
    - Modified `makeKeyFrequencies(for:baseFrequency:)` to apply rotation before generating frequencies
 
-2. **Penta_ToneApp.swift**
+2. **PentatoneApp.swift**
    - Added `@State private var rotation: Int = 0` to track current rotation
    - Modified `currentScale` computed property to include rotation value
    - Added `cycleRotation(forward:)` function to change rotation (clamped to ±2)

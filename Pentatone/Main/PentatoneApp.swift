@@ -1,6 +1,6 @@
 //
-//  Penta_ToneApp.swift
-//  Penta-Tone
+//  PentatoneApp.swift
+//  Pentatone
 //
 //  Created by Chiel Zwinkels on 30/11/2025.
 //

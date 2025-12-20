@@ -1,7 +1,7 @@
 //
 //
 //  AudioKitCode.swift
-//  Penta-Tone
+//  Pentatone
 //
 //  Created by Chiel Zwinkels on 02/12/2025.
 //
@@ -42,17 +42,6 @@ enum AudioSessionManager {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -108,10 +97,7 @@ final class OscVoice {
         // Note: Dynamic waveform switching requires voice recreation
         // Current implementation tracks preference for future recreation
     }
-    
-    
 
-    
     
     func initialise() {
         if !initialised {

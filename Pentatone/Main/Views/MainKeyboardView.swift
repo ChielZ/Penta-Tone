@@ -1,6 +1,6 @@
 //
 //  MainKeyboardView.swift
-//  Penta-Tone
+//  Pentatone
 //
 //  Created by Chiel Zwinkels on 07/12/2025.
 //
@@ -196,36 +196,7 @@ private struct NavigationStrip: View {
                         }
                     Spacer()
                 }
-                /*
-                VStack(spacing: 25) {
-                    Spacer()
-                    
-                    // Plus button (next scale)
-                    Button {
-                        onNextScale?()
-                    } label: {
-                        Image(systemName: "plus.circle")
-                            .foregroundColor(Color("BackgroundColour"))
-                            .font(.system(size: min(22, stripWidth * 0.5), weight: .bold))
-                    }
-                    .buttonStyle(.plain)
-                    
-                    // Minus button (previous scale)
-                    Button {
-                        onPrevScale?()
-                    } label: {
-                        Image(systemName: "minus.circle")
-                            .foregroundColor(Color("BackgroundColour"))
-                            .font(.system(size: min(22, stripWidth * 0.5), weight: .bold))
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Rectangle()
-                        .frame(width: stripWidth * 0.7, height: 20, alignment: .center)
-                        .foregroundColor(Color("HighlightColour"))
-                }
-                */
-            }
+              }
         }
         .padding(5)
     }

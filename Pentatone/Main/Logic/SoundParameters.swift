@@ -654,15 +654,6 @@ extension AudioParameterManager {
     }
     
     
-    
-  
-    
-    
-    
-    
-    
-    
-    
     /// Maps a touch location to pan position for a voice
     /// - Parameters:
     ///   - voiceIndex: The voice to modify (0-17)
