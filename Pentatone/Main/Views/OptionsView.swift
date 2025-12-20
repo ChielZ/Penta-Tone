@@ -67,6 +67,9 @@ struct OptionsView: View {
 
     var body: some View {
         
+        // Compute the note names for the current scale and key
+        let noteNamesArray = noteNames(forScale: currentScale, inKey: currentKey)
+        
         ZStack{
             RoundedRectangle(cornerRadius: radius)
                 .fill(Color("HighlightColour"))
@@ -166,55 +169,65 @@ struct OptionsView: View {
                             .fill(Color("BackgroundColour"))
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
-                                Text("A")
-                                    .foregroundColor(Color("KeyColour4"))
-                                    .adaptiveFont("Futura", size: 30)
-                                    .minimumScaleFactor(0.3)
-                                    .lineLimit(1)
+                                NoteNameText(
+                                    noteName: noteNamesArray[3],
+                                    size: 30,
+                                    color: Color("KeyColour4")
+                                )
+                                .minimumScaleFactor(0.3)
+                                .lineLimit(1)
                             )
                         Spacer()
                         RoundedRectangle(cornerRadius: radius)
                             .fill(Color("BackgroundColour"))
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
-                                Text("B♭")
-                                    .foregroundColor(Color("KeyColour5"))
-                                    .adaptiveFont("Futura", size: 30)
-                                    .minimumScaleFactor(0.3)
-                                    .lineLimit(1)
+                                NoteNameText(
+                                    noteName: noteNamesArray[4],
+                                    size: 30,
+                                    color: Color("KeyColour5")
+                                )
+                                .minimumScaleFactor(0.3)
+                                .lineLimit(1)
                             )
                         Spacer()
                         RoundedRectangle(cornerRadius: radius)
                             .fill(Color("BackgroundColour"))
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
-                                Text("D")
-                                    .foregroundColor(Color("KeyColour1"))
-                                    .adaptiveFont("Futura", size: 30)
-                                    .minimumScaleFactor(0.3)
-                                    .lineLimit(1)
+                                NoteNameText(
+                                    noteName: noteNamesArray[0],
+                                    size: 30,
+                                    color: Color("KeyColour1")
+                                )
+                                .minimumScaleFactor(0.3)
+                                .lineLimit(1)
                             )
                         Spacer()
                         RoundedRectangle(cornerRadius: radius)
                             .fill(Color("BackgroundColour"))
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
-                                Text("F♯")
-                                    .foregroundColor(Color("KeyColour2"))
-                                    .adaptiveFont("Futura", size: 30)
-                                    .minimumScaleFactor(0.3)
-                                    .lineLimit(1)
+                                NoteNameText(
+                                    noteName: noteNamesArray[1],
+                                    size: 30,
+                                    color: Color("KeyColour2")
+                                )
+                                .minimumScaleFactor(0.3)
+                                .lineLimit(1)
                             )
                         Spacer()
                         RoundedRectangle(cornerRadius: radius)
                             .fill(Color("BackgroundColour"))
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
-                                Text("G")
-                                    .foregroundColor(Color("KeyColour3"))
-                                    .adaptiveFont("Futura", size: 30)
-                                    .minimumScaleFactor(0.3)
-                                    .lineLimit(1)
+                                NoteNameText(
+                                    noteName: noteNamesArray[2],
+                                    size: 30,
+                                    color: Color("KeyColour3")
+                                )
+                                .minimumScaleFactor(0.3)
+                                .lineLimit(1)
                             )
                     }
                 }
