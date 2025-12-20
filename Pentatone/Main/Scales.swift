@@ -39,6 +39,28 @@ enum MusicalKey: String, CaseIterable, Equatable {
     case Cs = "C♯"   // C# (using Cs to avoid # in enum name)
     case Gs = "G♯"   // G# (using Gs to avoid # in enum name)
     
+    /// Returns the note letter without accidental (e.g., "A", "F", "C")
+    var noteLetter: String {
+        switch self {
+        case .Ab, .A: return "A"
+        case .Bb, .B: return "B"
+        case .C, .Cs: return "C"
+        case .D: return "D"
+        case .Eb, .E: return "E"
+        case .F, .Fs: return "F"
+        case .G, .Gs: return "G"
+        }
+    }
+    
+    /// Returns the accidental symbol if present (♯ or ♭), or nil for natural notes
+    var accidental: String? {
+        switch self {
+        case .Ab, .Eb, .Bb: return "♭"
+        case .Fs, .Cs, .Gs: return "♯"
+        case .F, .C, .G, .D, .A, .E, .B: return nil
+        }
+    }
+    
     /// The base frequency for D (the center/default key)
     static let baseFrequency: Double = 146.83
     

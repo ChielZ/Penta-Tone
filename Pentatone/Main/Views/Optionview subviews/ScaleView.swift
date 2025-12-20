@@ -103,9 +103,7 @@ struct ScaleView: View {
                             onCycleKey?(false)
                         }
                     Spacer()
-                    Text(currentKey.rawValue)
-                        .foregroundColor(Color("HighlightColour"))
-                        .adaptiveFont("Futura", size: 30)
+                    MusicalKeyText(key: currentKey, size: 30)
                     Spacer()
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("SupportColour"))
@@ -225,6 +223,32 @@ struct ScaleView: View {
                             onCycleRotation?(true)
                         }
                 }
+            }
+        }
+    }
+}
+
+// MARK: - Musical Key Text Component
+
+/// A view that displays a musical key with the note letter in Futura
+/// and the accidental (♯ or ♭) in Arial Unicode MS for better typography.
+struct MusicalKeyText: View {
+    let key: MusicalKey
+    let size: CGFloat
+    
+    var body: some View {
+        HStack(spacing: -2) {
+            // Note letter in Futura
+            Text(key.noteLetter)
+                .foregroundColor(Color("HighlightColour"))
+                .adaptiveFont("Futura", size: size)
+            
+            // Accidental in Arial Unicode MS (if present)
+            if let accidental = key.accidental {
+                Text(accidental)
+                    .foregroundColor(Color("HighlightColour"))
+                    .font(.custom("Arial Unicode MS", size: size * 0.7)) // Slightly smaller for better visual balance, orig. 0.7
+                    .baselineOffset(size * 0.15) // Fine-tune vertical alignment, orig. 0.05
             }
         }
     }
