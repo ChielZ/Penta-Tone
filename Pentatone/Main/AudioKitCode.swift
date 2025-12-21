@@ -53,7 +53,7 @@ enum AudioSessionManager {
 final class OscVoice {
     let osc: FMOscillator
     let voiceEnv: AmplitudeEnvelope
-    let filter: LowPassFilter
+    let filter: KorgLowPassFilter
     let pan: Panner
 
     private var frequency: AUValue = 146.83
@@ -74,7 +74,7 @@ final class OscVoice {
                             )
                         
         
-        self.filter = LowPassFilter(
+        self.filter = KorgLowPassFilter(
                         osc,
                         cutoffFrequency: AUValue(parameters.filter.clampedCutoff),
                         resonance: AUValue(parameters.filter.resonance)

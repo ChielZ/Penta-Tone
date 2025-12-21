@@ -63,7 +63,7 @@ struct FilterParameters: Codable, Equatable {
     
     static let `default` = FilterParameters(
         cutoffFrequency: 1200,
-        resonance: 12.0
+        resonance: 1.5
     )
     
     /// Clamps cutoff to valid range (20 Hz - 20 kHz)
@@ -574,7 +574,7 @@ extension AudioParameterManager {
         viewWidth: CGFloat,
         sensitivity: Double = 2.5,
         range: ClosedRange<Double> = 500...12_000,
-        smoothingFactor: Double = 0.35
+        smoothingFactor: Double = 0.5
     ) {
         guard viewWidth > 0 else { return }
         guard (0..<18).contains(voiceIndex) else { return }

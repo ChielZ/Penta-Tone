@@ -146,4 +146,125 @@ MINOR IMPROVEMENTS
  Pricing idea: around €3 each for single IAPs, or €6 for all three (pro package)
  
  
+ 
+ CONCEPT FOR FINAL STRUCTURE OF EDITABLE PARAMETERS / SOUND EDITING SCREENS
+ 
+ 
+ 1. VOICE
+ 
+ a) Oscillator (the same parameter values will be applied to both the left-panned and right-panned FMOscillators
+ - Waveform (shared between Carrier and Modulator, options: sine, triangle, square)
+ - Carrier multiplier (=>carrierMultiplier)
+ - Modulator multiplier coarse (=>modulatingMultiplier, integer values)
+ - Modulator multiplier fine (=> modulatingMultiplier, .00 - .99)
+ - Modulator base level (=> modulationIndex)
+ - Amplitude (=>amplitude)
+ 
+ b) Stereo spread
+ - Offset mode (absolute vs relative)
+ - Offset amount
+ 
+ c) Filter
+ - Cutoff
+ - Resonance
+ - Saturation
+ 
+ d) AmplitudeEnvelope
+ - Attack time
+ - Decay time
+ - Sustain level
+ - Release time
+ 
+ 
+ 2. FX CHAIN
+ 
+ a) Delay
+ - Delay time (implement as sync to master tempo?)
+ - Delay feedback
+ - Delay PingPong
+ - Delay mix
+ 
+ b) Reverb
+ - Reverb size
+ - Reverb tone
+ - Reverb mix
+ 
+ 
+ 3. MASTER
+ 
+ - Tempo
+ - Voice mode (polyphonic/monophonic)
+ - Root frequency
+ - Octave
+ - Fine tune
+ - Master volume (pre or post fx? For pre fx, could be mapped to voicemixer volume)
+ 
+ 
+ 4. MODULATION
+ 
+ a) Modulator envelope (should exist per-voice, destination is 'hard wired' to oscillators' modulationIndex)
+ - Attack time
+ - Decay time
+ - Sustain level
+ - Release time
+ - Envelope amount (=> modulationIndex + Modulation envelope value * envelope amount)
+ 
+ b) Auxiliary Envelope (should exist per-voice)
+ - Attack time
+ - Decay time
+ - Sustain level
+ - Release time
+ - destination (Oscillator baseFrequency, modulatingMultiplier, Filter frequency [default], Voice LFO frequency, Voice LFO mod amount)
+ - amount (unipolar modulation, so positive and negative amount)
+
+ c) Voice LFO (should exist per-voice)
+ - waveform (sine, triangle, square, sawtooth, reversed sawtooth)
+ - reset mode (free, trigger, sync)
+ - frequency (0-10 Hz or tempo multipliers depending on mode)
+ - destination (Oscillator baseFrequency [default], modulationIndex, modulatingMultiplier, Filter frequency, stereo spread offset amount)
+ - amount (bipolar modulation, so only positive amounts)
+
+ d) Global LFO (should exist as a single LFO on global level
+ - waveform (sine, triangle, square, sawtooth, reversed sawtooth)
+ - reset mode (free, sync)
+ - frequency (0-10 Hz or tempo multipliers depending on mode)
+ - destination (Oscillator amplitude [default], Oscillator baseFrequency, modulationIndex, modulatingMultiplier, Filter frequency, delay time, delay amount)
+ - amount (bipolar modulation, so only positive amounts)
+ 
+ e) Key tracking (value proportional to frequency of triggered key)
+  - destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
+  - amount (unipolar modulation, so positive and negative amount)
+
+ e) X initial touch (x position of key trigger touch)
+ - destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
+ - amount (unipolar modulation, so positive and negative amount)
+ 
+ f) X aftertouch (change in x position of touch while key is being held)
+ - destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
+ - amount (bipolar modulation, so only positive amounts)
+ ? toggle for relative/absolute mode
+ 
+ 
+ 
+ >>> the modulation sources below, y touch sensitivity and touchArea detection will not be implemented in this particular app, but it would be good to add them to the synth engine for purposes of portability / reusability)
+ 
+ g) Y initial touch (y position of key trigger touch)
+ - destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
+ - amount (unipolar modulation, so positive and negative amount)
+ 
+ h) Y aftertouch (change in y position of touch while key is being held)
+ - destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
+ - amount (bipolar modulation, so only positive amounts)
+ ? toggle for relative/absolute mode
+ 
+ i) Velocity sensitivity through 'touchArea' detection
+ - destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
+ - amount (unipolar modulation, so positive and negative amount)
+
+ 
+ 
+ 
+
+ 
+ 
  */

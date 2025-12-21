@@ -216,7 +216,7 @@ private struct KeyButton: View {
     @State private var lastAftertouchX: CGFloat? = nil  // Track last processed aftertouch position
     
     // Minimum movement threshold (in points) before aftertouch responds
-    private let movementThreshold: CGFloat = 3.0
+    private let movementThreshold: CGFloat = 1.0
     
     var body: some View {
         GeometryReader { geometry in
