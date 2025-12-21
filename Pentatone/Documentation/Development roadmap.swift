@@ -92,5 +92,58 @@ MINOR IMPROVEMENTS
  G#     +6 semitones        * 729/512
  
  
+ DOCUMENTATION
+ 
+ Add tooltips to following UI elements
+ 
+ 1. Optionsview (shared)
+ 1.2        Scale/Sound/Voice
+ 1.10/11    Note display area
+ 
+ 2. Scale view
+ 2.3        JI/ET
+ 2.4/5      Scale display area
+ 2.6        Key
+ 2.7        Celestial orientation
+ 2.8        Terrestrial orientation
+ 2.9        Keyboard rotation
+ 
+ 3. Sound view
+ 3.3        Preset selector
+ 3.4        Empty area
+ 3.5        Volume slider
+ 3.6        Tone slider
+ 3.7        Sustain slider
+ 3.8        Modulation slider
+ 3.9        Ambience slider
+ 
+ 4. Voice view
+ 4.3        Tips
+ 4.4/5/6    Pentatone logo area
+ 4.7        Voice mode
+ 4.8        Octave
+ 4.9        Fine tune
+ 
+ Add 'More details' section with:
+ - what is a pentatonic scale?
+ - basic scale construction
+ - JI vs ET
+ - The advantages of pentatonics
+ - Some examples (Western Pentatonic major/Minor, Ethiopian, African, Japanese)
+ - Diagrams ET, JI ratios, JI names
+ 
+ 
+ 
+ IDEAS FOR IN APP PURCHASES (FOR FUTURE VERSIONS OF APP)
+ - Sound design: unlock 'developer view' with full access to all sound parameters plus option to create and store presets
+ - Midi out: add midi output functionality, optimally in 4 versions:
+    1) Standard >> polyphonic ET, compatible with any midi synthesizers (single selectable midi channel)
+    2) Pitch bend JI >> works monophonically with any midi synthesizers (single selectable midi channel)
+    3) MPE JI >> works polyphonically with MPE-capable synthesizers (multi channel)
+    4) JI through .scala/.tun >> works polyphonically with synthesizers that support .tun/.scala (single selectable midi channel)
+ - DAW integration: AUv3 for Garageband, Ableton link functionality
+ - Pro package consisting of all three updgrades (sound editor, midi out, DAW integration)
+ Pricing idea: around €3 each for single IAPs, or €6 for all three (pro package)
+ 
  
  */
