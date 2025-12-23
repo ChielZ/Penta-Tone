@@ -156,7 +156,8 @@ final class PolyphonicVoice {
         self.filter = KorgLowPassFilter(
             stereoMixer,
             cutoffFrequency: AUValue(parameters.filter.clampedCutoff),
-            resonance: AUValue(parameters.filter.resonance)
+            resonance: AUValue(parameters.filter.clampedResonance),
+            saturation: AUValue(parameters.filter.clampedSaturation)
         )
         
         // Create envelope shaping the stereo signal
@@ -279,7 +280,8 @@ final class PolyphonicVoice {
     /// Updates filter parameters
     func updateFilterParameters(_ parameters: FilterParameters) {
         filter.cutoffFrequency = AUValue(parameters.clampedCutoff)
-        filter.resonance = AUValue(parameters.resonance)
+        filter.resonance = AUValue(parameters.clampedResonance)
+        filter.saturation = AUValue(parameters.clampedSaturation)
     }
     
     /// Updates envelope parameters

@@ -60,15 +60,27 @@ struct OscillatorParameters: Codable, Equatable {
 struct FilterParameters: Codable, Equatable {
     var cutoffFrequency: Double
     var resonance: Double
+    var saturation: Double
     
     static let `default` = FilterParameters(
         cutoffFrequency: 1200,
-        resonance: 1.5
+        resonance: 1.5,
+        saturation: 0.0
     )
     
-    /// Clamps cutoff to valid range (20 Hz - 20 kHz)
+    /// Clamps cutoff to valid range (0 Hz - 22.05 kHz)
     var clampedCutoff: Double {
-        min(max(cutoffFrequency, 10), 20_000)
+        min(max(cutoffFrequency, 0), 22_050)
+    }
+    
+    /// Clamps resonance to valid range (0 - 2)
+    var clampedResonance: Double {
+        min(max(resonance, 0), 2.0)
+    }
+    
+    /// Clamps saturation to valid range (0 - 10)
+    var clampedSaturation: Double {
+        min(max(saturation, 0), 10.0)
     }
 }
 
@@ -87,30 +99,16 @@ struct EnvelopeParameters: Codable, Equatable {
     )
 }
 
-/// Parameters for stereo panning (-1 = left, 0 = center, +1 = right)
-struct PanParameters: Codable, Equatable {
-    var pan: Double
-    
-    static let `default` = PanParameters(pan: 0.0)
-    
-    /// Clamps pan to valid range
-    var clampedPan: Double {
-        min(max(pan, -1.0), 1.0)
-    }
-}
-
 /// Combined parameters for a single voice
 struct VoiceParameters: Codable, Equatable {
     var oscillator: OscillatorParameters
     var filter: FilterParameters
     var envelope: EnvelopeParameters
-    var pan: PanParameters
     
     static let `default` = VoiceParameters(
         oscillator: .default,
         filter: .default,
-        envelope: .default,
-        pan: .default
+        envelope: .default
     )
 }
 
@@ -297,83 +295,3 @@ final class AudioParameterManager: ObservableObject {
         dryWet.balance = AUValue(master.reverb.dryWetBalance)
     }
 }
-
-// MARK: - Convenience Extensions (Deprecated - Old System Only)
-
-extension AudioParameterManager {
-    
-    /// Maps a touch location to filter cutoff frequency (deprecated - for old 18-voice system)
-    /// Note: The new voice pool system handles this per-voice in MainKeyboardView
-    @available(*, deprecated, message: "Use per-voice handling in MainKeyboardView instead")
-    func mapTouchToFilterCutoff(
-        voiceIndex: Int,
-        touchX: CGFloat,
-        viewWidth: CGFloat,
-        range: ClosedRange<Double> = 10...20_000
-    ) {
-        // No-op: old system removed
-    }
-    
-    /// Maps aftertouch to filter cutoff (deprecated - for old 18-voice system)
-    @available(*, deprecated, message: "Use per-voice handling in MainKeyboardView instead")
-    func mapAftertouchToFilterCutoff(
-        voiceIndex: Int,
-        touchX: CGFloat,
-        viewWidth: CGFloat,
-        range: ClosedRange<Double> = 10...20_000
-    ) {
-        // No-op: old system removed
-    }
-    
-    /// Maps aftertouch to filter cutoff with smoothing (deprecated - for old 18-voice system)
-    @available(*, deprecated, message: "Use per-voice handling in MainKeyboardView instead")
-    func mapAftertouchToFilterCutoffSmoothed(
-        voiceIndex: Int,
-        initialTouchX: CGFloat,
-        currentTouchX: CGFloat,
-        viewWidth: CGFloat,
-        sensitivity: Double = 2.5,
-        range: ClosedRange<Double> = 500...12_000,
-        smoothingFactor: Double = 0.5
-    ) {
-        // No-op: old system removed
-    }
-    
-    /// Resets voice filter to template (deprecated - for old 18-voice system)
-    @available(*, deprecated, message: "Use per-voice handling in MainKeyboardView instead")
-    func resetVoiceFilterToTemplate(at voiceIndex: Int) {
-        // No-op: old system removed
-    }
-    
-    /// Maps touch to pan (deprecated - for old 18-voice system)
-    @available(*, deprecated, message: "Pan is now fixed in stereo design")
-    func mapTouchToPan(
-        voiceIndex: Int,
-        touchX: CGFloat,
-        viewWidth: CGFloat
-    ) {
-        // No-op: old system removed
-    }
-    
-    /// Maps touch to amplitude (deprecated - for old 18-voice system)
-    @available(*, deprecated, message: "Use per-voice handling in MainKeyboardView instead")
-    func mapTouchToAmplitude(
-        voiceIndex: Int,
-        touchX: CGFloat,
-        viewWidth: CGFloat
-    ) {
-        // No-op: old system removed
-    }
-    
-    /// Maps touch Y to resonance (deprecated - experimental feature)
-    @available(*, deprecated, message: "Not currently used")
-    func mapTouchToResonance(
-        voiceIndex: Int,
-        touchY: CGFloat,
-        viewHeight: CGFloat,
-        range: ClosedRange<Double> = 0...0.9
-    ) {
-        // No-op: experimental feature removed
-    }
-}
-
