@@ -1044,4 +1044,3 @@ private struct NewVoiceKeyButton: View {
         }
     }
 }
-
