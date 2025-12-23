@@ -354,7 +354,7 @@ private struct KeyButton: View {
     }
     
     private func handleRelease() {
-        guard let voice = allocatedVoice else { return }
+        guard allocatedVoice != nil else { return }
         
         // Release voice back to pool
         voicePool.releaseVoice(forKey: keyIndex)
