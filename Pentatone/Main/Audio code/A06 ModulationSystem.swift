@@ -173,11 +173,42 @@ struct ModulationEnvelopeParameters: Codable, Equatable {
         isEnabled: false
     )
     
-    // Phase 5B: Will implement actual envelope value generation
+    /// Calculate the current envelope value based on time and gate state
+    /// Returns a value from 0.0 to 1.0 representing the envelope stage
     func currentValue(timeInEnvelope: Double, isGateOpen: Bool) -> Double {
-        // TODO: Phase 5B - Implement envelope stage calculation
-        // Will calculate ADSR stages based on time and gate state
-        return 0.0
+        guard isEnabled else { return 0.0 }
+        
+        if isGateOpen {
+            // Gate is open - process attack, decay, sustain stages
+            if timeInEnvelope < attack {
+                // Attack stage: linear rise from 0 to 1
+                return timeInEnvelope / attack
+            } else if timeInEnvelope < (attack + decay) {
+                // Decay stage: linear fall from 1 to sustain level
+                let decayTime = timeInEnvelope - attack
+                let decayProgress = decayTime / decay
+                return 1.0 - (decayProgress * (1.0 - sustain))
+            } else {
+                // Sustain stage: hold at sustain level
+                return sustain
+            }
+        } else {
+            // Gate is closed - process release stage
+            // timeInEnvelope is time since gate closed
+            if timeInEnvelope < release {
+                // Release stage: linear fall from sustain to 0
+                let releaseProgress = timeInEnvelope / release
+                return sustain * (1.0 - releaseProgress)
+            } else {
+                // Release complete
+                return 0.0
+            }
+        }
+    }
+    
+    /// Returns true if the envelope has completed (reached 0 in release)
+    func isComplete(timeInEnvelope: Double, isGateOpen: Bool) -> Bool {
+        return !isGateOpen && timeInEnvelope >= release
     }
 }
 
@@ -323,6 +354,10 @@ struct ModulationState {
     var auxiliaryEnvelopeTime: Double = 0.0
     var isGateOpen: Bool = false
     
+    // Track sustain level at gate close for proper release
+    var modulatorSustainLevel: Double = 0.0
+    var auxiliarySustainLevel: Double = 0.0
+    
     // LFO phase tracking
     var voiceLFOPhase: Double = 0.0        // 0.0 - 1.0 (one full cycle)
     
@@ -338,6 +373,8 @@ struct ModulationState {
         modulatorEnvelopeTime = 0.0
         auxiliaryEnvelopeTime = 0.0
         isGateOpen = true
+        modulatorSustainLevel = 0.0
+        auxiliarySustainLevel = 0.0
         voiceLFOPhase = 0.0
         initialTouchX = touchX
         currentTouchX = touchX
@@ -345,8 +382,14 @@ struct ModulationState {
     }
     
     /// Update state when gate closes (note released)
-    mutating func closeGate() {
+    /// Captures current envelope values for smooth release
+    mutating func closeGate(modulatorValue: Double, auxiliaryValue: Double) {
         isGateOpen = false
+        modulatorSustainLevel = modulatorValue
+        auxiliarySustainLevel = auxiliaryValue
+        // Reset envelope times to 0 for release stage
+        modulatorEnvelopeTime = 0.0
+        auxiliaryEnvelopeTime = 0.0
     }
 }
 
@@ -364,32 +407,90 @@ struct GlobalModulationState {
 /// This will be used in Phase 5B+ to route modulation values to parameters
 struct ModulationRouter {
     
-    /// Calculate the total modulation value for a specific destination
-    /// Combines all active modulation sources that target this destination
-    static func calculateModulation(
-        for destination: ModulationDestination,
-        voiceModulation: VoiceModulationParameters,
-        modulationState: ModulationState,
-        globalLFOValue: Double = 0.0
-    ) -> Double {
-        // TODO: Phase 5B+ - Implement modulation routing logic
-        // Will sum all modulation sources targeting this destination
-        // Apply appropriate scaling and clamping
-        return 0.0
-    }
-    
-    /// Apply modulation value to a parameter with proper scaling
-    /// baseValue: The unmodulated parameter value
-    /// modValue: The modulation value (-1.0 to +1.0 typically)
-    /// returns: The modulated parameter value
-    static func applyModulation(
+    /// Apply modulation amount to a base value
+    /// - Parameters:
+    ///   - baseValue: The unmodulated parameter value
+    ///   - envelopeValue: The envelope value (0.0 - 1.0)
+    ///   - amount: The modulation amount (-1.0 to +1.0 for unipolar)
+    ///   - destination: The destination being modulated
+    /// - Returns: The modulated value
+    static func applyEnvelopeModulation(
         baseValue: Double,
-        modulation: Double,
+        envelopeValue: Double,
+        amount: Double,
         destination: ModulationDestination
     ) -> Double {
-        // TODO: Phase 5B+ - Implement destination-specific scaling
-        // Different destinations need different scaling (linear, exponential, etc.)
-        return baseValue
+        // Calculate the modulation offset
+        let modOffset = envelopeValue * amount
+        
+        // Apply destination-specific scaling
+        switch destination {
+        case .modulationIndex:
+            // FM modulation index: clamp to 0-10 range (typical FM range)
+            return max(0.0, min(10.0, baseValue + modOffset))
+            
+        case .filterCutoff:
+            // Filter cutoff: exponential scaling (octaves)
+            // amount = 1.0 means +1 octave at envelope peak
+            let octaves = modOffset  // amount controls octave range
+            let multiplier = pow(2.0, octaves)
+            return max(20.0, min(22050.0, baseValue * multiplier))
+            
+        case .oscillatorAmplitude:
+            // Amplitude: linear scaling, clamp to 0-1
+            return max(0.0, min(1.0, baseValue + modOffset))
+            
+        case .oscillatorBaseFrequency:
+            // Frequency: exponential scaling (semitones)
+            // amount = 1.0 means +12 semitones (1 octave) at envelope peak
+            let semitones = modOffset * 12.0  // amount controls semitone range
+            let multiplier = pow(2.0, semitones / 12.0)
+            return baseValue * multiplier
+            
+        case .modulatingMultiplier:
+            // FM modulator ratio: linear scaling
+            return max(0.1, min(20.0, baseValue + modOffset))
+            
+        case .stereoSpreadAmount:
+            // Stereo spread: depends on detune mode
+            // For now, treat as linear offset
+            return max(0.0, baseValue + modOffset)
+            
+        case .voiceLFOFrequency, .voiceLFOAmount:
+            // LFO parameters: linear scaling
+            return max(0.0, baseValue + modOffset)
+            
+        case .delayTime, .delayMix:
+            // These shouldn't be modulated by voice envelopes
+            return baseValue
+        }
+    }
+    
+    /// Calculate the scaling factor for a destination
+    /// Used to determine the effective range of modulation
+    static func getModulationRange(for destination: ModulationDestination) -> Double {
+        switch destination {
+        case .modulationIndex:
+            return 10.0  // 0-10 is typical FM range
+        case .filterCutoff:
+            return 2.0   // ±2 octaves
+        case .oscillatorAmplitude:
+            return 1.0   // 0-1
+        case .oscillatorBaseFrequency:
+            return 12.0  // ±1 octave in semitones
+        case .modulatingMultiplier:
+            return 20.0  // Wide range for FM ratios
+        case .stereoSpreadAmount:
+            return 2.0   // Reasonable spread range
+        case .voiceLFOFrequency:
+            return 10.0  // LFO rate range
+        case .voiceLFOAmount:
+            return 1.0   // LFO depth 0-1
+        case .delayTime:
+            return 2.0   // ±2 seconds
+        case .delayMix:
+            return 1.0   // 0-1
+        }
     }
 }
 

@@ -96,6 +96,9 @@ enum EngineManager {
             // Initialize voice pool after engine starts
             voicePool.initialize()
             
+            // Start modulation system (Phase 5B)
+            voicePool.startModulation()
+            
         } catch {
             assertionFailure("Failed to start AudioKit engine: \(error)")
         }

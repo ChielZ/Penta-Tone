@@ -263,8 +263,16 @@ final class PolyphonicVoice {
     func release() {
         envelope.closeGate()
         
-        // Phase 5: Update modulation state
-        modulationState.closeGate()
+        // Phase 5B: Capture current envelope values for smooth release
+        let modulatorValue = voiceModulation.modulatorEnvelope.currentValue(
+            timeInEnvelope: modulationState.modulatorEnvelopeTime,
+            isGateOpen: true
+        )
+        let auxiliaryValue = voiceModulation.auxiliaryEnvelope.currentValue(
+            timeInEnvelope: modulationState.auxiliaryEnvelopeTime,
+            isGateOpen: true
+        )
+        modulationState.closeGate(modulatorValue: modulatorValue, auxiliaryValue: auxiliaryValue)
         
         // Mark voice available after release completes
         let releaseTime = envelope.releaseDuration
@@ -315,20 +323,147 @@ final class PolyphonicVoice {
         // It continues tracking from current position
     }
     
-    // MARK: - Modulation Application (Phase 5)
+    // MARK: - Modulation Application (Phase 5B)
     
-    /// Applies modulation from LFOs and envelopes
-    /// Will be implemented in Phase 5B+
-    /// This method will be called from the control-rate timer
+    /// Applies modulation from envelopes (Phase 5B)
+    /// This method is called from the control-rate timer (200 Hz)
+    /// - Parameters:
+    ///   - globalLFOValue: Current value from global LFO (Phase 5C)
+    ///   - deltaTime: Time since last update (typically 0.005 seconds at 200 Hz)
     func applyModulation(globalLFOValue: Double, deltaTime: Double) {
-        // TODO: Phase 5B+ - Implement modulation application
-        // Will:
-        // 1. Update envelope times (modulationState.modulatorEnvelopeTime += deltaTime)
-        // 2. Calculate envelope values
-        // 3. Update LFO phases
-        // 4. Calculate LFO values
-        // 5. Apply touch/key tracking
-        // 6. Route all modulation to destinations using ModulationRouter
-        // 7. Apply modulated values to oscillator/filter parameters
+        // Update envelope times
+        modulationState.modulatorEnvelopeTime += deltaTime
+        modulationState.auxiliaryEnvelopeTime += deltaTime
+        
+        // Calculate envelope values
+        let modulatorValue = voiceModulation.modulatorEnvelope.currentValue(
+            timeInEnvelope: modulationState.modulatorEnvelopeTime,
+            isGateOpen: modulationState.isGateOpen
+        )
+        
+        let auxiliaryValue = voiceModulation.auxiliaryEnvelope.currentValue(
+            timeInEnvelope: modulationState.auxiliaryEnvelopeTime,
+            isGateOpen: modulationState.isGateOpen
+        )
+        
+        // Apply modulator envelope to modulationIndex (hardwired)
+        if voiceModulation.modulatorEnvelope.isEnabled {
+            let baseModIndex = voiceModulation.modulatorEnvelope.destination == .modulationIndex ? 
+                0.0 : oscLeft.modulationIndex  // Use 0 as base if hardwired, else current
+            
+            let modulatedIndex = ModulationRouter.applyEnvelopeModulation(
+                baseValue: Double(baseModIndex),
+                envelopeValue: modulatorValue,
+                amount: voiceModulation.modulatorEnvelope.amount,
+                destination: .modulationIndex
+            )
+            
+            // Apply to both oscillators (stereo voice)
+            oscLeft.modulationIndex = AUValue(modulatedIndex)
+            oscRight.modulationIndex = AUValue(modulatedIndex)
+        }
+        
+        // Apply auxiliary envelope to its routed destination
+        if voiceModulation.auxiliaryEnvelope.isEnabled {
+            applyAuxiliaryEnvelope(value: auxiliaryValue)
+        }
+        
+        // Phase 5C: LFO modulation will be added here
+        // Phase 5D: Touch/key tracking will be added here
+    }
+    
+    /// Applies the auxiliary envelope to its routed destination
+    private func applyAuxiliaryEnvelope(value: Double) {
+        let destination = voiceModulation.auxiliaryEnvelope.destination
+        let amount = voiceModulation.auxiliaryEnvelope.amount
+        
+        // Only apply to voice-level destinations
+        guard destination.isVoiceLevel else { return }
+        
+        switch destination {
+        case .modulationIndex:
+            // If user routes auxiliary envelope to modIndex too
+            let baseValue = Double(oscLeft.modulationIndex)
+            let modulated = ModulationRouter.applyEnvelopeModulation(
+                baseValue: baseValue,
+                envelopeValue: value,
+                amount: amount,
+                destination: destination
+            )
+            oscLeft.modulationIndex = AUValue(modulated)
+            oscRight.modulationIndex = AUValue(modulated)
+            
+        case .filterCutoff:
+            // Get current filter cutoff as base
+            let baseValue = Double(filter.cutoffFrequency)
+            let modulated = ModulationRouter.applyEnvelopeModulation(
+                baseValue: baseValue,
+                envelopeValue: value,
+                amount: amount,
+                destination: destination
+            )
+            filter.cutoffFrequency = AUValue(modulated)
+            
+        case .oscillatorAmplitude:
+            // Modulate amplitude
+            let baseValue = Double(oscLeft.amplitude)
+            let modulated = ModulationRouter.applyEnvelopeModulation(
+                baseValue: baseValue,
+                envelopeValue: value,
+                amount: amount,
+                destination: destination
+            )
+            oscLeft.amplitude = AUValue(modulated)
+            oscRight.amplitude = AUValue(modulated)
+            
+        case .oscillatorBaseFrequency:
+            // Modulate frequency (vibrato/pitch envelope)
+            let baseValue = modulationState.currentFrequency
+            let modulated = ModulationRouter.applyEnvelopeModulation(
+                baseValue: baseValue,
+                envelopeValue: value,
+                amount: amount,
+                destination: destination
+            )
+            // Update frequencies with modulation
+            currentFrequency = modulated
+            updateOscillatorFrequencies()
+            
+        case .modulatingMultiplier:
+            // Modulate FM modulator ratio
+            let baseValue = Double(oscLeft.modulatingMultiplier)
+            let modulated = ModulationRouter.applyEnvelopeModulation(
+                baseValue: baseValue,
+                envelopeValue: value,
+                amount: amount,
+                destination: destination
+            )
+            oscLeft.modulatingMultiplier = AUValue(modulated)
+            oscRight.modulatingMultiplier = AUValue(modulated)
+            
+        case .stereoSpreadAmount:
+            // Modulate stereo spread
+            // This requires updating the frequency offset
+            let baseValue = detuneMode == .proportional ? frequencyOffsetRatio : frequencyOffsetHz
+            let modulated = ModulationRouter.applyEnvelopeModulation(
+                baseValue: baseValue,
+                envelopeValue: value,
+                amount: amount,
+                destination: destination
+            )
+            if detuneMode == .proportional {
+                frequencyOffsetRatio = modulated
+            } else {
+                frequencyOffsetHz = modulated
+            }
+            
+        case .voiceLFOFrequency, .voiceLFOAmount:
+            // Phase 5C: Will implement LFO meta-modulation
+            break
+            
+        case .delayTime, .delayMix:
+            // These are global-level, shouldn't be routed from voice envelope
+            break
+        }
     }
 }
