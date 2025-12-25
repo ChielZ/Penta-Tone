@@ -349,5 +349,7 @@ MINOR IMPROVEMENTS
  5) Aftertouch destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
  6) Aftertouch amount (bipolar modulation, so only positive amounts)
 
+ PAGE 10 - PRESETS
+ - Select and store presets
  
  */
