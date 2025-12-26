@@ -8,6 +8,7 @@
 import Foundation
 import AudioKit
 import AudioKitEX
+import SoundpipeAudioKit
 import DunneAudioKit
 
 /// Manages allocation and lifecycle of polyphonic voices
@@ -42,6 +43,16 @@ final class VoicePool {
     
     /// Flag to track if the voice pool has been initialized
     private var isInitialized: Bool = false
+    
+    // MARK: - FX Node References
+    
+    /// Reference to delay node for global LFO modulation
+    /// Set after engine initialization via setFXNodes()
+    private weak var delay: StereoDelay?
+    
+    /// Reference to reverb node for global LFO modulation
+    /// Set after engine initialization via setFXNodes()
+    private weak var reverb: CostelloReverb?
     
     // MARK: - Global Modulation (Phase 5)
     
@@ -86,6 +97,17 @@ final class VoicePool {
         
         isInitialized = true
         print("🎵 VoicePool initialized with \(voiceCount) voices")
+    }
+    
+    /// Sets references to FX nodes for global LFO modulation
+    /// Must be called after FX nodes are created in the audio engine
+    /// - Parameters:
+    ///   - delay: The stereo delay node
+    ///   - reverb: The reverb node
+    func setFXNodes(delay: StereoDelay, reverb: CostelloReverb) {
+        self.delay = delay
+        self.reverb = reverb
+        print("🎵 VoicePool: FX node references set")
     }
     
     // MARK: - Voice Allocation
@@ -372,7 +394,7 @@ final class VoicePool {
         switch destination {
         case .delayTime:
             // Modulate delay time
-            guard let delay = fxDelay else { return }
+            guard let delay = self.delay else { return }
             let baseValue = Double(delay.time)
             let modulated = ModulationRouter.applyLFOModulation(
                 baseValue: baseValue,
@@ -383,7 +405,7 @@ final class VoicePool {
             
         case .delayMix:
             // Modulate delay mix
-            guard let delay = fxDelay else { return }
+            guard let delay = self.delay else { return }
             let baseValue = 1.0 - Double(delay.dryWetMix)  // Convert to our convention
             let modulated = ModulationRouter.applyLFOModulation(
                 baseValue: baseValue,

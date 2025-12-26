@@ -103,6 +103,9 @@ enum EngineManager {
             // Initialize voice pool after engine starts
             voicePool.initialize()
             
+            // Pass FX node references to voice pool for global LFO modulation
+            voicePool.setFXNodes(delay: fxDelay, reverb: fxReverb)
+            
             // Start modulation system (Phase 5B)
             voicePool.startModulation()
             

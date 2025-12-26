@@ -135,7 +135,7 @@ struct VoiceParameters: Codable, Equatable {
                 frequencyMode: .hertz,
                 frequency: 6.0,
                 destination: .oscillatorBaseFrequency,
-                amount: 0.1,                         // Disabled by default
+                amount: 0.0,                         // Disabled by default
                 isEnabled: true
             ),
             keyTracking: .default,
@@ -163,7 +163,7 @@ struct DelayParameters: Codable, Equatable {
     static let `default` = DelayParameters(
         time: 0.5,
         feedback: 0.2,
-        dryWetMix: 0.0,
+        dryWetMix: 0.5,
         pingPong: true
     )
 }
@@ -195,8 +195,8 @@ struct MasterParameters: Codable, Equatable {
             waveform: .sine,
             resetMode: .free,
             frequencyMode: .hertz,
-            frequency: 5.0,                    // 1.5 Hz slow wobble
-            destination: .oscillatorAmplitude, // ← CHANGE THIS to test different destinations
+            frequency: 1.5,                    // 1.5 Hz slow wobble
+            destination: .delayTime, // ← CHANGE THIS to test different destinations
             amount: 0.0,                       // ← CHANGE THIS (0.0 = off, 1.0 = max)
             isEnabled: true                    // ← SET TO false TO DISABLE
         ),
