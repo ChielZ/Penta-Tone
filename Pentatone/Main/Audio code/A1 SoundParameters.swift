@@ -92,10 +92,10 @@ struct EnvelopeParameters: Codable, Equatable {
     var releaseDuration: Double
     
     static let `default` = EnvelopeParameters(
-        attackDuration: 0.01,
-        decayDuration: 0.2,
-        sustainLevel: 0.7,
-        releaseDuration: 0.3
+        attackDuration: 0.001,
+        decayDuration: 0.1,
+        sustainLevel: 1.0,
+        releaseDuration: 0.1
     )
 }
 
@@ -163,7 +163,7 @@ struct DelayParameters: Codable, Equatable {
     static let `default` = DelayParameters(
         time: 0.5,
         feedback: 0.2,
-        dryWetMix: 0.3,
+        dryWetMix: 0.0,
         pingPong: true
     )
 }
@@ -177,7 +177,7 @@ struct ReverbParameters: Codable, Equatable {
     static let `default` = ReverbParameters(
         feedback: 0.9,
         cutoffFrequency: 10_000,
-        dryWetBalance: 0.2
+        dryWetBalance: 0.0
     )
 }
 

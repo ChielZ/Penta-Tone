@@ -352,4 +352,23 @@ MINOR IMPROVEMENTS
  PAGE 10 - PRESETS
  - Select and store presets
  
+ PAGE 11 - MACRO 1 (TONE)
+ 1) ModulationIndex
+ 2) Filter frequency
+ 3) Filter saturation
+ 
+ 
+ 
+ PAGE 12 - MACRO 2 (SUSTAIN)
+ 1) Amplitude attack time
+ 2) Amlitude 
+  
+ PAGE 13 - MACRO 3 (MODULATION)
+  
+ PAGE 14 - MACRO 4 (AMBIENCE)
+ 1) Delay feedback
+ 2) Delay Mix
+ 3) Reverb size
+ 4) Reverb mix
+  
  */
