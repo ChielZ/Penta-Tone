@@ -56,29 +56,36 @@ struct Penta_ToneApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                if isReady {
-                    MainKeyboardView(
-                        onPrevScale: { decrementScale() },
-                        onNextScale: { incrementScale() },
-                        currentScale: currentScale,
-                        currentKey: musicalKey,
-                        onCycleIntonation: { cycleIntonation(forward: $0) },
-                        onCycleCelestial: { cycleCelestial(forward: $0) },
-                        onCycleTerrestrial: { cycleTerrestrial(forward: $0) },
-                        onCycleRotation: { cycleRotation(forward: $0) },
-                        onCycleKey: { cycleKey(forward: $0) },
-                        keyboardState: keyboardState
-                    )
-                    .transition(.opacity)
-                } else {
-                    StartupView()
-                        .transition(.opacity)
-                }
-            }
-            .animation(.easeInOut(duration: 1.0), value: isReady)
-            .task {await initializeAudio()}
+            contentView
         }
+        .applyWindowResizability()
+    }
+    
+    @ViewBuilder
+    private var contentView: some View {
+        ZStack {
+            if isReady {
+                MainKeyboardView(
+                    onPrevScale: { decrementScale() },
+                    onNextScale: { incrementScale() },
+                    currentScale: currentScale,
+                    currentKey: musicalKey,
+                    onCycleIntonation: { cycleIntonation(forward: $0) },
+                    onCycleCelestial: { cycleCelestial(forward: $0) },
+                    onCycleTerrestrial: { cycleTerrestrial(forward: $0) },
+                    onCycleRotation: { cycleRotation(forward: $0) },
+                    onCycleKey: { cycleKey(forward: $0) },
+                    keyboardState: keyboardState
+                )
+                .transition(.opacity)
+            } else {
+                StartupView()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 1.0), value: isReady)
+        .modifier(SystemGestureModifier())
+        .task {await initializeAudio()}
     }
     
     // MARK: - Computed Properties
@@ -237,5 +244,35 @@ struct Penta_ToneApp: App {
         
         musicalKey = allCases[nextIdx]
         applyCurrentScale()
+    }
+}
+
+// MARK: - Availability Wrappers for iOS Version Compatibility
+
+/// ViewModifier to defer system gestures on iOS 16+
+struct SystemGestureModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content
+                .defersSystemGestures(on: [.top, .leading, .trailing])
+                .persistentSystemOverlays(.hidden)
+        } else {
+            content
+        }
+    }
+}
+
+/// Extension to conditionally apply window resizability on iOS 17+
+extension Scene {
+    func applyWindowResizability() -> some Scene {
+        if #available(iOS 17.0, *) {
+            #if os(iOS)
+            return windowResizability(.contentSize)
+            #else
+            return self
+            #endif
+        } else {
+            return self
+        }
     }
 }
