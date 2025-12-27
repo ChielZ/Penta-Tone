@@ -470,23 +470,27 @@ private struct KeyTouchHandler: UIViewRepresentable {
             case .oscillatorAmplitude:
                 let clamped = max(0.0, min(1.0, value))
                 voice.modulationState.baseAmplitude = clamped
-                voice.oscLeft.amplitude = AUValue(clamped)
-                voice.oscRight.amplitude = AUValue(clamped)
+                // Use explicit zero-duration ramp to avoid slides between notes
+                voice.oscLeft.$amplitude.ramp(to: AUValue(clamped), duration: 0)
+                voice.oscRight.$amplitude.ramp(to: AUValue(clamped), duration: 0)
                 
             case .filterCutoff:
                 let clamped = max(20.0, min(20000.0, value))
                 voice.modulationState.baseFilterCutoff = clamped
-                voice.filter.cutoffFrequency = AUValue(clamped)
+                // Use explicit zero-duration ramp to avoid slides between notes
+                voice.filter.$cutoffFrequency.ramp(to: AUValue(clamped), duration: 0)
                 
             case .modulationIndex:
                 let clamped = max(0.0, min(10.0, value))
-                voice.oscLeft.modulationIndex = AUValue(clamped)
-                voice.oscRight.modulationIndex = AUValue(clamped)
+                // Use explicit zero-duration ramp to avoid slides between notes
+                voice.oscLeft.$modulationIndex.ramp(to: AUValue(clamped), duration: 0)
+                voice.oscRight.$modulationIndex.ramp(to: AUValue(clamped), duration: 0)
                 
             case .modulatingMultiplier:
                 let clamped = max(0.1, min(20.0, value))
-                voice.oscLeft.modulatingMultiplier = AUValue(clamped)
-                voice.oscRight.modulatingMultiplier = AUValue(clamped)
+                // Use explicit zero-duration ramp to avoid slides between notes
+                voice.oscLeft.$modulatingMultiplier.ramp(to: AUValue(clamped), duration: 0)
+                voice.oscRight.$modulatingMultiplier.ramp(to: AUValue(clamped), duration: 0)
                 
             case .oscillatorBaseFrequency:
                 voice.setFrequency(value)

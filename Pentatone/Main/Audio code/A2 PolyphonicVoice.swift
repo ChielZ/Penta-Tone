@@ -237,10 +237,10 @@ final class PolyphonicVoice {
         
         // Apply base values that were set by initial touch in MainKeyboardView
         // These were already applied at zero-latency in handleTouchBegan()
-        // Apply them again here to ensure they're set before envelopes start
-        oscLeft.amplitude = AUValue(modulationState.baseAmplitude)
-        oscRight.amplitude = AUValue(modulationState.baseAmplitude)
-        filter.cutoffFrequency = AUValue(modulationState.baseFilterCutoff)
+        // Apply them again here with zero-duration ramps to ensure no ramping artifacts
+        oscLeft.$amplitude.ramp(to: AUValue(modulationState.baseAmplitude), duration: 0)
+        oscRight.$amplitude.ramp(to: AUValue(modulationState.baseAmplitude), duration: 0)
+        filter.$cutoffFrequency.ramp(to: AUValue(modulationState.baseFilterCutoff), duration: 0)
         
         envelope.reset()
         envelope.openGate()
