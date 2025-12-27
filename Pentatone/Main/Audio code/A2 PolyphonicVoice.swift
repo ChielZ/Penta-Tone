@@ -366,16 +366,17 @@ final class PolyphonicVoice {
     ) {
         // FIRST: Apply base values from touch control (always, even if no modulation)
         // This ensures touch gestures update smoothly at 200 Hz
+        // Use zero-duration ramps to avoid AudioKit parameter ramping artifacts
         // NOTE: Only apply base values if touch modulation is NOT handling them
         if !voiceModulation.touchInitial.isEnabled || voiceModulation.touchInitial.destination != .oscillatorAmplitude {
             // Touch modulation not controlling amplitude - apply base value
-            oscLeft.amplitude = AUValue(modulationState.baseAmplitude)
-            oscRight.amplitude = AUValue(modulationState.baseAmplitude)
+            oscLeft.$amplitude.ramp(to: AUValue(modulationState.baseAmplitude), duration: 0)
+            oscRight.$amplitude.ramp(to: AUValue(modulationState.baseAmplitude), duration: 0)
         }
         
         if !voiceModulation.touchAftertouch.isEnabled || voiceModulation.touchAftertouch.destination != .filterCutoff {
             // Touch modulation not controlling filter - apply base value
-            filter.cutoffFrequency = AUValue(modulationState.baseFilterCutoff)
+            filter.$cutoffFrequency.ramp(to: AUValue(modulationState.baseFilterCutoff), duration: 0)
         }
         
         // Update envelope times
@@ -913,18 +914,18 @@ final class PolyphonicVoice {
         switch destination {
         case .modulationIndex:
             let clamped = max(0.0, min(10.0, value))
-            oscLeft.modulationIndex = AUValue(clamped)
-            oscRight.modulationIndex = AUValue(clamped)
+            oscLeft.$modulationIndex.ramp(to: AUValue(clamped), duration: 0)
+            oscRight.$modulationIndex.ramp(to: AUValue(clamped), duration: 0)
             
         case .filterCutoff:
             // Clamp to safe range for AudioKit (20 Hz - 20 kHz)
             let clamped = max(20.0, min(20000.0, value))
-            filter.cutoffFrequency = AUValue(clamped)
+            filter.$cutoffFrequency.ramp(to: AUValue(clamped), duration: 0)
             
         case .oscillatorAmplitude:
             let clamped = max(0.0, min(1.0, value))
-            oscLeft.amplitude = AUValue(clamped)
-            oscRight.amplitude = AUValue(clamped)
+            oscLeft.$amplitude.ramp(to: AUValue(clamped), duration: 0)
+            oscRight.$amplitude.ramp(to: AUValue(clamped), duration: 0)
             
         case .oscillatorBaseFrequency:
             currentFrequency = value
@@ -932,8 +933,8 @@ final class PolyphonicVoice {
             
         case .modulatingMultiplier:
             let clamped = max(0.1, min(20.0, value))
-            oscLeft.modulatingMultiplier = AUValue(clamped)
-            oscRight.modulatingMultiplier = AUValue(clamped)
+            oscLeft.$modulatingMultiplier.ramp(to: AUValue(clamped), duration: 0)
+            oscRight.$modulatingMultiplier.ramp(to: AUValue(clamped), duration: 0)
             
         case .stereoSpreadAmount:
             if detuneMode == .proportional {

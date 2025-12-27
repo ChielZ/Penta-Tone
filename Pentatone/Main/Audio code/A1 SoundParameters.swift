@@ -136,18 +136,18 @@ struct VoiceParameters: Codable, Equatable {
                 frequency: 6.0,
                 destination: .oscillatorBaseFrequency,
                 amount: 0.0,                         // Disabled by default
-                isEnabled: true
+                isEnabled: false
             ),
             keyTracking: .default,
             touchInitial: TouchInitialParameters(
                 destination: .oscillatorAmplitude,   // Touch X controls amplitude
                 amount: 1.0,                         // Full range (0.0 to 1.0)
-                isEnabled: true                      // Standard touch control
+                isEnabled: false                      // Standard touch control
             ),
             touchAftertouch: TouchAftertouchParameters(
                 destination: .filterCutoff,          // Aftertouch controls filter
                 amount: 5.0,                         // Moderate sensitivity
-                isEnabled: true                      // Standard aftertouch control
+                isEnabled: false                      // Standard aftertouch control
             )
         )
     )
@@ -198,7 +198,7 @@ struct MasterParameters: Codable, Equatable {
             frequency: 1.5,                    // 1.5 Hz slow wobble
             destination: .delayTime, // ← CHANGE THIS to test different destinations
             amount: 0.0,                       // ← CHANGE THIS (0.0 = off, 1.0 = max)
-            isEnabled: true                    // ← SET TO false TO DISABLE
+            isEnabled: false                    // ← SET TO false TO DISABLE
         ),
         tempo: 120.0
     )
