@@ -46,7 +46,9 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  - accidentals don't resize properly in key display on iPhone (but they do in scale note display)
  - Voice LFO to basefrequency seems overly smoothed, remove ramping?
  - Global LFO not working on filter?
- 
+ - Improve fullscreen / swipe gesture handling
+ - Check AudioKit console warnings on startup
+ - Check multiple console messages of scale frequency updates
  
  
  CONCEPT FOR IMPROVED SOUND ENGINE:
@@ -283,46 +285,46 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  7) Stereo offset amount. SLIDER. Values: 0-4 continuous for constant offset mode, 1.0000-1.0100 continuous for proportional offset mode
  
  PAGE 2 - VOICE CONTOUR
- 1) Amp Envelope Attack time
- 2) Amp Envelope Decay time
- 3) Amp Envelope Sustain level
- 4) Amp Envelope Release time
- 5) Lowpass Filter Cutoff frequency
- 6) Lowpass Filter Resonance
- 7) Lowpass Filter Saturation
+ 1) Amp Envelope Attack time. SLIDER. Values: 0-5 continuous
+ 2) Amp Envelope Decay time. SLIDER. Values: 0-5 continuous
+ 3) Amp Envelope Sustain level. SLIDER. Values: 0-1 continuous
+ 4) Amp Envelope Release time. SLIDER. Values: 0-5 continuous
+ 5) Lowpass Filter Cutoff frequency. SLIDER. Values: 20 - 20000 continuous << needs logarithmic scaling
+ 6) Lowpass Filter Resonance. SLIDER. Values: 0-2 continuous
+ 7) Lowpass Filter Saturation. SLIDER. Values: 0-10 continuous
 
  PAGE 3 - EFFECTS
- 1) Delay time (implement as sync to master tempo) - 1/16, 1/8, 3/16, 1/4, 5/16, 3/8, 1/2, 9/16, 5/8, 3/4, 1/1, 4/3, 3/2, 2/1, 3/1, 4/1
- 2) Delay feedback
+ 1) Delay time. LIST. Values: 1/32, 1/24, 1/16, 3/32, 1/8, 3/16, 1/4
+ 2) Delay feedback. SLIDER. Values: 0-1 continuous
  3) Delay PingPong
- 4) Delay mix
- 5) Reverb size
- 6) Reverb tone
- 7) Reverb mix
+ 4) Delay mix. SLIDER. Values: 0-1 continuous
+ 5) Reverb size. SLIDER. Values: 0-1 continuous
+ 6) Reverb tone. SLIDER. Values: 0-1 continuous
+ 7) Reverb mix. SLIDER. Values: 0-1 continuous
  
  PAGE 4 - GLOBAL
- 1) Tempo
- 2) Polyphony (1-12)
- 3) Root frequency
- 4) Root octave
- 5) Fine tune
- 6) Pre volume (oscillator amplitude)
- 7) Post volume (final mixer leve, post fx)
+ 1) Tempo. SLIDER. Values: 30-240, integers only
+ 2) Polyphony. SLIDER. Values: 1-12, integers only
+ 3) Root frequency. SLIDER. Values: 98-220 continuous
+ 4) Root octave. LIST. Values: -2,-1,0,1,2
+ 5) Fine tune. SLIDER. Values: 98-220 continuous
+ 6) Pre volume (voice mixer volume). SLIDER. Values: 0-1 continuous
+ 7) Post volume (output mixer volume). SLIDER. Values: 0-1 continuous
   
  PAGE 5 - MODULATOR ENVELOPE  + KEYBOARD TRACKING
- 1) Mod Envelope Attack time
- 2) Mod Envelope Decay time
- 3) Mod Envelope Sustain level
- 4) Mod Envelope Release time
+ 1) Mod Envelope Attack time. SLIDER. Values: 0-5 continuous
+ 2) Mod Envelope Decay time. SLIDER. Values: 0-5 continuous
+ 3) Mod Envelope Sustain level. SLIDER. Values: 0-1 continuous
+ 4) Mod Envelope Release time. SLIDER. Values: 0-5 continuous
  5) Mod Envelope amount (=> modulationIndex + Modulation envelope value * envelope amount)
  6) Key tracking destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
  7) Key tracking amount (unipolar modulation, so positive and negative amount)
  
  PAGE 6 - AUXILIARY ENVELOPE
- 1) Aux envelope Attack time
- 2) Aux envelope Decay time
- 3) Aux envelope Sustain level
- 4) Aux envelope Release time
+ 1) Aux envelope Attack time. SLIDER. Values: 0-5 continuous
+ 2) Aux envelope Decay time. SLIDER. Values: 0-5 continuous
+ 3) Aux envelope Sustain level. SLIDER. Values: 0-1 continuous
+ 4) Aux envelope Release time. SLIDER. Values: 0-5 continuous
  5) Aux envelope destination (Oscillator baseFrequency, modulatingMultiplier, Filter frequency [default], Voice LFO frequency, Voice LFO mod amount)
  6) Aux envelope amount (unipolar modulation, so positive and negative amount)
 
