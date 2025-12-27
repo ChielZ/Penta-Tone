@@ -80,7 +80,7 @@ struct ParameterRow<T: CaseIterable & Equatable>: View where T.AllCases.Index ==
                         cycleNext()
                     }
             }
-            .padding(.horizontal, 5)
+            .padding(.horizontal, 0)
         }
     }
     
@@ -102,7 +102,8 @@ struct ParameterRow<T: CaseIterable & Equatable>: View where T.AllCases.Index ==
 // MARK: - Slider Row (for continuous parameters)
 
 /// A row for adjusting continuous numeric parameters
-/// Shows label on left, value in center, and draggable area on right
+/// Shows < > buttons on sides with label and value in center (matching ParameterRow style)
+/// Drag anywhere in the center area to adjust the value
 struct SliderRow: View {
     let label: String
     @Binding var value: Double
@@ -133,42 +134,38 @@ struct SliderRow: View {
             RoundedRectangle(cornerRadius: radius)
                 .fill(Color("BackgroundColour"))
             
-            HStack(spacing: 8) {
-                // Left: Label
-                Text(label)
-                    .foregroundColor(Color("HighlightColour"))
-                    .adaptiveFont("Futura", size: 20)
-                    .minimumScaleFactor(0.4)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 10)
-                
-                // Center: Value display
-                Text(displayFormatter(value))
-                    .foregroundColor(Color("HighlightColour"))
-                    .adaptiveFont("Futura", size: 26)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .frame(minWidth: 80)
-                
-                // Right: Draggable area with < > indicators
-                ZStack {
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(isDragging ? Color("SupportColour").opacity(0.3) : Color("SupportColour"))
-                    
-                    HStack(spacing: 4) {
+            HStack {
+                // Left button (<) - Decrease value
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color("SupportColour"))
+                    .aspectRatio(1.0, contentMode: .fit)
+                    .overlay(
                         Text("<")
                             .foregroundColor(Color("BackgroundColour"))
-                            .adaptiveFont("Futura", size: 24)
+                            .adaptiveFont("Futura", size: 30)
                             .minimumScaleFactor(0.5)
-                        
-                        Text(">")
-                            .foregroundColor(Color("BackgroundColour"))
-                            .adaptiveFont("Futura", size: 24)
-                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        decrementValue()
                     }
+                
+                // Center - Draggable area with label and value
+                VStack(spacing: 2) {
+                    Text(label)
+                        .foregroundColor(Color("HighlightColour"))
+                        .adaptiveFont("Futura", size: 18)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                    
+                    Text(displayFormatter(value))
+                        .foregroundColor(Color("HighlightColour"))
+                        .adaptiveFont("Futura", size: 24)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
                 }
-                .frame(width: 70)
+                .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
                 .gesture(
                     DragGesture(minimumDistance: 0)
@@ -182,7 +179,7 @@ struct SliderRow: View {
                             // Calculate delta from drag start
                             let delta = gesture.location.x - dragStartLocation
                             
-                            // Convert pixels to value change (1 point = 1% of range)
+                            // Convert pixels to value change
                             let rangeSize = range.upperBound - range.lowerBound
                             let sensitivity: CGFloat = 200.0  // pixels to traverse full range
                             let valueChange = Double(delta) * rangeSize / Double(sensitivity)
@@ -200,9 +197,39 @@ struct SliderRow: View {
                             isDragging = false
                         }
                 )
-                .padding(.trailing, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(isDragging ? Color("HighlightColour").opacity(0.1) : Color.clear)
+                )
+                
+                // Right button (>) - Increase value
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color("SupportColour"))
+                    .aspectRatio(1.0, contentMode: .fit)
+                    .overlay(
+                        Text(">")
+                            .foregroundColor(Color("BackgroundColour"))
+                            .adaptiveFont("Futura", size: 30)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        incrementValue()
+                    }
             }
+            .padding(.horizontal, 0)
         }
+    }
+    
+    private func incrementValue() {
+        let newValue = value + step
+        value = min(newValue, range.upperBound)
+    }
+    
+    private func decrementValue() {
+        let newValue = value - step
+        value = max(newValue, range.lowerBound)
     }
 }
 
@@ -270,7 +297,7 @@ private struct ParameterComponentsPreview: View {
                     displayText: { $0.displayName }
                 )
             }
-            .padding(20)
+            .padding(0)
         }
     }
 }
