@@ -77,7 +77,7 @@ final class PolyphonicVoice {
     // MARK: - Parameters
     
     /// Detune mode determines how stereo spread is calculated
-    var detuneMode: DetuneMode = .proportional {
+    var detuneMode: DetuneMode {
         didSet {
             if isInitialized {
                 updateOscillatorFrequencies()
@@ -89,7 +89,7 @@ final class PolyphonicVoice {
     /// 1.0 = no offset (both oscillators at same frequency)
     /// 1.01 = ±17 cents (34 cents total spread)
     /// Left oscillator multiplies by this value, right divides by it
-    var frequencyOffsetRatio: Double = 1.003 {
+    var frequencyOffsetRatio: Double {
         didSet {
             if isInitialized && detuneMode == .proportional {
                 updateOscillatorFrequencies()
@@ -102,7 +102,7 @@ final class PolyphonicVoice {
     /// 2 Hz = 4 Hz beat rate (2 Hz each side)
     /// 5 Hz = 10 Hz beat rate (5 Hz each side)
     /// Left oscillator adds this value, right subtracts it
-    var frequencyOffsetHz: Double = 0.0 {
+    var frequencyOffsetHz: Double {
         didSet {
             if isInitialized && detuneMode == .constant {
                 updateOscillatorFrequencies()
@@ -121,6 +121,11 @@ final class PolyphonicVoice {
     // MARK: - Initialization
     
     init(parameters: VoiceParameters = .default) {
+        // Initialize stereo detune parameters from template
+        self.detuneMode = parameters.oscillator.detuneMode
+        self.frequencyOffsetRatio = parameters.oscillator.stereoOffsetProportional
+        self.frequencyOffsetHz = parameters.oscillator.stereoOffsetConstant
+        
         // Create left oscillator
         self.oscLeft = FMOscillator(
             waveform: parameters.oscillator.waveform.makeTable(),
