@@ -318,6 +318,10 @@ final class PolyphonicVoice {
         filter.cutoffFrequency = AUValue(parameters.clampedCutoff)
         filter.resonance = AUValue(parameters.clampedResonance)
         filter.saturation = AUValue(parameters.clampedSaturation)
+        
+        // Update the base filter cutoff in modulation state
+        // This ensures the modulation system uses the new value as the base
+        modulationState.baseFilterCutoff = parameters.clampedCutoff
     }
     
     /// Updates envelope parameters
