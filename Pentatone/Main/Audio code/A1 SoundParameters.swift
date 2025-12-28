@@ -85,8 +85,8 @@ struct FilterParameters: Codable, Equatable {
     
     static let `default` = FilterParameters(
         cutoffFrequency: 1200,
-        resonance: 1.5,
-        saturation: 0.0
+        resonance: 0.5,
+        saturation: 2.0
     )
     
     /// Clamps cutoff to valid range (0 Hz - 22.05 kHz)
@@ -139,7 +139,7 @@ struct VoiceParameters: Codable, Equatable {
                 release: 0.1,
                 destination: .modulationIndex,
                 amount: 0.0,
-                isEnabled: true
+                isEnabled: false
             ),
             auxiliaryEnvelope: ModulationEnvelopeParameters(
                 attack: 0.1,
@@ -148,7 +148,7 @@ struct VoiceParameters: Codable, Equatable {
                 release: 0.3,
                 destination: .filterCutoff,
                 amount: 0.0,
-                isEnabled: true
+                isEnabled: false
             ),
             voiceLFO: LFOParameters(
                 waveform: .square,
@@ -157,7 +157,7 @@ struct VoiceParameters: Codable, Equatable {
                 frequency: 6.0,
                 destination: .oscillatorAmplitude,
                 amount: 0.0,                         // Disabled by default
-                isEnabled: true
+                isEnabled: false
             ),
             keyTracking: .default,
             

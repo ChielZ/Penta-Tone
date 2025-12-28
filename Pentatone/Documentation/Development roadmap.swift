@@ -46,9 +46,10 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  - accidentals don't resize properly in key display on iPhone (but they do in scale note display)
  - Voice LFO to basefrequency seems overly smoothed, remove ramping?
  - Global LFO not working on filter?
- - Improve fullscreen / swipe gesture handling
+ - Improve fullscreen / swipe gesture handling?
  - Check AudioKit console warnings on startup
  - Check multiple console messages of scale frequency updates
+ - Check AudioKit warning message streams when modulation is enabled (already fixed for aftertouch)
  
  
  CONCEPT FOR IMPROVED SOUND ENGINE:

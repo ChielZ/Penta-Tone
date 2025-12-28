@@ -8,10 +8,10 @@
 /*
 PAGE 4 - GLOBAL
  1) Tempo. SLIDER. Values: 30-240, integers only
- 2) Voice mode. List. Values: Poly, Mono
- 3) Root frequency. SLIDER. Values: 98-220 continuous
- 4) Root octave. LIST. Values: -2,-1,0,1,2
- 5) Fine tune. SLIDER. Values: 98-220 continuous
+ 2) Voice mode. LIST. Values: Poly, Mono
+ 3) Octave offset. SLIDER. Values: -2 to +2, integers only
+ 4) Semitone offset. SLIDER. Values: -7 to +7, integers only
+ 5) Fine tune. SLIDER. Values: -50 to +50, integers only
  6) Pre volume (voice mixer volume). SLIDER. Values: 0-1 continuous
  7) Post volume (output mixer volume). SLIDER. Values: 0-1 continuous
  */

@@ -58,7 +58,7 @@ struct Penta_ToneApp: App {
         WindowGroup {
             contentView
         }
-        .applyWindowResizability()
+        //.applyWindowResizability()
     }
     
     @ViewBuilder
@@ -261,7 +261,7 @@ struct SystemGestureModifier: ViewModifier {
         }
     }
 }
-
+/*
 /// Extension to conditionally apply window resizability on iOS 17+
 extension Scene {
     func applyWindowResizability() -> some Scene {
@@ -276,3 +276,4 @@ extension Scene {
         }
     }
 }
+*/
