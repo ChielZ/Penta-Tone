@@ -204,10 +204,12 @@ struct ReverbParameters: Codable, Equatable {
 
 /// Parameter for the output mixer
 struct OutputParameters: Codable, Equatable {
-    var volume: Double
+    var preVolume: Double   // Voice mixer volume (before FX)
+    var volume: Double      // Output mixer volume (after FX)
     
     static let `default` = OutputParameters(
-        volume: 0.5,
+        preVolume: 0.5,
+        volume: 0.5
     )
 }
 
@@ -331,6 +333,11 @@ final class AudioParameterManager: ObservableObject {
     func updateOutputVolume(_ volume: Double) {
         master.output.volume = volume
         outputMixer?.volume = AUValue(volume)
+    }
+    
+    func updatePreVolume(_ preVolume: Double) {
+        master.output.preVolume = preVolume
+        voicePool?.voiceMixer.volume = AUValue(preVolume)
     }
     
     func updateTempo(_ tempo: Double) {

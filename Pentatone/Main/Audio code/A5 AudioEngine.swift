@@ -64,6 +64,9 @@ enum EngineManager {
         // Create voice pool (5 polyphonic voices)
         voicePool = VoicePool(voiceCount: 5)
         
+        // Set initial voice mixer volume (pre-FX)
+        voicePool.voiceMixer.volume = AUValue(masterParams.output.preVolume)
+        
         // Apply global LFO parameters from master defaults
         voicePool.updateGlobalLFO(masterParams.globalLFO)
         
@@ -92,6 +95,7 @@ enum EngineManager {
         // OutputMixer for control of post volume
         outputMixer = Mixer(fxReverb)
         outputMixer.volume = AUValue(masterParams.output.volume)
+        
         
         // Output mixer is connected to final output
         sharedEngine.output = outputMixer
