@@ -106,6 +106,23 @@ struct EditView: View {
                 }
                 .frame(maxHeight: .infinity)
                 
+                ZStack { // Row 10
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("BackgroundColour"))
+                    GeometryReader { geometry in
+                        Text("Pentatone")
+                            .foregroundColor(Color("KeyColour1"))
+                            .adaptiveFont("Signpainter", size: 65)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                onSwitchToOptions?()
+                            }
+                    }
+                }
+
+                
+                
                 // Rows 3-9: Show the current subview
                 Group {
                     switch currentSubView {
@@ -122,7 +139,7 @@ struct EditView: View {
                     }
                 }
                 .frame(maxHeight: .infinity)
-                
+ /*
                 ZStack { // Row 10
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("BackgroundColour"))
@@ -137,6 +154,7 @@ struct EditView: View {
                             }
                     }
                 }
+  */
                 ZStack{ // Row 11
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("BackgroundColour"))

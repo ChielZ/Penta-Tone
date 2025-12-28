@@ -46,7 +46,6 @@ struct OscillatorView: View {
                 ),
                 displayText: { $0.displayName }
             )
-            
             // Row 4 - Carrier Multiplier (integer 1-16)
             IntegerSliderRow(
                 label: "CARRIER MULTIPLIER",

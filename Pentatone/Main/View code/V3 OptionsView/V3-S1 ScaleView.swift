@@ -27,7 +27,32 @@ struct ScaleView: View {
     
     var body: some View {
         Group {
-            ZStack { // Row 3 - Intonation
+            
+            ZStack { // Row 3 (top half of image area)
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color("BackgroundColour"))
+            }
+            ZStack { // Row 4 (bottom half of image area)
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color("BackgroundColour"))
+            }
+            .overlay(
+                GeometryReader { geometry in
+                    let scaleFactor: CGFloat = currentScale.intonation == .et ? 0.6 : 1.0
+                    let fullHeight: CGFloat = geometry.size.height * 2 + 11
+                    let imageHeight: CGFloat = fullHeight * scaleFactor
+                    
+                    Image(scaleImageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: imageHeight)
+                        .frame(width: geometry.size.width, height: fullHeight)
+                        .offset(y: -(geometry.size.height + 11))
+                        .padding(0)
+                        
+                }
+            )
+            ZStack { // Row 5 - Intonation
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
@@ -62,30 +87,6 @@ struct ScaleView: View {
                         }
                 }
             }
-            ZStack { // Row 4 (top half of image area)
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
-            ZStack { // Row 5 (bottom half of image area)
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
-            .overlay(
-                GeometryReader { geometry in
-                    let scaleFactor: CGFloat = currentScale.intonation == .et ? 0.6 : 1.0
-                    let fullHeight: CGFloat = geometry.size.height * 2 + 11
-                    let imageHeight: CGFloat = fullHeight * scaleFactor
-                    
-                    Image(scaleImageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: imageHeight)
-                        .frame(width: geometry.size.width, height: fullHeight)
-                        .offset(y: -(geometry.size.height + 11))
-                        .padding(0)
-                        
-                }
-            )
             ZStack { // Row 6 - Musical Key
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))

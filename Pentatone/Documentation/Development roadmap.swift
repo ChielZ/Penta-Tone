@@ -16,7 +16,7 @@ MAIN
  √ try different filters
  √ implement modulation generators
  √ implement modulators in parameter structure
- - implement fine tune and octave adjustments
+ √ implement fine tune and octave adjustments
  - create preset management
  - create developer view for sound editing/storing presets
  - add macro control

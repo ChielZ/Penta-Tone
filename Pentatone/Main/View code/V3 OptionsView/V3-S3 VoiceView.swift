@@ -24,27 +24,7 @@ struct VoiceView: View {
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(Color("SupportColour"))
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .overlay(
-                            Text("<")
-                                .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFont("Futura", size: 30)
-                        )
-                    Spacer()
-                    Text("TIPS ON")
-                        .foregroundColor(Color("HighlightColour"))
-                        .adaptiveFont("Futura", size: 30)
-                    Spacer()
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(Color("SupportColour"))
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .overlay(
-                            Text(">")
-                                .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFont("Futura", size: 30)
-                        )
+                    
                 }
             }
             ZStack { // Row 4
@@ -60,14 +40,17 @@ struct VoiceView: View {
                 GeometryReader { geometry in
                     Text("Pentatone")
                         .foregroundColor(Color("KeyColour1"))
-                        .adaptiveFont("Signpainter", size: 85)
+                        .adaptiveFont("Signpainter", size: 65)
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .contentShape(Rectangle())
+                        .offset(y: -(geometry.size.height/2 + 11))
+                        .padding(0)
                         .onTapGesture {
                             onSwitchToEdit?()
                         }
                 }
             }
+            
             ZStack { // Row 6
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
@@ -88,14 +71,8 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
-                        .onTapGesture {
-                            let current = paramManager.master.globalPitch.transposeSemitones
-                            if current > -7 {
-                                paramManager.updateTransposeSemitones(current - 1)
-                            }
-                        }
                     Spacer()
-                    Text("TRANSPOSE \(paramManager.master.globalPitch.transposeSemitones > 0 ? "+" : "")\(paramManager.master.globalPitch.transposeSemitones)")
+                    Text("POLY")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()
@@ -107,12 +84,6 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
-                        .onTapGesture {
-                            let current = paramManager.master.globalPitch.transposeSemitones
-                            if current < 7 {
-                                paramManager.updateTransposeSemitones(current + 1)
-                            }
-                        }
                 }
             }
             ZStack { // Row 8

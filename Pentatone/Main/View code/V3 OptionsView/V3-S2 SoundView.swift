@@ -10,15 +10,12 @@ import SwiftUI
 struct SoundView: View {
     var body: some View {
         Group {
+            
             ZStack { // Row 3
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
-                
-                    Text("1.1 KEYS")
-                        .foregroundColor(Color("HighlightColour"))
-                        .adaptiveFont("Futura", size: 30)
-                    
             }
+            
             ZStack { // Row 4
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
@@ -124,8 +121,31 @@ struct SoundView: View {
             ZStack { // Row 6
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
-                
+                HStack {
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("BackgroundColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("<")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    Text("1.1 KEYS")
+                        .foregroundColor(Color("HighlightColour"))
+                        .adaptiveFont("Futura", size: 30)
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("BackgroundColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text(">")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                }
             }
+            
             ZStack { // Row 7
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("HighlightColour"))
