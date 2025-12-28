@@ -353,23 +353,20 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  PAGE 10 - PRESETS
  - Select and store presets
  
- PAGE 11 - MACRO 1 (TONE)
- 1) ModulationIndex
- 2) Filter frequency
- 3) Filter saturation
+ PAGE 11 - TONE MACRO
+ 1) ModulationIndex minimum
+ 2) ModulationIndex maximum
+ 3) Filter frequency minimum
+ 4) Filter frequency maximum
+ 5) Filter saturation minimum
+ 6) Filter saturation maximum
  
- 
- 
- PAGE 12 - MACRO 2 (SUSTAIN)
- 1) Amplitude attack time
- 2) Amlitude 
-  
- PAGE 13 - MACRO 3 (MODULATION)
-  
- PAGE 14 - MACRO 4 (AMBIENCE)
- 1) Delay feedback
- 2) Delay Mix
- 3) Reverb size
- 4) Reverb mix
+ PAGE 12 - AMBIENCE MACRO
+ 1) Delay feedback minimum
+ 2) Delay feedback maximum
+ 3) Delay Mix minimum
+ 4) Delay Mix maximum
+ 5) Reverb mix minimum
+ 6) Reverb mix maximum
   
  */

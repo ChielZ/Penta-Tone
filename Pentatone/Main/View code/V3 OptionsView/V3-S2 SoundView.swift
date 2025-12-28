@@ -13,38 +13,120 @@ struct SoundView: View {
             ZStack { // Row 3
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
-                HStack {
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(Color("SupportColour"))
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .overlay(
-                            Text("<")
-                                .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFont("Futura", size: 30)
-                        )
-                    Spacer()
-                    Text("KEYS")
+                
+                    Text("1.1 KEYS")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
-                    Spacer()
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(Color("SupportColour"))
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .overlay(
-                            Text(">")
-                                .foregroundColor(Color("BackgroundColour"))
-                                .adaptiveFont("Futura", size: 30)
-                        )
-                }
+                    
             }
             ZStack { // Row 4
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("BackgroundColour"))
                 HStack {
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("1")
+                                .foregroundColor(Color("HighlightColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("2")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("3")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("4")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("5")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
                     
                 }
             }
             ZStack { // Row 5
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color("BackgroundColour"))
+                HStack {
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("1")
+                                .foregroundColor(Color("HighlightColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("2")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("3")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("4")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    Spacer()
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(Color("SupportColour"))
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .overlay(
+                            Text("5")
+                                .foregroundColor(Color("BackgroundColour"))
+                                .adaptiveFont("Futura", size: 30)
+                        )
+                    
+                }
+            }
+            ZStack { // Row 6
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(Color("BackgroundColour"))
+                
+            }
+            ZStack { // Row 7
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("HighlightColour"))
                 RoundedRectangle(cornerRadius: radius)
@@ -54,33 +136,13 @@ struct SoundView: View {
                     .foregroundColor(Color("BackgroundColour"))
                     .adaptiveFont("Futura", size: 30)
             }
-            ZStack { // Row 6
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("HighlightColour"))
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("SupportColour"))
-                    .padding(4)
-                Text("TONE")
-                    .foregroundColor(Color("BackgroundColour"))
-                    .adaptiveFont("Futura", size: 30)
-            }
-            ZStack { // Row 7
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("HighlightColour"))
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("SupportColour"))
-                    .padding(4)
-                Text("SUSTAIN")
-                    .foregroundColor(Color("BackgroundColour"))
-                    .adaptiveFont("Futura", size: 30)
-            }
             ZStack { // Row 8
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("HighlightColour"))
                 RoundedRectangle(cornerRadius: radius)
                     .fill(Color("SupportColour"))
                     .padding(4)
-                Text("MODULATION")
+                Text("TONE")
                     .foregroundColor(Color("BackgroundColour"))
                     .adaptiveFont("Futura", size: 30)
             }
