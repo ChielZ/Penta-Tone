@@ -10,6 +10,14 @@ import SwiftUI
 struct VoiceView: View {
     var onSwitchToEdit: (() -> Void)? = nil
     
+    @ObservedObject private var paramManager = AudioParameterManager.shared
+    
+    // Computed property to force view updates
+    private var fineTuneCentsDisplay: Int {
+        let value = Int(round(paramManager.master.globalPitch.fineTuneCents))
+        return value
+    }
+    
     var body: some View {
         Group {
             ZStack { // Row 3
@@ -80,8 +88,14 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .onTapGesture {
+                            let current = paramManager.master.globalPitch.transposeSemitones
+                            if current > -7 {
+                                paramManager.updateTransposeSemitones(current - 1)
+                            }
+                        }
                     Spacer()
-                    Text("POLY")
+                    Text("TRANSPOSE \(paramManager.master.globalPitch.transposeSemitones > 0 ? "+" : "")\(paramManager.master.globalPitch.transposeSemitones)")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()
@@ -93,6 +107,12 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .onTapGesture {
+                            let current = paramManager.master.globalPitch.transposeSemitones
+                            if current < 7 {
+                                paramManager.updateTransposeSemitones(current + 1)
+                            }
+                        }
                 }
             }
             ZStack { // Row 8
@@ -107,8 +127,14 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .onTapGesture {
+                            let current = paramManager.master.globalPitch.octaveOffset
+                            if current > -2 {
+                                paramManager.updateOctaveOffset(current - 1)
+                            }
+                        }
                     Spacer()
-                    Text("OCTAVE 0")
+                    Text("OCTAVE \(paramManager.master.globalPitch.octaveOffset > 0 ? "+" : "")\(paramManager.master.globalPitch.octaveOffset)")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()
@@ -120,6 +146,12 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .onTapGesture {
+                            let current = paramManager.master.globalPitch.octaveOffset
+                            if current < 2 {
+                                paramManager.updateOctaveOffset(current + 1)
+                            }
+                        }
                 }
             }
             ZStack { // Row 9
@@ -134,8 +166,16 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .onTapGesture {
+                            let current = fineTuneCentsDisplay
+                            print("🔧 Tune < tapped - current: \(current), fineTune raw: \(paramManager.master.globalPitch.fineTune)")
+                            if current > -50 {
+                                paramManager.updateFineTuneCents(Double(current - 1))
+                                print("🔧 After update - cents: \(paramManager.master.globalPitch.fineTuneCents), fineTune: \(paramManager.master.globalPitch.fineTune)")
+                            }
+                        }
                     Spacer()
-                    Text("TUNE 0")
+                    Text("TUNE \(fineTuneCentsDisplay > 0 ? "+" : "")\(fineTuneCentsDisplay)")
                         .foregroundColor(Color("HighlightColour"))
                         .adaptiveFont("Futura", size: 30)
                     Spacer()
@@ -147,6 +187,14 @@ struct VoiceView: View {
                                 .foregroundColor(Color("BackgroundColour"))
                                 .adaptiveFont("Futura", size: 30)
                         )
+                        .onTapGesture {
+                            let current = fineTuneCentsDisplay
+                            print("🔧 Tune > tapped - current: \(current), fineTune raw: \(paramManager.master.globalPitch.fineTune)")
+                            if current < 50 {
+                                paramManager.updateFineTuneCents(Double(current + 1))
+                                print("🔧 After update - cents: \(paramManager.master.globalPitch.fineTuneCents), fineTune: \(paramManager.master.globalPitch.fineTune)")
+                            }
+                        }
                 }
             }
         }

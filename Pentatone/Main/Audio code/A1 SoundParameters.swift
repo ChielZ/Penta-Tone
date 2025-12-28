@@ -417,7 +417,9 @@ final class AudioParameterManager: ObservableObject {
     }
     
     func updateTransposeSemitones(_ semitones: Int) {
-        master.globalPitch.setTransposeSemitones(semitones)
+        var pitch = master.globalPitch
+        pitch.setTransposeSemitones(semitones)
+        master.globalPitch = pitch
     }
     
     func updateOctave(_ octave: Double) {
@@ -425,7 +427,9 @@ final class AudioParameterManager: ObservableObject {
     }
     
     func updateOctaveOffset(_ offset: Int) {
-        master.globalPitch.setOctaveOffset(offset)
+        var pitch = master.globalPitch
+        pitch.setOctaveOffset(offset)
+        master.globalPitch = pitch
     }
     
     func updateFineTune(_ fineTune: Double) {
@@ -433,7 +437,13 @@ final class AudioParameterManager: ObservableObject {
     }
     
     func updateFineTuneCents(_ cents: Double) {
-        master.globalPitch.setFineTuneCents(cents)
+        print("🎛️ updateFineTuneCents called with: \(cents)")
+        print("🎛️ Before - fineTune: \(master.globalPitch.fineTune), cents: \(master.globalPitch.fineTuneCents)")
+        var pitch = master.globalPitch
+        pitch.setFineTuneCents(cents)
+        print("🎛️ After mutation - fineTune: \(pitch.fineTune), cents: \(pitch.fineTuneCents)")
+        master.globalPitch = pitch
+        print("🎛️ After assignment - fineTune: \(master.globalPitch.fineTune), cents: \(master.globalPitch.fineTuneCents)")
     }
     
     // MARK: - Voice Template Updates
