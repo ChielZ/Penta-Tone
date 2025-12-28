@@ -204,7 +204,7 @@ struct EffectsView: View {
             SliderRow(
                 label: "REVERB MIX",
                 value: Binding(
-                    get: { paramManager.master.reverb.dryWetBalance },
+                    get: { paramManager.master.reverb.balance },
                     set: { newValue in
                         paramManager.updateReverbMix(newValue)
                     }

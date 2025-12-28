@@ -193,12 +193,21 @@ struct DelayParameters: Codable, Equatable {
 struct ReverbParameters: Codable, Equatable {
     var feedback: Double
     var cutoffFrequency: Double
-    var dryWetBalance: Double  // 0 = all dry, 1 = all wet
+    var balance: Double  // 0 = all dry, 1 = all wet
     
     static let `default` = ReverbParameters(
         feedback: 0.9,
         cutoffFrequency: 10_000,
-        dryWetBalance: 0.0
+        balance: 0.0
+    )
+}
+
+/// Parameter for the output mixer
+struct OutputParameters: Codable, Equatable {
+    var volume: Double
+    
+    static let `default` = OutputParameters(
+        volume: 0.5,
     )
 }
 
@@ -206,12 +215,14 @@ struct ReverbParameters: Codable, Equatable {
 struct MasterParameters: Codable, Equatable {
     var delay: DelayParameters
     var reverb: ReverbParameters
+    var output: OutputParameters
     var globalLFO: GlobalLFOParameters     // Phase 5C: Global modulation
     var tempo: Double                      // BPM for tempo-synced modulation
     
     static let `default` = MasterParameters(
         delay: .default,
         reverb: .default,
+        output: .default,
         globalLFO: GlobalLFOParameters(
             waveform: .sine,
             resetMode: .free,
@@ -303,8 +314,8 @@ final class AudioParameterManager: ObservableObject {
     }
     
     func updateReverbMix(_ balance: Double) {
-        master.reverb.dryWetBalance = balance
-        reverbDryWet?.balance = AUValue(balance)
+        master.reverb.balance = balance
+        fxReverb?.balance = AUValue(balance)
     }
     
     func updateReverbFeedback(_ feedback: Double) {
@@ -315,6 +326,11 @@ final class AudioParameterManager: ObservableObject {
     func updateReverbCutoff(_ cutoff: Double) {
         master.reverb.cutoffFrequency = cutoff
         fxReverb?.cutoffFrequency = AUValue(cutoff)
+    }
+    
+    func updateOutputVolume(_ volume: Double) {
+        master.output.volume = volume
+        outputMixer?.volume = AUValue(volume)
     }
     
     func updateTempo(_ tempo: Double) {
@@ -454,9 +470,9 @@ final class AudioParameterManager: ObservableObject {
     }
     
     private func applyReverbParameters() {
-        guard let reverb = fxReverb, let dryWet = reverbDryWet else { return }
+        guard let reverb = fxReverb else { return }
         reverb.feedback = AUValue(master.reverb.feedback)
         reverb.cutoffFrequency = AUValue(master.reverb.cutoffFrequency)
-        dryWet.balance = AUValue(master.reverb.dryWetBalance)
+        reverb.balance = AUValue(master.reverb.balance)
     }
 }

@@ -16,7 +16,7 @@ import DunneAudioKit
 let sharedEngine = AudioEngine()
 private(set) var fxDelay: StereoDelay!
 private(set) var fxReverb: CostelloReverb!
-private(set) var reverbDryWet: DryWetMixer!
+private(set) var outputMixer: Mixer!
 
 // MARK: - Polyphonic Voice Pool Architecture
 // New polyphonic voice pool with dynamic voice allocation
@@ -83,18 +83,18 @@ enum EngineManager {
         // Reverb processes the delayed signal - initialized with parameters
         fxReverb = CostelloReverb(
                                 fxDelay,
+                                balance: AUValue(masterParams.reverb.balance),
                                 feedback: AUValue(masterParams.reverb.feedback),
                                 cutoffFrequency: AUValue(masterParams.reverb.cutoffFrequency)
+                                
                                 )
         
-        // DryWetMixer blends dry (delay) and wet (reverb) signals
-        reverbDryWet = DryWetMixer(
-                                fxDelay, fxReverb,
-                                balance: AUValue(masterParams.reverb.dryWetBalance)
-                                )
+        // OutputMixer for control of post volume
+        outputMixer = Mixer(fxReverb)
+        outputMixer.volume = AUValue(masterParams.output.volume)
         
-        // Final output is the dry/wet mix
-        sharedEngine.output = reverbDryWet
+        // Output mixer is connected to final output
+        sharedEngine.output = outputMixer
         
         do {
             try sharedEngine.start()
