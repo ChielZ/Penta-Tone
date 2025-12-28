@@ -63,25 +63,42 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  - We will also be creating a macro structure: while the final app will not allow the user to individually sculpt each parameter, there will be 4 macro sliders that map to one or more parameters, this will vary per preset.
  
  
- CONCEPT FOR PRESETS
+ IDEAS FOR PRESETS
  
+ 1 - ACOUSTIC PERCUSSIVE
  1.1  Keys (Wurlitzer-esque sound)
  1.2  Mallets (Marimba-esque sound)
  1.3  Sticks (Glockenspiel-esque sound)
  1.4  Pluck (Harp-esque sound)
  1.5  Pick (Koto-esque sound)
  
+ 2 - ACOUSTIC SUSTAINED
  2.1  Bow (Cello-esque sound)
  2.2  Breath (Low whistle-esque sound)
- 2.3  Tube (Rock Organ-esque sound)
- 2.4  Transistor (Analog polysynth-esque sound)
- 2.5  Chip (Square Lead-esque sound)
+ 2.3
+ 2.4
+ 2.5
  
- 3.1  Ocean (Analog bass-esque sound)
- 3.2  Forest (lively, organic sound)
- 3.3  Field (warm, airy sound)
- 3.4  Nebula (Warm, ethereal sound)
- 3.5  Haze (Granular-esque sound)
+ 3 - ELECTRIC
+ 3.1  Slide (Pedal steel-esque sound)
+ 3.2  Rotary (Rock Organ-esque sound)
+ 3.3  Voodoo (Lead guitar-esque sound)
+ 3.4  Lev (Theremin-esque sound)
+ 3.5
+ 
+ 4 - SYNTH
+ 4.1  Transistor (Analog polysynth-esque sound)
+ 4.2  Chip (Square Lead-esque sound)
+ 4.3  ... (Analog bass-esque sound)
+ 4.4
+ 4.5
+ 
+ 5 - AMBIENT
+ 5.1  Ocean (deep, swirly sound)
+ 5.1  Forest (lively, organic sound)
+ 5.2  Field (warm, airy sound)
+ 5.3  Nebula (cool, ethereal sound)
+ 5.4  Haze (Granular-esque sound)
  
  
  KEY TRANSPOSITION
