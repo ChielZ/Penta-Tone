@@ -213,11 +213,72 @@ struct OutputParameters: Codable, Equatable {
     )
 }
 
+/// Global pitch modifiers applied to all triggered notes
+/// All parameters are multiplication factors applied to the base frequency
+struct GlobalPitchParameters: Codable, Equatable {
+    var transpose: Double   // Semitone transposition (1.0 = no change, 1.059463 ≈ +1 semitone)
+    var octave: Double      // Octave shift (1.0 = no change, 2.0 = +1 octave, 0.5 = -1 octave)
+    var fineTune: Double    // Fine tuning adjustment (1.0 = no change, subtle variations)
+    
+    static let `default` = GlobalPitchParameters(
+        transpose: 1.0,
+        octave: 1.0,
+        fineTune: 1.0
+    )
+    
+    /// Combined multiplication factor for all pitch modifiers
+    var combinedFactor: Double {
+        transpose * octave * fineTune
+    }
+    
+    /// Helper: Set octave from an integer offset (e.g., -1, 0, +1, +2)
+    mutating func setOctaveOffset(_ offset: Int) {
+        // Each octave offset doubles or halves the frequency
+        // offset = 0 -> 2^0 = 1.0
+        // offset = 1 -> 2^1 = 2.0
+        // offset = -1 -> 2^-1 = 0.5
+        octave = pow(2.0, Double(offset))
+    }
+    
+    /// Helper: Get the current octave as an integer offset
+    var octaveOffset: Int {
+        // Reverse the calculation: offset = log2(octave)
+        Int(round(log2(octave)))
+    }
+    
+    /// Helper: Set transpose from semitones (e.g., -12, 0, +7)
+    mutating func setTransposeSemitones(_ semitones: Int) {
+        // Equal temperament: each semitone is 2^(1/12) ≈ 1.059463
+        transpose = pow(2.0, Double(semitones) / 12.0)
+    }
+    
+    /// Helper: Get the current transpose as semitones
+    var transposeSemitones: Int {
+        // Reverse: semitones = 12 * log2(transpose)
+        Int(round(12.0 * log2(transpose)))
+    }
+    
+    /// Helper: Set fine tune from cents (e.g., -50, 0, +50)
+    /// Cents are 1/100th of a semitone
+    mutating func setFineTuneCents(_ cents: Double) {
+        // 100 cents = 1 semitone = 2^(1/12)
+        // 1 cent = 2^(1/1200)
+        fineTune = pow(2.0, cents / 1200.0)
+    }
+    
+    /// Helper: Get the current fine tune as cents
+    var fineTuneCents: Double {
+        // Reverse: cents = 1200 * log2(fineTune)
+        1200.0 * log2(fineTune)
+    }
+}
+
 /// Master parameters affecting the entire audio engine
 struct MasterParameters: Codable, Equatable {
     var delay: DelayParameters
     var reverb: ReverbParameters
     var output: OutputParameters
+    var globalPitch: GlobalPitchParameters // Global pitch modifiers (transpose, octave, fine tune)
     var globalLFO: GlobalLFOParameters     // Phase 5C: Global modulation
     var tempo: Double                      // BPM for tempo-synced modulation
     
@@ -225,6 +286,7 @@ struct MasterParameters: Codable, Equatable {
         delay: .default,
         reverb: .default,
         output: .default,
+        globalPitch: .default,
         globalLFO: GlobalLFOParameters(
             waveform: .sine,
             resetMode: .free,
@@ -342,6 +404,36 @@ final class AudioParameterManager: ObservableObject {
     
     func updateTempo(_ tempo: Double) {
         master.tempo = tempo
+    }
+    
+    // MARK: - Global Pitch Updates
+    
+    func updateGlobalPitch(_ parameters: GlobalPitchParameters) {
+        master.globalPitch = parameters
+    }
+    
+    func updateTranspose(_ transpose: Double) {
+        master.globalPitch.transpose = transpose
+    }
+    
+    func updateTransposeSemitones(_ semitones: Int) {
+        master.globalPitch.setTransposeSemitones(semitones)
+    }
+    
+    func updateOctave(_ octave: Double) {
+        master.globalPitch.octave = octave
+    }
+    
+    func updateOctaveOffset(_ offset: Int) {
+        master.globalPitch.setOctaveOffset(offset)
+    }
+    
+    func updateFineTune(_ fineTune: Double) {
+        master.globalPitch.fineTune = fineTune
+    }
+    
+    func updateFineTuneCents(_ cents: Double) {
+        master.globalPitch.setFineTuneCents(cents)
     }
     
     // MARK: - Voice Template Updates

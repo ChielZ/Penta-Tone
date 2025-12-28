@@ -349,8 +349,11 @@ private struct KeyTouchHandler: UIViewRepresentable {
             // Normalize touch position to 0...1
             let normalized = max(0.0, min(1.0, touchX / viewWidth))
             
-            // Allocate voice from pool
-            let voice = voicePool.allocateVoice(frequency: frequency, forKey: keyIndex)
+            // Get global pitch parameters from parameter manager
+            let globalPitch = AudioParameterManager.shared.master.globalPitch
+            
+            // Allocate voice from pool (with global pitch modifiers)
+            let voice = voicePool.allocateVoice(frequency: frequency, forKey: keyIndex, globalPitch: globalPitch)
             allocatedVoice = voice
             
             // Store touch position in modulation state (for aftertouch, which is relative)

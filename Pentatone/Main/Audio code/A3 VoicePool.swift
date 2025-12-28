@@ -156,11 +156,12 @@ final class VoicePool {
     
     /// Allocates a voice and triggers it with the specified frequency
     /// - Parameters:
-    ///   - frequency: The frequency to play
+    ///   - frequency: The base frequency to play (from keyboard/scale)
     ///   - keyIndex: The key index (0-17) triggering this note
+    ///   - globalPitch: Global pitch modifiers (transpose, octave, fine tune)
     /// - Returns: The allocated voice (for reference if needed)
     @discardableResult
-    func allocateVoice(frequency: Double, forKey keyIndex: Int) -> PolyphonicVoice {
+    func allocateVoice(frequency: Double, forKey keyIndex: Int, globalPitch: GlobalPitchParameters = .default) -> PolyphonicVoice {
         guard isInitialized else {
             assertionFailure("VoicePool must be initialized before allocating voices")
             return voices[0]
@@ -169,14 +170,17 @@ final class VoicePool {
         // Find an available voice (or steal one)
         let voice = findAvailableVoice()
         
+        // Apply global pitch modifiers to the base frequency
+        let finalFrequency = frequency * globalPitch.combinedFactor
+        
         // Set frequency and trigger
-        voice.setFrequency(frequency)
+        voice.setFrequency(finalFrequency)
         voice.trigger()
         
         // Map this key to the voice for precise release tracking
         keyToVoiceMap[keyIndex] = voice
         
-        print("🎵 Key \(keyIndex): Allocated voice, frequency \(frequency) Hz")
+        print("🎵 Key \(keyIndex): Allocated voice, base frequency \(frequency) Hz → final \(finalFrequency) Hz (×\(globalPitch.combinedFactor))")
         
         // Move to next voice for round-robin
         incrementVoiceIndex()
