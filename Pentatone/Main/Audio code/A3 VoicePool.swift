@@ -233,6 +233,7 @@ final class VoicePool {
     
     /// Recreates all voices with new parameters (e.g., when waveform changes)
     /// This properly cleans up old voices and creates new ones
+    /// Note: Voice count remains fixed at nominalPolyphony
     /// Warning: Kills any currently playing notes
     func recreateVoices(with parameters: VoiceParameters, completion: @escaping () -> Void) {
         print("🎵 Starting voice recreation...")
@@ -240,39 +241,40 @@ final class VoicePool {
         // Stop all playing notes and clear key mappings
         stopAll()
         
+        // Reset voice index
+        currentVoiceIndex = 0
+        
         // Properly clean up each voice (stops oscillators)
         for voice in voices {
             voice.cleanup()
         }
         
-        // Disconnect all voices from mixer
-        for voice in voices {
-            voiceMixer.removeInput(voice.envelope)
-        }
+        // Note: We do NOT disconnect from mixer during recreation
+        // Just let the old voices deallocate and add new ones
         
         // Schedule the actual recreation on a background queue to avoid blocking UI
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.05) {
-            // Clear the voices array (this will deallocate the old voices)
-            self.voices.removeAll()
-            
-            // Create new voices with updated parameters
+            // Create new voices with updated parameters (always nominalPolyphony voices)
             var newVoices: [PolyphonicVoice] = []
-            for _ in 0..<currentPolyphony {
+            for _ in 0..<nominalPolyphony {
                 let voice = PolyphonicVoice(parameters: parameters)
                 newVoices.append(voice)
             }
             
             // Return to main thread for AudioKit operations
             DispatchQueue.main.async {
+                // Clear old voices (this deallocates them)
+                self.voices.removeAll()
+                
                 // Assign new voices
                 self.voices = newVoices
                 
-                // Reconnect all voices to mixer
+                // Connect new voices to mixer
                 for voice in self.voices {
                     self.voiceMixer.addInput(voice.envelope)
                 }
                 
-                // Initialize the new voices
+                // Initialize the new voices if pool was already initialized
                 if self.isInitialized {
                     for voice in self.voices {
                         voice.initialize()

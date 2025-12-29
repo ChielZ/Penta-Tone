@@ -309,7 +309,8 @@ final class PolyphonicVoice {
         oscRight.modulationIndex = AUValue(parameters.modulationIndex)
         oscRight.amplitude = AUValue(parameters.amplitude)
         
-        // Note: Waveform changes require recreation (not supported dynamically)
+        // Note: Waveform cannot be changed dynamically in AudioKit's FMOscillator
+        // Waveform changes require voice recreation (handled by VoicePool.recreateVoices)
     }
     
    
