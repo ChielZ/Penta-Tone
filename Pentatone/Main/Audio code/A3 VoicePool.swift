@@ -61,9 +61,13 @@ final class VoicePool {
         // Create mixer first
         self.voiceMixer = Mixer()
         
+        // Always create nominalPolyphony voices (don't change voice count at runtime)
+        // In mono mode, we just use the first voice only
+        let actualVoiceCount = nominalPolyphony
+        
         // Create all voices
         let voiceParams = VoiceParameters.default
-        for _ in 0..<voiceCount {
+        for _ in 0..<actualVoiceCount {
             let voice = PolyphonicVoice(parameters: voiceParams)
             voices.append(voice)
         }
@@ -73,7 +77,7 @@ final class VoicePool {
             voiceMixer.addInput(voice.envelope)
         }
         
-        print("🎵 VoicePool created with \(voices.count) voice(s) (\(voices.count == 1 ? "monophonic" : "polyphonic") mode)")
+        print("🎵 VoicePool created with \(voices.count) voice(s) available, starting in \(voiceCount == 1 ? "monophonic" : "polyphonic") mode")
     }
     
     /// Initializes all voices (starts oscillators)
@@ -107,23 +111,39 @@ final class VoicePool {
     
     /// Finds an available voice, or steals the oldest one if all are busy
     /// Uses round-robin allocation starting from current index
+    /// In monophonic mode (currentPolyphony == 1), always uses voice 0
     private func findAvailableVoice() -> PolyphonicVoice {
+        // Monophonic mode: always use voice 0 and steal it if needed
+        if currentPolyphony == 1 {
+            let monoVoice = voices[0]
+            if monoVoice.isAvailable {
+                return monoVoice
+            } else {
+                // Steal the mono voice
+                monoVoice.envelope.closeGate()
+                monoVoice.isAvailable = true
+                print("⚠️ Mono voice stealing")
+                return monoVoice
+            }
+        }
+        
+        // Polyphonic mode: use round-robin with all voices
         var checkedCount = 0
         var index = currentVoiceIndex
         
-        // First pass: look for available voices
-        while checkedCount < voices.count {
+        // First pass: look for available voices (use all nominalPolyphony voices)
+        while checkedCount < nominalPolyphony {
             if voices[index].isAvailable {
                 currentVoiceIndex = index
                 return voices[index]
             }
             
-            index = (index + 1) % voices.count
+            index = (index + 1) % nominalPolyphony
             checkedCount += 1
         }
         
         // No available voice found - steal the oldest one
-        // Find voice with earliest trigger time
+        // Find voice with earliest trigger time (from all voices)
         let oldestVoice = voices.min(by: { $0.triggerTime < $1.triggerTime })!
         
         // Force release the oldest voice (instant cutoff as per requirements)
@@ -136,8 +156,12 @@ final class VoicePool {
     }
     
     /// Increments to the next voice index (round-robin)
+    /// Only used in polyphonic mode
     private func incrementVoiceIndex() {
-        currentVoiceIndex = (currentVoiceIndex + 1) % voices.count
+        if currentPolyphony > 1 {
+            currentVoiceIndex = (currentVoiceIndex + 1) % nominalPolyphony
+        }
+        // In mono mode, don't increment (always stay at 0)
     }
     
     // MARK: - Note Triggering
@@ -263,66 +287,24 @@ final class VoicePool {
     
     // MARK: - Polyphony Adjustment
     
-    /// Changes the polyphony by recreating the entire voice pool
-    /// This is used to switch between monophonic (1 voice) and polyphonic (nominalPolyphony voices) modes
-    /// - Parameter count: Number of voices (typically 1 for mono, nominalPolyphony for poly)
-    /// - Parameter completion: Called after recreation is complete
+    /// Switches between monophonic and polyphonic modes
+    /// Does NOT recreate voices - just changes which voices are used for allocation
+    /// - Parameter count: Number of voices to use (1 for mono, nominalPolyphony for poly)
+    /// - Parameter completion: Called after mode switch is complete
     func setPolyphony(_ count: Int, completion: @escaping () -> Void) {
-        print("🎵 Changing polyphony from \(voices.count) to \(count) voices...")
+        print("🎵 Switching from \(currentPolyphony == 1 ? "monophonic" : "polyphonic") to \(count == 1 ? "monophonic" : "polyphonic") mode...")
         
         // Stop all playing notes and clear key mappings
         stopAll()
         
-        // Reset voice index to prevent out-of-bounds access
+        // Reset voice index
         currentVoiceIndex = 0
         
-        // Properly clean up each voice (stops oscillators)
-        for voice in voices {
-            voice.cleanup()
-        }
+        // Update global currentPolyphony
+        currentPolyphony = count
         
-        // Disconnect all voices from mixer
-        for voice in voices {
-            voiceMixer.removeInput(voice.envelope)
-        }
-        
-        // Schedule the actual recreation on a background queue to avoid blocking UI
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.05) {
-            // Clear the voices array (this will deallocate the old voices)
-            self.voices.removeAll()
-            
-            // Update global currentPolyphony to match
-            currentPolyphony = count
-            
-            // Create new voices with current parameters
-            let voiceParams = VoiceParameters.default
-            var newVoices: [PolyphonicVoice] = []
-            for _ in 0..<count {
-                let voice = PolyphonicVoice(parameters: voiceParams)
-                newVoices.append(voice)
-            }
-            
-            // Return to main thread for AudioKit operations
-            DispatchQueue.main.async {
-                // Assign new voices
-                self.voices = newVoices
-                
-                // Reconnect all voices to mixer
-                for voice in self.voices {
-                    self.voiceMixer.addInput(voice.envelope)
-                }
-                
-                // Initialize the new voices if pool was already initialized
-                if self.isInitialized {
-                    for voice in self.voices {
-                        voice.initialize()
-                    }
-                }
-                
-                print("🎵 Polyphony changed to \(count) voice(s) - \(count == 1 ? "monophonic" : "polyphonic") mode")
-                completion()
-            }
-        }
+        print("🎵 Mode switched to \(count == 1 ? "monophonic (using voice 0 only)" : "polyphonic (using all \(nominalPolyphony) voices)")")
+        completion()
     }
     
     // MARK: - Parameter Updates
