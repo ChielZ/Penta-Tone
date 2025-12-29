@@ -244,47 +244,49 @@ final class VoicePool {
         // Reset voice index
         currentVoiceIndex = 0
         
-        // Properly clean up each voice (stops oscillators)
-        for voice in voices {
-            voice.cleanup()
+        // Store references to old voices (keep them alive during transition)
+        let oldVoices = voices
+        
+        print("🎵 Creating \(nominalPolyphony) new voices...")
+        
+        // Create new voices immediately (on main thread - AudioKit prefers this)
+        var newVoices: [PolyphonicVoice] = []
+        for i in 0..<nominalPolyphony {
+            let voice = PolyphonicVoice(parameters: parameters)
+            newVoices.append(voice)
+            print("🎵   Voice \(i): created")
         }
         
-        // Note: We do NOT disconnect from mixer during recreation
-        // Just let the old voices deallocate and add new ones
+        print("🎵 Swapping audio connections...")
         
-        // Schedule the actual recreation on a background queue to avoid blocking UI
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.05) {
-            // Create new voices with updated parameters (always nominalPolyphony voices)
-            var newVoices: [PolyphonicVoice] = []
-            for _ in 0..<nominalPolyphony {
-                let voice = PolyphonicVoice(parameters: parameters)
-                newVoices.append(voice)
-            }
-            
-            // Return to main thread for AudioKit operations
-            DispatchQueue.main.async {
-                // Clear old voices (this deallocates them)
-                self.voices.removeAll()
-                
-                // Assign new voices
-                self.voices = newVoices
-                
-                // Connect new voices to mixer
-                for voice in self.voices {
-                    self.voiceMixer.addInput(voice.envelope)
-                }
-                
-                // Initialize the new voices if pool was already initialized
-                if self.isInitialized {
-                    for voice in self.voices {
-                        voice.initialize()
-                    }
-                }
-                
-                print("🎵 Voice recreation complete - \(self.voices.count) voices ready")
-                completion()
+        // Connect new voices to mixer FIRST (before disconnecting old ones)
+        for (index, voice) in newVoices.enumerated() {
+            voiceMixer.addInput(voice.envelope)
+            print("🎵   Voice \(index): connected to mixer")
+        }
+        
+        // Initialize new voices if pool was already initialized
+        if isInitialized {
+            print("🎵 Initializing new voices...")
+            for (index, voice) in newVoices.enumerated() {
+                voice.initialize()
+                print("🎵   Voice \(index): initialized & started")
             }
         }
+        
+        // Now that new voices are live, swap the array
+        voices = newVoices
+        
+        // Disconnect and cleanup old voices AFTER new ones are running
+        print("🎵 Cleaning up old voices...")
+        for (index, oldVoice) in oldVoices.enumerated() {
+            voiceMixer.removeInput(oldVoice.envelope)
+            oldVoice.cleanup()
+            print("🎵   Old voice \(index): disconnected & cleaned")
+        }
+        
+        print("🎵 ✅ Voice recreation complete - \(voices.count) voices ready")
+        completion()
     }
     
     // MARK: - Polyphony Adjustment
