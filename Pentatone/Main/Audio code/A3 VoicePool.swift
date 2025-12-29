@@ -19,10 +19,6 @@ var currentPolyphony = nominalPolyphony
 /// Uses round-robin allocation with availability checking and voice stealing
 final class VoicePool {
     
-    // MARK: - Configuration
-    
-    private(set) var voiceCount: Int
-    
     // MARK: - Voice Management
     
     /// All available voices
@@ -59,17 +55,15 @@ final class VoicePool {
     // MARK: - Initialization
     
     /// Creates a voice pool with the specified polyphony
-    /// - Parameter voiceCount: Number of voices (clamped to min/max range)
+    /// - Parameter voiceCount: Number of voices (defaults to currentPolyphony)
+    ///   Use 1 for monophonic mode, nominalPolyphony for polyphonic mode
     init(voiceCount: Int = currentPolyphony) {
-        // Clamp voice count to valid range
-        self.voiceCount = voiceCount
-        
         // Create mixer first
         self.voiceMixer = Mixer()
         
         // Create all voices
         let voiceParams = VoiceParameters.default
-        for _ in 0..<self.voiceCount {
+        for _ in 0..<voiceCount {
             let voice = PolyphonicVoice(parameters: voiceParams)
             voices.append(voice)
         }
@@ -78,6 +72,8 @@ final class VoicePool {
         for voice in voices {
             voiceMixer.addInput(voice.envelope)
         }
+        
+        print("🎵 VoicePool created with \(voices.count) voice(s) (\(voices.count == 1 ? "monophonic" : "polyphonic") mode)")
     }
     
     /// Initializes all voices (starts oscillators)
@@ -93,7 +89,7 @@ final class VoicePool {
         }
         
         isInitialized = true
-        print("🎵 VoicePool initialized with \(voiceCount) voices")
+        print("🎵 VoicePool initialized with \(voices.count) voices")
     }
     
     /// Sets references to FX nodes for global LFO modulation
@@ -116,13 +112,13 @@ final class VoicePool {
         var index = currentVoiceIndex
         
         // First pass: look for available voices
-        while checkedCount < voiceCount {
+        while checkedCount < voices.count {
             if voices[index].isAvailable {
                 currentVoiceIndex = index
                 return voices[index]
             }
             
-            index = (index + 1) % voiceCount
+            index = (index + 1) % voices.count
             checkedCount += 1
         }
         
@@ -141,7 +137,7 @@ final class VoicePool {
     
     /// Increments to the next voice index (round-robin)
     private func incrementVoiceIndex() {
-        currentVoiceIndex = (currentVoiceIndex + 1) % voiceCount
+        currentVoiceIndex = (currentVoiceIndex + 1) % voices.count
     }
     
     // MARK: - Note Triggering
@@ -237,7 +233,7 @@ final class VoicePool {
             
             // Create new voices with updated parameters
             var newVoices: [PolyphonicVoice] = []
-            for _ in 0...currentPolyphony {
+            for _ in 0..<currentPolyphony {
                 let voice = PolyphonicVoice(parameters: parameters)
                 newVoices.append(voice)
             }
@@ -259,7 +255,7 @@ final class VoicePool {
                     }
                 }
                 
-                print("🎵 Voice recreation complete - \(self.voiceCount) voices ready")
+                print("🎵 Voice recreation complete - \(self.voices.count) voices ready")
                 completion()
             }
         }
@@ -272,7 +268,7 @@ final class VoicePool {
     /// - Parameter count: Number of voices (typically 1 for mono, nominalPolyphony for poly)
     /// - Parameter completion: Called after recreation is complete
     func setPolyphony(_ count: Int, completion: @escaping () -> Void) {
-        print("🎵 Changing polyphony from \(voiceCount) to \(count) voices...")
+        print("🎵 Changing polyphony from \(voices.count) to \(count) voices...")
         
         // Stop all playing notes and clear key mappings
         stopAll()
@@ -294,9 +290,6 @@ final class VoicePool {
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.05) {
             // Clear the voices array (this will deallocate the old voices)
             self.voices.removeAll()
-            
-            // Update voice count
-            self.voiceCount = count
             
             // Update global currentPolyphony to match
             currentPolyphony = count
@@ -547,9 +540,9 @@ final class VoicePool {
     /// Prints current voice pool status
     func printStatus() {
         print("🎵 Voice Pool Status:")
-        print("   Total voices: \(voiceCount)")
+        print("   Total voices: \(voices.count)")
         print("   Active voices: \(activeVoiceCount)")
-        print("   Available voices: \(voiceCount - activeVoiceCount)")
+        print("   Available voices: \(voices.count - activeVoiceCount)")
         print("   Keys pressed: \(keyToVoiceMap.count)")
         print("   Global LFO: \(globalLFO.isEnabled ? "enabled" : "disabled")")
         print("   Modulation timer: \(modulationTimer != nil ? "running" : "stopped")")
