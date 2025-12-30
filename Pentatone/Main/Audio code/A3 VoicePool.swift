@@ -34,6 +34,10 @@ final class VoicePool {
     /// Enables precise release tracking without frequency matching
     private var keyToVoiceMap: [Int: PolyphonicVoice] = [:]
     
+    /// In monophonic mode, tracks which key currently "owns" the active voice
+    /// Only the owning key can release the voice (last-note priority)
+    private var monoVoiceOwner: Int? = nil
+    
     /// Flag to track if the voice pool has been initialized
     private var isInitialized: Bool = false
     
@@ -192,6 +196,11 @@ final class VoicePool {
         // Map this key to the voice for precise release tracking
         keyToVoiceMap[keyIndex] = voice
         
+        // In monophonic mode, this key becomes the new owner
+        if currentPolyphony == 1 {
+            monoVoiceOwner = keyIndex
+        }
+        
         print("🎵 Key \(keyIndex): Allocated voice, base frequency \(frequency) Hz → final \(finalFrequency) Hz (×\(globalPitch.combinedFactor))")
         
         // Move to next voice for round-robin
@@ -208,12 +217,24 @@ final class VoicePool {
             return
         }
         
-        // Start envelope release
-        voice.release()
+        // In monophonic mode, only release if this key is the current owner
+        if currentPolyphony == 1 {
+            if monoVoiceOwner == keyIndex {
+                // This is the owning key - release the voice
+                voice.release()
+                print("🎵 Key \(keyIndex): Released (mono owner)")
+                monoVoiceOwner = nil
+            } else {
+                // This is not the owning key - just remove from map without releasing
+                print("🎵 Key \(keyIndex): Removed from map (not mono owner)")
+            }
+        } else {
+            // Polyphonic mode - always release
+            voice.release()
+            print("🎵 Key \(keyIndex): Released")
+        }
         
-        print("🎵 Key \(keyIndex): Released")
-        
-        // Remove mapping immediately - key is no longer pressed
+        // Remove mapping - key is no longer pressed
         keyToVoiceMap.removeValue(forKey: keyIndex)
         
         // Note: Voice will mark itself available after release duration completes
@@ -226,6 +247,7 @@ final class VoicePool {
             voice.isAvailable = true
         }
         keyToVoiceMap.removeAll()
+        monoVoiceOwner = nil
         print("🎵 All voices stopped")
     }
     
@@ -326,6 +348,9 @@ final class VoicePool {
         
         // Reset voice index
         currentVoiceIndex = 0
+        
+        // Clear mono voice owner when switching modes
+        monoVoiceOwner = nil
         
         // Update global currentPolyphony
         currentPolyphony = count
