@@ -38,8 +38,8 @@ struct ContourView: View {
                     }
                 ),
                 range: 0...5,
-                step: 0.01,
-                displayFormatter: { String(format: "%.2f s", $0) }
+                step: 0.001,
+                displayFormatter: { String(format: "%.3f s", $0) }
             )
             
             // Row 4 - Amp Envelope Decay (0-5 seconds)
@@ -53,8 +53,8 @@ struct ContourView: View {
                     }
                 ),
                 range: 0...5,
-                step: 0.01,
-                displayFormatter: { String(format: "%.2f s", $0) }
+                step: 0.001,
+                displayFormatter: { String(format: "%.3f s", $0) }
             )
             
             // Row 5 - Amp Envelope Sustain (0-1)
@@ -68,8 +68,8 @@ struct ContourView: View {
                     }
                 ),
                 range: 0...1,
-                step: 0.01,
-                displayFormatter: { String(format: "%.2f", $0) }
+                step: 0.001,
+                displayFormatter: { String(format: "%.3f", $0) }
             )
             
             // Row 6 - Amp Envelope Release (0-5 seconds)
@@ -83,8 +83,8 @@ struct ContourView: View {
                     }
                 ),
                 range: 0...5,
-                step: 0.01,
-                displayFormatter: { String(format: "%.2f s", $0) }
+                step: 0.001,
+                displayFormatter: { String(format: "%.3f s", $0) }
             )
             
             // Row 7 - Filter Cutoff (20-20000 Hz, logarithmic)

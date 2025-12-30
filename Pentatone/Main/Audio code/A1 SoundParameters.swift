@@ -182,7 +182,7 @@ struct VoiceParameters: Codable, Equatable {
             ),
             touchAftertouch: TouchAftertouchParameters(
                 destination: .filterCutoff,          // Aftertouch controls filter
-                amount: 5.0,                         // Moderate sensitivity
+                amount: 10.0,                         // Moderate sensitivity
                 isEnabled: true                      // Standard aftertouch control
             )
         )
