@@ -231,6 +231,13 @@ final class PolyphonicVoice {
         stereoMixer.removeInput(panLeft)
         stereoMixer.removeInput(panRight)
         
+        // Explicitly detach old panners and oscillators to ensure proper cleanup
+        // This helps AudioKit release internal references and prevents memory buildup
+        panLeft.detach()
+        panRight.detach()
+        oscLeft.detach()
+        oscRight.detach()
+        
         // Create new oscillators with the new waveform
         let newOscLeft = FMOscillator(
             waveform: waveform.makeTable(),
@@ -258,7 +265,7 @@ final class PolyphonicVoice {
         stereoMixer.addInput(newPanLeft)
         stereoMixer.addInput(newPanRight)
         
-        // Update references
+        // Update references (old nodes will now be deallocated by ARC)
         self.oscLeft = newOscLeft
         self.oscRight = newOscRight
         self.panLeft = newPanLeft
