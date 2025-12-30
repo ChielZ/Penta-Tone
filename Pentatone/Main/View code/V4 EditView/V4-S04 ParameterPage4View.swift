@@ -19,51 +19,118 @@ PAGE 4 - GLOBAL
 import SwiftUI
 
 struct GlobalView: View {
+    // Connect to the global parameter manager
+    @ObservedObject private var paramManager = AudioParameterManager.shared
+    
     var body: some View {
         Group {
-            ZStack { // Row 3
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("TEMPO")
-                        .foregroundColor(Color("HighlightColour"))
-            }
-            ZStack { // Row 4
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("POLYPHONY")
-                        .foregroundColor(Color("HighlightColour"))
-            }
-            ZStack { // Row 6
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("ROOT FREQUENCY")
-                        .foregroundColor(Color("HighlightColour"))
-            }
-            ZStack { // Row 6
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("ROOT OCTAVE")
-                        .foregroundColor(Color("HighlightColour"))
-            }
+            // Row 3 - Tempo (30-240 BPM, integers only)
+            IntegerSliderRow(
+                label: "TEMPO",
+                value: Binding(
+                    get: { paramManager.master.tempo },
+                    set: { newValue in
+                        paramManager.updateTempo(newValue)
+                    }
+                ),
+                range: 30...240
+            )
             
-            ZStack { // Row 7
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("FINE TUNE")
-                        .foregroundColor(Color("HighlightColour"))
-            }
-            ZStack { // Row 8
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("PRE VOLUME")
-                        .foregroundColor(Color("HighlightColour"))
-            }
-            ZStack { // Row 9
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-                Text("POST VOLUME")
-                        .foregroundColor(Color("HighlightColour"))
-            }
+            // Row 4 - Voice Mode (Poly/Mono)
+            ParameterRow(
+                label: "VOICE MODE",
+                value: Binding(
+                    get: { paramManager.master.voiceMode },
+                    set: { newValue in
+                        paramManager.updateVoiceMode(newValue)
+                    }
+                ),
+                displayText: { mode in
+                    switch mode {
+                    case .monophonic: return "MONO"
+                    case .polyphonic: return "POLY"
+                    }
+                }
+            )
+            
+            // Row 5 - Semitone Offset (-7 to +7, integers only)
+            SliderRow(
+                label: "SEMITONE OFFSET",
+                value: Binding(
+                    get: { Double(paramManager.master.globalPitch.transposeSemitones) },
+                    set: { newValue in
+                        paramManager.updateTransposeSemitones(Int(round(newValue)))
+                    }
+                ),
+                range: -7...7,
+                step: 1.0,
+                displayFormatter: { value in
+                    let semitones = Int(round(value))
+                    return semitones > 0 ? "+\(semitones)" : "\(semitones)"
+                }
+            )
+            
+            // Row 6 - Octave Offset (-2 to +2, integers only)
+            SliderRow(
+                label: "OCTAVE OFFSET",
+                value: Binding(
+                    get: { Double(paramManager.master.globalPitch.octaveOffset) },
+                    set: { newValue in
+                        paramManager.updateOctaveOffset(Int(round(newValue)))
+                    }
+                ),
+                range: -2...2,
+                step: 1.0,
+                displayFormatter: { value in
+                    let octaves = Int(round(value))
+                    return octaves > 0 ? "+\(octaves)" : "\(octaves)"
+                }
+            )
+            
+            // Row 7 - Fine Tune (-50 to +50 cents, integers only)
+            SliderRow(
+                label: "FINE TUNE",
+                value: Binding(
+                    get: { paramManager.master.globalPitch.fineTuneCents },
+                    set: { newValue in
+                        paramManager.updateFineTuneCents(newValue)
+                    }
+                ),
+                range: -50...50,
+                step: 1.0,
+                displayFormatter: { value in
+                    let cents = Int(round(value))
+                    return cents > 0 ? "+\(cents)" : "\(cents)"
+                }
+            )
+            
+            // Row 8 - Pre Volume (0-1 continuous)
+            SliderRow(
+                label: "PRE VOLUME",
+                value: Binding(
+                    get: { paramManager.master.output.preVolume },
+                    set: { newValue in
+                        paramManager.updatePreVolume(newValue)
+                    }
+                ),
+                range: 0...1,
+                step: 0.01,
+                displayFormatter: { String(format: "%.2f", $0) }
+            )
+            
+            // Row 9 - Post Volume (0-1 continuous)
+            SliderRow(
+                label: "POST VOLUME",
+                value: Binding(
+                    get: { paramManager.master.output.volume },
+                    set: { newValue in
+                        paramManager.updateOutputVolume(newValue)
+                    }
+                ),
+                range: 0...1,
+                step: 0.01,
+                displayFormatter: { String(format: "%.2f", $0) }
+            )
         }
     }
 }
