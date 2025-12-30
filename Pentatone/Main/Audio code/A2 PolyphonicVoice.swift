@@ -409,6 +409,11 @@ final class PolyphonicVoice {
         // This ensures the modulation system uses the new value as the base
         modulationState.baseModulationIndex = parameters.modulationIndex
         
+        // Update stereo spread parameters
+        detuneMode = parameters.detuneMode
+        frequencyOffsetRatio = parameters.stereoOffsetProportional
+        frequencyOffsetHz = parameters.stereoOffsetConstant
+        
         // Note: Waveform cannot be changed dynamically in AudioKit's FMOscillator
         // Waveform changes require voice recreation (handled by VoicePool.recreateVoices)
     }

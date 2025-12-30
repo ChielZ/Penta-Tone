@@ -163,33 +163,13 @@ struct OscillatorView: View {
     }
     
     /// Applies current template parameters to all active voices
-    /// Note: Waveform changes only apply to newly triggered notes
+    /// Uses the proper voice update method to ensure modulation state is updated
     private func applyToAllVoices() {
         let params = paramManager.voiceTemplate.oscillator
         
-        // Apply to all voices in the pool
-        for voice in voicePool.voices {
-            // Note: Waveform cannot be changed on running oscillators in AudioKit
-            // New waveform will apply to newly triggered notes only
-            
-            // Update multipliers with zero-duration ramp (instant change)
-            voice.oscLeft.$carrierMultiplier.ramp(to: AUValue(params.carrierMultiplier), duration: 0)
-            voice.oscRight.$carrierMultiplier.ramp(to: AUValue(params.carrierMultiplier), duration: 0)
-            
-            voice.oscLeft.$modulatingMultiplier.ramp(to: AUValue(params.modulatingMultiplier), duration: 0)
-            voice.oscRight.$modulatingMultiplier.ramp(to: AUValue(params.modulatingMultiplier), duration: 0)
-            
-            voice.oscLeft.$modulationIndex.ramp(to: AUValue(params.modulationIndex), duration: 0)
-            voice.oscRight.$modulationIndex.ramp(to: AUValue(params.modulationIndex), duration: 0)
-            
-            // Update stereo spread
-            voice.detuneMode = params.detuneMode
-            if params.detuneMode == .proportional {
-                voice.frequencyOffsetRatio = params.stereoOffsetProportional
-            } else {
-                voice.frequencyOffsetHz = params.stereoOffsetConstant
-            }
-        }
+        // Apply to all voices using the proper update method
+        // This ensures modulationState.baseModulationIndex is updated correctly
+        voicePool.updateAllVoiceOscillators(params)
     }
 }
 

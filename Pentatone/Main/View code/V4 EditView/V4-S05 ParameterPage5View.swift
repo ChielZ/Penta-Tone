@@ -94,7 +94,7 @@ struct ModEnvView: View {
                         applyModulationToAllVoices()
                     }
                 ),
-                range: -1...1,
+                range: -5...5,
                 step: 0.01,
                 displayFormatter: { value in
                     let rounded = value
