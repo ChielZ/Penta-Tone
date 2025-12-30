@@ -656,6 +656,41 @@ final class AudioParameterManager: ObservableObject {
         voiceTemplate.modulation.auxiliaryEnvelope.amount = value
     }
     
+    /// Update voice LFO waveform
+    func updateVoiceLFOWaveform(_ waveform: LFOWaveform) {
+        voiceTemplate.modulation.voiceLFO.waveform = waveform
+    }
+    
+    /// Update voice LFO reset mode
+    func updateVoiceLFOResetMode(_ mode: LFOResetMode) {
+        voiceTemplate.modulation.voiceLFO.resetMode = mode
+    }
+    
+    /// Update voice LFO frequency mode
+    func updateVoiceLFOFrequencyMode(_ mode: LFOFrequencyMode) {
+        voiceTemplate.modulation.voiceLFO.frequencyMode = mode
+    }
+    
+    /// Update voice LFO frequency
+    func updateVoiceLFOFrequency(_ value: Double) {
+        voiceTemplate.modulation.voiceLFO.frequency = value
+    }
+    
+    /// Update voice LFO destination
+    func updateVoiceLFODestination(_ destination: ModulationDestination) {
+        voiceTemplate.modulation.voiceLFO.destination = destination
+    }
+    
+    /// Update voice LFO amount
+    func updateVoiceLFOAmount(_ value: Double) {
+        voiceTemplate.modulation.voiceLFO.amount = value
+    }
+    
+    /// Update voice LFO enabled state
+    func updateVoiceLFOEnabled(_ enabled: Bool) {
+        voiceTemplate.modulation.voiceLFO.isEnabled = enabled
+    }
+    
     // MARK: - Preset Management
     
     /// Load a complete parameter set (preset)
