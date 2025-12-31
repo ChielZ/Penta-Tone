@@ -6,13 +6,16 @@
 // SUBVIEW 7 - VOICE LFO
 
 /*
-PAGE 7 - VOICE LFO
-1) Voice LFO waveform (sine, triangle, square, sawtooth, reversed sawtooth)
-2) Voice LFO reset mode (free, trigger, sync)
-3) Voice LFO frequency (0-10 Hz or tempo multipliers depending on mode)
-4) Voice LFO destination (Oscillator baseFrequency [default], modulationIndex, modulatingMultiplier, Filter frequency, stereo spread offset amount)
-5) Voice LFO amount (bipolar modulation, so only positive amounts)
-*/
+ TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
+ PAGE 7 - VOICE LFO
+ √ 1) Voice LFO waveform
+ √ 2) Voice LFO mode (free/trigger/sync)
+ √ 3) Voice LFO frequency
+ ! 4) Voice LFO to oscillator pitch amount
+ ! 5) Voice LFO to filter frequency amount
+ ! 6) Voice LFO to modulator level amount
+ ! 7) Voice LFO delay (ramps amounts)
+ */
 
  
 import SwiftUI

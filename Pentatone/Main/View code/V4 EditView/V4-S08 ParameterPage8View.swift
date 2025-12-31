@@ -6,13 +6,16 @@
 // SUBVIEW 8 - GLOBAL LFO
 
 /*
-PAGE 8 - GLOBAL LFO
-1) Global LFO waveform (sine, triangle, square, sawtooth, reversed sawtooth)
-2) Global LFO reset mode (free, sync)
-3) Global LFO frequency (0-10 Hz or tempo multipliers depending on mode)
-4) Global LFO destination (Oscillator amplitude [default], Oscillator baseFrequency, modulationIndex, modulatingMultiplier, Filter frequency, delay time, delay amount)
-5) Global LFO amount (bipolar modulation, so only positive amounts)
-*/
+ TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
+ PAGE 8 - GLOBAL LFO
+ √ 1) Global LFO waveform
+ √ 2) Global LFO mode (free/sync)
+ √ 3) Global LFO frequency
+ ! 4) Global LFO to oscillator amplitude amount
+ ! 5) Global LFO to modulator multiplier (fine) amount
+ ! 6) Global LFO to filter frequency amount
+ ! 7) Global LFO to delay time amount
+ */
 
 import SwiftUI
 

@@ -6,14 +6,15 @@
 // SUBVIEW 5 - MOD ENVELOPE + KEY TRACKING
 
 /*
-PAGE 5 - MODULATOR ENVELOPE  + KEYBOARD TRACKING
-1) Mod Envelope Attack time. SLIDER. Values: 0-5 continuous
-2) Mod Envelope Decay time. SLIDER. Values: 0-5 continuous
-3) Mod Envelope Sustain level. SLIDER. Values: 0-1 continuous
-4) Mod Envelope Release time. SLIDER. Values: 0-5 continuous
-5) Mod Envelope amount (=> modulationIndex + Modulation envelope value * envelope amount)
-6) Key tracking destination (Oscillator amplitude, modulationIndex, modulatingMultiplier, Filter frequency, Voice LFO frequency, Voice LFO mod amount)
-7) Key tracking amount (unipolar modulation, so positive and negative amount)
+ TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
+ PAGE 5 - MODULATOR ENVELOPE  + KEYBOARD TRACKING
+ √ 1) Mod Envelope Attack time
+ √ 2) Mod Envelope Decay time
+ √ 3) Mod Envelope Sustain level
+ √ 4) Mod Envelope Release time
+ √ 5) Mod Envelope amount
+ ! 6) Key track to filter frequency amount
+ ! 7) Key track to voice lfo frequency amount
 */
 
 import SwiftUI

@@ -6,13 +6,15 @@
 // SUBVIEW 6 - AUX ENVELOPE
 
 /*
-PAGE 6 - AUXILIARY ENVELOPE
-1) Aux envelope Attack time. SLIDER. Values: 0-5 continuous
-2) Aux envelope Decay time. SLIDER. Values: 0-5 continuous
-3) Aux envelope Sustain level. SLIDER. Values: 0-1 continuous
-4) Aux envelope Release time. SLIDER. Values: 0-5 continuous
-5) Aux envelope destination (Oscillator baseFrequency, modulatingMultiplier, Filter frequency [default], Voice LFO frequency, Voice LFO mod amount)
-6) Aux envelope amount (unipolar modulation, so positive and negative amount)
+ TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
+ PAGE 6 - AUXILIARY ENVELOPE
+ √ 1) Aux envelope Attack time
+ √ 2) Aux envelope Decay time
+ √ 3) Aux envelope Sustain level
+ √ 4) Aux envelope Release time
+ ! 5) Aux envelope to oscillator pitch amount
+ ! 6) Aux envelope to filter frequency amount
+ ! 7) Aux envelope to vibrato (voice lfo >> oscillator pitch) amount
 */
 
 import SwiftUI
