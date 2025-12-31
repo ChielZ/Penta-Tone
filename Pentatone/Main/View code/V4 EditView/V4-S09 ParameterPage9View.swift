@@ -17,7 +17,7 @@ PAGE 9 - TOUCH RESPONSE
 7) Aftertouch to vibrato (voice lfo >> oscillator pitch) amount
 */
 
-
+/*
  import SwiftUI
 
  struct TouchView: View {
@@ -91,4 +91,4 @@ PAGE 9 - TOUCH RESPONSE
      }
  }
 
- 
+ */
