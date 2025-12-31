@@ -145,47 +145,7 @@ struct VoiceParameters: Codable, Equatable {
         oscillator: .default,
         filter: .default,
         envelope: .default,
-        modulation: VoiceModulationParameters(
-            modulatorEnvelope: ModulationEnvelopeParameters(
-                attack: 0.01,
-                decay: 0.2,
-                sustain: 0.3,
-                release: 0.1,
-                destination: .modulationIndex,
-                amount: 0.0,
-                isEnabled: true
-            ),
-            auxiliaryEnvelope: ModulationEnvelopeParameters(
-                attack: 0.1,
-                decay: 0.2,
-                sustain: 0.5,
-                release: 0.3,
-                destination: .filterCutoff,
-                amount: 0.0,
-                isEnabled: true
-            ),
-            voiceLFO: LFOParameters(
-                waveform: .square,
-                resetMode: .free,
-                frequencyMode: .hertz,
-                frequency: 6.0,
-                destination: .oscillatorAmplitude,
-                amount: 0.0,                         // Disabled by default
-                isEnabled: true
-            ),
-            keyTracking: .default,
-            
-            touchInitial: TouchInitialParameters(
-                destination: .oscillatorAmplitude,   // Touch X controls amplitude
-                amount: 1.0,                         // Full range (0.0 to 1.0)
-                isEnabled: false                      // Standard touch control
-            ),
-            touchAftertouch: TouchAftertouchParameters(
-                destination: .filterCutoff,          // Aftertouch controls filter
-                amount: 10.0,                         // Moderate sensitivity
-                isEnabled: false                      // Standard aftertouch control
-            )
-        )
+        modulation: .default  // Uses VoiceModulationParameters.default
     )
 }
 
@@ -303,15 +263,7 @@ struct MasterParameters: Codable, Equatable {
         reverb: .default,
         output: .default,
         globalPitch: .default,
-        globalLFO: GlobalLFOParameters(
-            waveform: .sine,
-            resetMode: .free,
-            frequencyMode: .hertz,
-            frequency: 1.5,                    // 1.5 Hz slow wobble
-            destination: .delayTime, // ← CHANGE THIS to test different destinations
-            amount: 0.0,                       // ← CHANGE THIS (0.0 = off, 1.0 = max)
-            isEnabled: false                    // ← SET TO false TO DISABLE
-        ),
+        globalLFO: .default,  // Uses GlobalLFOParameters.default
         tempo: 120.0,
         voiceMode: .polyphonic
     )
@@ -601,24 +553,38 @@ final class AudioParameterManager: ObservableObject {
         voiceTemplate.modulation.modulatorEnvelope.release = value
     }
     
-    /// Update modulator envelope amount
-    func updateModulatorEnvelopeAmount(_ value: Double) {
-        voiceTemplate.modulation.modulatorEnvelope.amount = value
+    /// Update modulator envelope amount to modulation index
+    func updateModulatorEnvelopeAmountToModulationIndex(_ value: Double) {
+        voiceTemplate.modulation.modulatorEnvelope.amountToModulationIndex = value
     }
     
-    /// Update modulator envelope destination
+    /// Update modulator envelope destination (deprecated - destination is now fixed)
+    @available(*, deprecated, message: "Modulator envelope destination is now fixed to modulation index")
     func updateModulatorEnvelopeDestination(_ destination: ModulationDestination) {
-        voiceTemplate.modulation.modulatorEnvelope.destination = destination
+        // No-op: destination is now fixed
     }
     
-    /// Update key tracking destination
+    /// Update key tracking amount to filter frequency
+    func updateKeyTrackingAmountToFilterFrequency(_ value: Double) {
+        voiceTemplate.modulation.keyTracking.amountToFilterFrequency = value
+    }
+    
+    /// Update key tracking amount to voice LFO frequency
+    func updateKeyTrackingAmountToVoiceLFOFrequency(_ value: Double) {
+        voiceTemplate.modulation.keyTracking.amountToVoiceLFOFrequency = value
+    }
+    
+    /// Update key tracking destination (deprecated - destinations are now fixed)
+    @available(*, deprecated, message: "Key tracking destinations are now fixed")
     func updateKeyTrackingDestination(_ destination: ModulationDestination) {
-        voiceTemplate.modulation.keyTracking.destination = destination
+        // No-op: destinations are now fixed
     }
     
-    /// Update key tracking amount
+    /// Update key tracking amount (deprecated - use specific amount methods)
+    @available(*, deprecated, message: "Use updateKeyTrackingAmountToFilterFrequency or updateKeyTrackingAmountToVoiceLFOFrequency")
     func updateKeyTrackingAmount(_ value: Double) {
-        voiceTemplate.modulation.keyTracking.amount = value
+        // Default to filter frequency for backward compatibility
+        voiceTemplate.modulation.keyTracking.amountToFilterFrequency = value
     }
     
     /// Update key tracking enabled state
@@ -646,14 +612,32 @@ final class AudioParameterManager: ObservableObject {
         voiceTemplate.modulation.auxiliaryEnvelope.release = value
     }
     
-    /// Update auxiliary envelope destination
-    func updateAuxiliaryEnvelopeDestination(_ destination: ModulationDestination) {
-        voiceTemplate.modulation.auxiliaryEnvelope.destination = destination
+    /// Update auxiliary envelope amount to oscillator pitch
+    func updateAuxiliaryEnvelopeAmountToPitch(_ value: Double) {
+        voiceTemplate.modulation.auxiliaryEnvelope.amountToOscillatorPitch = value
     }
     
-    /// Update auxiliary envelope amount
+    /// Update auxiliary envelope amount to filter frequency
+    func updateAuxiliaryEnvelopeAmountToFilter(_ value: Double) {
+        voiceTemplate.modulation.auxiliaryEnvelope.amountToFilterFrequency = value
+    }
+    
+    /// Update auxiliary envelope amount to vibrato (voice LFO pitch amount)
+    func updateAuxiliaryEnvelopeAmountToVibrato(_ value: Double) {
+        voiceTemplate.modulation.auxiliaryEnvelope.amountToVibrato = value
+    }
+    
+    /// Update auxiliary envelope destination (deprecated - destinations are now fixed)
+    @available(*, deprecated, message: "Auxiliary envelope destinations are now fixed")
+    func updateAuxiliaryEnvelopeDestination(_ destination: ModulationDestination) {
+        // No-op: destinations are now fixed
+    }
+    
+    /// Update auxiliary envelope amount (deprecated - use specific amount methods)
+    @available(*, deprecated, message: "Use updateAuxiliaryEnvelopeAmountToPitch, AmountToFilter, or AmountToVibrato")
     func updateAuxiliaryEnvelopeAmount(_ value: Double) {
-        voiceTemplate.modulation.auxiliaryEnvelope.amount = value
+        // Default to filter for backward compatibility
+        voiceTemplate.modulation.auxiliaryEnvelope.amountToFilterFrequency = value
     }
     
     /// Update voice LFO waveform
@@ -676,20 +660,45 @@ final class AudioParameterManager: ObservableObject {
         voiceTemplate.modulation.voiceLFO.frequency = value
     }
     
-    /// Update voice LFO destination
-    func updateVoiceLFODestination(_ destination: ModulationDestination) {
-        voiceTemplate.modulation.voiceLFO.destination = destination
+    /// Update voice LFO delay time (ramp time)
+    func updateVoiceLFODelayTime(_ value: Double) {
+        voiceTemplate.modulation.voiceLFO.delayTime = value
     }
     
-    /// Update voice LFO amount
+    /// Update voice LFO amount to oscillator pitch
+    func updateVoiceLFOAmountToPitch(_ value: Double) {
+        voiceTemplate.modulation.voiceLFO.amountToOscillatorPitch = value
+    }
+    
+    /// Update voice LFO amount to filter frequency
+    func updateVoiceLFOAmountToFilter(_ value: Double) {
+        voiceTemplate.modulation.voiceLFO.amountToFilterFrequency = value
+    }
+    
+    /// Update voice LFO amount to modulator level
+    func updateVoiceLFOAmountToModulatorLevel(_ value: Double) {
+        voiceTemplate.modulation.voiceLFO.amountToModulatorLevel = value
+    }
+    
+    /// Update voice LFO destination (deprecated - destinations are now fixed)
+    @available(*, deprecated, message: "Voice LFO destinations are now fixed")
+    func updateVoiceLFODestination(_ destination: ModulationDestination) {
+        // No-op: destinations are now fixed
+    }
+    
+    /// Update voice LFO amount (deprecated - use specific amount methods)
+    @available(*, deprecated, message: "Use updateVoiceLFOAmountToPitch, AmountToFilter, or AmountToModulatorLevel")
     func updateVoiceLFOAmount(_ value: Double) {
-        voiceTemplate.modulation.voiceLFO.amount = value
+        // Default to pitch for backward compatibility
+        voiceTemplate.modulation.voiceLFO.amountToOscillatorPitch = value
     }
     
     /// Update voice LFO enabled state
     func updateVoiceLFOEnabled(_ enabled: Bool) {
         voiceTemplate.modulation.voiceLFO.isEnabled = enabled
     }
+    
+    // MARK: - Global LFO Parameter Updates
     
     /// Update global LFO waveform
     func updateGlobalLFOWaveform(_ waveform: LFOWaveform) {
@@ -711,20 +720,81 @@ final class AudioParameterManager: ObservableObject {
         master.globalLFO.frequency = value
     }
     
-    /// Update global LFO destination
-    func updateGlobalLFODestination(_ destination: ModulationDestination) {
-        master.globalLFO.destination = destination
+    /// Update global LFO amount to oscillator amplitude
+    func updateGlobalLFOAmountToAmplitude(_ value: Double) {
+        master.globalLFO.amountToOscillatorAmplitude = value
     }
     
-    /// Update global LFO amount
+    /// Update global LFO amount to modulator multiplier
+    func updateGlobalLFOAmountToModulatorMultiplier(_ value: Double) {
+        master.globalLFO.amountToModulatorMultiplier = value
+    }
+    
+    /// Update global LFO amount to filter frequency
+    func updateGlobalLFOAmountToFilter(_ value: Double) {
+        master.globalLFO.amountToFilterFrequency = value
+    }
+    
+    /// Update global LFO amount to delay time
+    func updateGlobalLFOAmountToDelayTime(_ value: Double) {
+        master.globalLFO.amountToDelayTime = value
+    }
+    
+    /// Update global LFO destination (deprecated - destinations are now fixed)
+    @available(*, deprecated, message: "Global LFO destinations are now fixed")
+    func updateGlobalLFODestination(_ destination: ModulationDestination) {
+        // No-op: destinations are now fixed
+    }
+    
+    /// Update global LFO amount (deprecated - use specific amount methods)
+    @available(*, deprecated, message: "Use updateGlobalLFOAmountToAmplitude, AmountToModulatorMultiplier, AmountToFilter, or AmountToDelayTime")
     func updateGlobalLFOAmount(_ value: Double) {
-        master.globalLFO.amount = value
+        // Default to amplitude for backward compatibility
+        master.globalLFO.amountToOscillatorAmplitude = value
     }
     
     /// Update global LFO enabled state
     func updateGlobalLFOEnabled(_ enabled: Bool) {
         master.globalLFO.isEnabled = enabled
     }
+    
+    // MARK: - Touch Response Parameter Updates
+    
+    /// Update initial touch amount to oscillator amplitude
+    func updateInitialTouchAmountToAmplitude(_ value: Double) {
+        voiceTemplate.modulation.touchInitial.amountToOscillatorAmplitude = value
+    }
+    
+    /// Update initial touch amount to mod envelope
+    func updateInitialTouchAmountToModEnvelope(_ value: Double) {
+        voiceTemplate.modulation.touchInitial.amountToModEnvelope = value
+    }
+    
+    /// Update initial touch amount to aux envelope pitch
+    func updateInitialTouchAmountToAuxEnvPitch(_ value: Double) {
+        voiceTemplate.modulation.touchInitial.amountToAuxEnvPitch = value
+    }
+    
+    /// Update initial touch amount to aux envelope cutoff
+    func updateInitialTouchAmountToAuxEnvCutoff(_ value: Double) {
+        voiceTemplate.modulation.touchInitial.amountToAuxEnvCutoff = value
+    }
+    
+    /// Update aftertouch amount to filter frequency
+    func updateAftertouchAmountToFilter(_ value: Double) {
+        voiceTemplate.modulation.touchAftertouch.amountToFilterFrequency = value
+    }
+    
+    /// Update aftertouch amount to modulator level
+    func updateAftertouchAmountToModulatorLevel(_ value: Double) {
+        voiceTemplate.modulation.touchAftertouch.amountToModulatorLevel = value
+    }
+    
+    /// Update aftertouch amount to vibrato
+    func updateAftertouchAmountToVibrato(_ value: Double) {
+        voiceTemplate.modulation.touchAftertouch.amountToVibrato = value
+    }
+
     
     // MARK: - Preset Management
     

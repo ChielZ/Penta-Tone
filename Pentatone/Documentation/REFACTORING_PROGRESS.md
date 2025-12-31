@@ -56,27 +56,54 @@ Refactoring from **selectable destinations** to **fixed destinations with indivi
 
 ---
 
-## 🔄 Phase 3: Update VoicePool (A3) - IN PROGRESS
+## ✅ Phase 3: Update VoicePool (A3) - COMPLETE
 
-### Tasks:
-1. Update `updateGlobalLFO()` method signature
-2. Rewrite `applyGlobalLFOToGlobalParameters()` for multiple fixed destinations
-3. Update `updateModulation()` to pass multiple amounts to voices
-4. Update diagnostic methods
+### Changes Made:
+1. ✅ Updated `updateModulation()` to pass global LFO as parameters tuple
+2. ✅ Refactored `updateGlobalLFOPhase()` to return raw value (unscaled)
+3. ✅ Rewrote `applyGlobalLFOToGlobalParameters()` for fixed destination (delay time only)
+4. ✅ Removed old destination-based switching logic
+5. ✅ Early-exit optimization with `hasActiveDestinations`
+6. ✅ Uses `ModulationRouter.calculateDelayTime()` for proper calculation
+
+### Key Features:
+- Global LFO raw value calculated once and passed to all voices
+- Voice-level global LFO destinations handled in PolyphonicVoice
+- Only delay time modulation handled at pool level
+- Clean separation of concerns
+
+### Status: ✅ COMPLETE - Ready for Phase 4
 
 ---
 
-## ⏳ Phase 4: Update AudioParameterManager (A1) - TODO
+## ✅ Phase 4: Update AudioParameterManager (A1) - COMPLETE
 
-### Tasks:
-1. Remove old `update...Destination()` methods
-2. Add new `update...AmountTo...()` methods for each source/destination pair
-3. Update all affected code paths
-4. Add early-exit optimizations (skip when amount = 0)
+### Changes Made:
+1. ✅ Updated `VoiceParameters.default` to use new modulation structure
+2. ✅ Updated `MasterParameters.default` to use new global LFO structure
+3. ✅ Removed all old `update...Destination()` methods (deprecated with backward compatibility)
+4. ✅ Added comprehensive set of new `update...AmountTo...()` methods:
+   - Modulator envelope: `updateModulatorEnvelopeAmountToModulationIndex()`
+   - Auxiliary envelope: 3 methods (pitch, filter, vibrato)
+   - Voice LFO: 3 methods + delay time (pitch, filter, modulator level)
+   - Global LFO: 4 methods (amplitude, modulator multiplier, filter, delay time)
+   - Key tracking: 2 methods (filter frequency, voice LFO frequency)
+   - Initial touch: 4 methods (amplitude, mod env, aux env pitch, aux env cutoff)
+   - Aftertouch: 3 methods (filter, modulator level, vibrato)
+5. ✅ All old methods marked as `@available(*, deprecated)` with helpful messages
+6. ✅ Backward compatibility maintained where possible
+
+### Key Features:
+- 30+ new amount update methods for complete control
+- All fixed destinations properly exposed
+- Deprecated methods provide migration path
+- Clean, consistent API naming
+
+### Status: ✅ COMPLETE - Ready for Phase 5 (Testing)
 
 ---
 
-## ⏳ Phase 5: Testing & Validation - TODO
+## 🔄 Phase 5: Testing & Validation - READY TO START
 
 ### Tasks:
 1. Verify compilation

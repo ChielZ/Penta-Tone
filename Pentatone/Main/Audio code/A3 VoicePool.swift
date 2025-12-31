@@ -462,34 +462,33 @@ final class VoicePool {
         print("🎵 Modulation system stopped")
     }
     
-    /// Updates modulation for all active voices (Phase 5B + 5C)
+    /// Updates modulation for all active voices (refactored for fixed destinations)
     /// Called by control-rate timer at 200 Hz on background thread
     private func updateModulation() {
         let deltaTime = ControlRateConfig.updateInterval
         
-        // Phase 5C: Update global LFO phase
-        let globalLFOValue = updateGlobalLFOPhase(deltaTime: deltaTime)
+        // Update global LFO phase and get raw value
+        let globalLFORawValue = updateGlobalLFOPhase(deltaTime: deltaTime)
         
-        // Apply global LFO to global-level destinations (delay, reverb, etc.)
-        applyGlobalLFOToGlobalParameters(value: globalLFOValue)
+        // Apply global LFO to global-level destinations (delay time only)
+        applyGlobalLFOToGlobalParameters(rawValue: globalLFORawValue)
         
-        // Update all active voices (voice envelopes + voice LFO + global LFO)
+        // Update all active voices with global LFO parameters
         // Note: This runs on background thread, AudioKit parameter updates are thread-safe
         for voice in voices where !voice.isAvailable {
             voice.applyModulation(
-                globalLFOValue: globalLFOValue,
-                globalLFODestination: globalLFO.destination,
+                globalLFO: (rawValue: globalLFORawValue, parameters: globalLFO),
                 deltaTime: deltaTime,
                 currentTempo: currentTempo
             )
         }
     }
     
-    // MARK: - Global LFO Phase Management (Phase 5C)
+    // MARK: - Global LFO Phase Management (Refactored)
     
-    /// Updates the global LFO phase and returns the current LFO value
+    /// Updates the global LFO phase and returns the raw waveform value
     /// - Parameter deltaTime: Time since last update (typically 0.005 seconds)
-    /// - Returns: Current global LFO value (-1.0 to +1.0, scaled by amount)
+    /// - Returns: Raw global LFO value (-1.0 to +1.0, unscaled by amounts)
     private func updateGlobalLFOPhase(deltaTime: Double) -> Double {
         guard globalLFO.isEnabled else { return 0.0 }
         
@@ -517,53 +516,28 @@ final class VoicePool {
             globalModulationState.globalLFOPhase -= floor(globalModulationState.globalLFOPhase)
         }
         
-        // Calculate and return LFO value
-        return globalLFO.currentValue(phase: globalModulationState.globalLFOPhase)
+        // Get raw LFO value (waveform output, not scaled by amounts)
+        return globalLFO.rawValue(at: globalModulationState.globalLFOPhase)
     }
     
-    /// Applies global LFO modulation to global-level parameters (delay, reverb)
-    /// - Parameter value: Current global LFO value (-1.0 to +1.0, scaled by amount)
-    private func applyGlobalLFOToGlobalParameters(value: Double) {
-        guard globalLFO.isEnabled, value != 0.0 else { return }
+    /// Applies global LFO modulation to global-level parameters (delay time)
+    /// - Parameter rawValue: Raw global LFO value (-1.0 to +1.0, unscaled)
+    private func applyGlobalLFOToGlobalParameters(rawValue: Double) {
+        guard globalLFO.isEnabled, globalLFO.hasActiveDestinations else { return }
         
-        let destination = globalLFO.destination
-        
-        // Only apply to global-level destinations
-        guard destination.isGlobalLevel else { return }
-        
-        switch destination {
-        case .delayTime:
-            // Modulate delay time
-            guard let delay = self.delay else { return }
+        // Global LFO Destination: Delay Time
+        if globalLFO.amountToDelayTime != 0.0, let delay = self.delay {
             let baseValue = Double(delay.time)
-            let modulated = ModulationRouter.applyLFOModulation(
-                baseValue: baseValue,
-                lfoValue: value,
-                destination: destination
+            let finalDelayTime = ModulationRouter.calculateDelayTime(
+                baseDelayTime: baseValue,
+                globalLFOValue: rawValue,
+                globalLFOAmount: globalLFO.amountToDelayTime
             )
-            // Use zero-duration ramp to avoid AudioKit parameter ramping artifacts
-            delay.$time.ramp(to: AUValue(modulated), duration: 0)
-            
-        case .delayMix:
-            // Modulate delay mix
-            guard let delay = self.delay else { return }
-            let baseValue = 1.0 - Double(delay.dryWetMix)  // Convert to our convention
-            let modulated = ModulationRouter.applyLFOModulation(
-                baseValue: baseValue,
-                lfoValue: value,
-                destination: destination
-            )
-            // Use zero-duration ramp to avoid AudioKit parameter ramping artifacts
-            delay.$dryWetMix.ramp(to: AUValue(1.0 - modulated), duration: 0)
-            
-        case .oscillatorAmplitude, .oscillatorBaseFrequency, .modulationIndex,
-             .modulatingMultiplier, .filterCutoff, .stereoSpreadAmount,
-             .voiceLFOFrequency, .voiceLFOAmount:
-            // These are voice-level destinations
-            // They will be applied by PolyphonicVoice.applyGlobalLFO() instead
-            // (Each voice needs to apply the global LFO to its own parameters)
-            break
+            delay.$time.ramp(to: AUValue(finalDelayTime), duration: 0)
         }
+        
+        // Note: Other global LFO destinations (amplitude, modulator multiplier, filter)
+        // are voice-level and handled by PolyphonicVoice.applyGlobalLFO()
     }
     
     // MARK: - Diagnostics

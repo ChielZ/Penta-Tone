@@ -369,15 +369,27 @@ final class PolyphonicVoice {
     func release() {
         envelope.closeGate()
         
-        // Phase 5B: Capture current envelope values for smooth release
-        let modulatorValue = voiceModulation.modulatorEnvelope.currentValue(
-            timeInEnvelope: modulationState.modulatorEnvelopeTime,
-            isGateOpen: true
+        // Capture current envelope values for smooth release using ModulationRouter
+        let modulatorValue = ModulationRouter.calculateEnvelopeValue(
+            time: modulationState.modulatorEnvelopeTime,
+            isGateOpen: true,
+            attack: voiceModulation.modulatorEnvelope.attack,
+            decay: voiceModulation.modulatorEnvelope.decay,
+            sustain: voiceModulation.modulatorEnvelope.sustain,
+            release: voiceModulation.modulatorEnvelope.release,
+            capturedLevel: 0.0  // Not used when gate is open
         )
-        let auxiliaryValue = voiceModulation.auxiliaryEnvelope.currentValue(
-            timeInEnvelope: modulationState.auxiliaryEnvelopeTime,
-            isGateOpen: true
+        
+        let auxiliaryValue = ModulationRouter.calculateEnvelopeValue(
+            time: modulationState.auxiliaryEnvelopeTime,
+            isGateOpen: true,
+            attack: voiceModulation.auxiliaryEnvelope.attack,
+            decay: voiceModulation.auxiliaryEnvelope.decay,
+            sustain: voiceModulation.auxiliaryEnvelope.sustain,
+            release: voiceModulation.auxiliaryEnvelope.release,
+            capturedLevel: 0.0  // Not used when gate is open
         )
+        
         modulationState.closeGate(modulatorValue: modulatorValue, auxiliaryValue: auxiliaryValue)
         
         // Mark voice available after release completes
