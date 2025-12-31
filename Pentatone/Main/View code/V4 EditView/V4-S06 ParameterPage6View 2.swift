@@ -1,4 +1,3 @@
-//
 //  V4-S06 ParameterPage6View.swift
 //  Pentatone
 //
@@ -6,17 +5,16 @@
 // SUBVIEW 6 - AUX ENVELOPE
 
 /*
- TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
- PAGE 6 - AUXILIARY ENVELOPE
+ PAGE 6 - AUXILIARY ENVELOPE (REFACTORED - FIXED DESTINATIONS)
  √ 1) Aux envelope Attack time
  √ 2) Aux envelope Decay time
  √ 3) Aux envelope Sustain level
  √ 4) Aux envelope Release time
- ! 5) Aux envelope to oscillator pitch amount
- ! 6) Aux envelope to filter frequency amount
- ! 7) Aux envelope to vibrato (voice lfo >> oscillator pitch) amount
+ √ 5) Aux envelope to oscillator pitch amount
+ √ 6) Aux envelope to filter frequency amount
+ √ 7) Aux envelope to vibrato (voice lfo >> oscillator pitch) amount
 */
-/*
+
 import SwiftUI
 
 struct AuxEnvView: View {
@@ -25,7 +23,7 @@ struct AuxEnvView: View {
     
     var body: some View {
         Group {
-            // Row 3 - Auxiliary Envelope Attack (0-5 seconds)
+            // Row 1 - Auxiliary Envelope Attack (0-5 seconds)
             SliderRow(
                 label: "AUX ENVELOPE ATTACK",
                 value: Binding(
@@ -40,7 +38,7 @@ struct AuxEnvView: View {
                 displayFormatter: { String(format: "%.3f s", $0) }
             )
             
-            // Row 4 - Auxiliary Envelope Decay (0-5 seconds)
+            // Row 2 - Auxiliary Envelope Decay (0-5 seconds)
             SliderRow(
                 label: "AUX ENVELOPE DECAY",
                 value: Binding(
@@ -55,7 +53,7 @@ struct AuxEnvView: View {
                 displayFormatter: { String(format: "%.3f s", $0) }
             )
             
-            // Row 5 - Auxiliary Envelope Sustain (0-1)
+            // Row 3 - Auxiliary Envelope Sustain (0-1)
             SliderRow(
                 label: "AUX ENVELOPE SUSTAIN",
                 value: Binding(
@@ -70,7 +68,7 @@ struct AuxEnvView: View {
                 displayFormatter: { String(format: "%.3f", $0) }
             )
             
-            // Row 6 - Auxiliary Envelope Release (0-5 seconds)
+            // Row 4 - Auxiliary Envelope Release (0-5 seconds)
             SliderRow(
                 label: "AUX ENVELOPE RELEASE",
                 value: Binding(
@@ -85,56 +83,56 @@ struct AuxEnvView: View {
                 displayFormatter: { String(format: "%.3f s", $0) }
             )
             
-            // Row 7 - Auxiliary Envelope Destination (List of modulation destinations)
-            ParameterRow(
-                label: "AUX ENVELOPE DESTINATION",
+            // Row 5 - Auxiliary Envelope to Oscillator Pitch (pitch sweep)
+            SliderRow(
+                label: "AUX ENV → PITCH",
                 value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.auxiliaryEnvelope.destination },
+                    get: { paramManager.voiceTemplate.modulation.auxiliaryEnvelope.amountToOscillatorPitch },
                     set: { newValue in
-                        paramManager.updateAuxiliaryEnvelopeDestination(newValue)
+                        paramManager.updateAuxiliaryEnvelopeAmountToPitch(newValue)
                         applyModulationToAllVoices()
                     }
                 ),
-                displayText: { destination in
-                    // Shortened names to fit in UI
-                    switch destination {
-                    case .oscillatorAmplitude: return "OSC AMP"
-                    case .oscillatorBaseFrequency: return "OSC FREQ"
-                    case .modulationIndex: return "MOD IDX"
-                    case .modulatingMultiplier: return "MOD MULT"
-                    case .filterCutoff: return "FILTER"
-                    case .stereoSpreadAmount: return "SPREAD"
-                    case .voiceLFOFrequency: return "LFO RATE"
-                    case .voiceLFOAmount: return "LFO DEPTH"
-                    case .delayTime: return "DLY TIME"
-                    case .delayMix: return "DLY MIX"
-                    }
+                range: -12...12,
+                step: 0.1,
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.1f st", value) : String(format: "%.1f st", value)
                 }
             )
             
-            // Row 8 - Auxiliary Envelope Amount (-1.0 to +1.0)
+            // Row 6 - Auxiliary Envelope to Filter Frequency
             SliderRow(
-                label: "AUX ENVELOPE AMOUNT",
+                label: "AUX ENV → FILTER",
                 value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.auxiliaryEnvelope.amount },
+                    get: { paramManager.voiceTemplate.modulation.auxiliaryEnvelope.amountToFilterFrequency },
                     set: { newValue in
-                        paramManager.updateAuxiliaryEnvelopeAmount(newValue)
+                        paramManager.updateAuxiliaryEnvelopeAmountToFilter(newValue)
                         applyModulationToAllVoices()
                     }
                 ),
-                range: -1...1,
+                range: -3...3,
+                step: 0.1,
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.1f oct", value) : String(format: "%.1f oct", value)
+                }
+            )
+            
+            // Row 7 - Auxiliary Envelope to Vibrato (meta-modulation of voice LFO pitch amount)
+            SliderRow(
+                label: "AUX ENV → VIBRATO",
+                value: Binding(
+                    get: { paramManager.voiceTemplate.modulation.auxiliaryEnvelope.amountToVibrato },
+                    set: { newValue in
+                        paramManager.updateAuxiliaryEnvelopeAmountToVibrato(newValue)
+                        applyModulationToAllVoices()
+                    }
+                ),
+                range: -2...2,
                 step: 0.01,
                 displayFormatter: { value in
-                    let rounded = value
-                    return rounded > 0 ? String(format: "+%.2f", rounded) : String(format: "%.2f", rounded)
+                    return value > 0 ? String(format: "+%.2f", value) : String(format: "%.2f", value)
                 }
             )
-            
-            // Row 9 - Empty (for UI consistency)
-            ZStack {
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
         }
     }
     
@@ -145,9 +143,6 @@ struct AuxEnvView: View {
         let modulationParams = paramManager.voiceTemplate.modulation
         
         // Apply to all voices in the pool
-        // Note: This requires the voicePool to have an update method
-        // For now, this is a placeholder - the actual implementation
-        // will depend on how the voice pool exposes modulation updates
         for voice in voicePool.voices {
             voice.updateModulationParameters(modulationParams)
         }
@@ -163,4 +158,3 @@ struct AuxEnvView: View {
         .padding(25)
     }
 }
-*/

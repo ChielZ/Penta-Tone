@@ -6,15 +6,14 @@
 // SUBVIEW 8 - GLOBAL LFO
 
 /*
- TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
- PAGE 8 - GLOBAL LFO
+ PAGE 8 - GLOBAL LFO (REFACTORED - FIXED DESTINATIONS)
  √ 1) Global LFO waveform
  √ 2) Global LFO mode (free/sync)
  √ 3) Global LFO frequency
- ! 4) Global LFO to oscillator amplitude amount
- ! 5) Global LFO to modulator multiplier (fine) amount
- ! 6) Global LFO to filter frequency amount
- ! 7) Global LFO to delay time amount
+ √ 4) Global LFO to oscillator amplitude amount
+ √ 5) Global LFO to modulator multiplier (fine) amount
+ √ 6) Global LFO to filter frequency amount
+ √ 7) Global LFO to delay time amount
  */
 
 import SwiftUI
@@ -25,7 +24,7 @@ struct GlobLFOView: View {
     
     var body: some View {
         Group {
-            // Row 3 - Global LFO Waveform (sine, triangle, square, sawtooth, reverse sawtooth)
+            // Row 1 - Global LFO Waveform (sine, triangle, square, sawtooth, reverse sawtooth)
             ParameterRow(
                 label: "GLOBAL LFO WAVEFORM",
                 value: Binding(
@@ -45,10 +44,10 @@ struct GlobLFOView: View {
                 }
             )
             
-            // Row 4 - Global LFO Reset Mode (free, sync)
+            // Row 2 - Global LFO Reset Mode (free, sync)
             // Note: Global LFO doesn't have "trigger" mode (no per-note triggering)
             ParameterRow(
-                label: "GLOBAL LFO RESET MODE",
+                label: "GLOBAL LFO MODE",
                 value: Binding(
                     get: { paramManager.master.globalLFO.resetMode },
                     set: { newValue in
@@ -58,15 +57,13 @@ struct GlobLFOView: View {
                 displayText: { mode in
                     switch mode {
                     case .free: return "FREE"
-                    case .trigger: return "TRIGGER"
+                    case .trigger: return "N/A"  // Not available for global LFO
                     case .sync: return "SYNC"
                     }
                 }
             )
             
-            // Row 5 - Global LFO Frequency (0.01-10 Hz)
-            // Note: For tempo sync mode, this would need different handling
-            // For now, implementing as Hz mode (0.01-10 Hz)
+            // Row 3 - Global LFO Frequency (0.01-20 Hz)
             SliderRow(
                 label: "GLOBAL LFO FREQUENCY",
                 value: Binding(
@@ -75,64 +72,74 @@ struct GlobLFOView: View {
                         paramManager.updateGlobalLFOFrequency(newValue)
                     }
                 ),
-                range: 0.01...10,
+                range: 0.01...20,
+                step: 0.01,
+                displayFormatter: { String(format: "%.2f Hz", $0) }
+            )
+            
+            // Row 4 - Global LFO to Oscillator Amplitude (tremolo)
+            SliderRow(
+                label: "GLOB LFO → OSC AMP",
+                value: Binding(
+                    get: { paramManager.master.globalLFO.amountToOscillatorAmplitude },
+                    set: { newValue in
+                        paramManager.updateGlobalLFOAmountToAmplitude(newValue)
+                    }
+                ),
+                range: -1...1,
                 step: 0.01,
                 displayFormatter: { value in
-                    String(format: "%.2f Hz", value)
+                    return value > 0 ? String(format: "+%.2f", value) : String(format: "%.2f", value)
                 }
             )
             
-            // Row 6 - Global LFO Destination
-            ParameterRow(
-                label: "GLOBAL LFO DESTINATION",
-                value: Binding(
-                    get: { paramManager.master.globalLFO.destination },
-                    set: { newValue in
-                        paramManager.updateGlobalLFODestination(newValue)
-                    }
-                ),
-                displayText: { destination in
-                    // Shortened names to fit in UI
-                    switch destination {
-                    case .oscillatorAmplitude: return "OSC AMP"
-                    case .oscillatorBaseFrequency: return "OSC FREQ"
-                    case .modulationIndex: return "MOD IDX"
-                    case .modulatingMultiplier: return "MOD MULT"
-                    case .filterCutoff: return "FILTER"
-                    case .stereoSpreadAmount: return "SPREAD"
-                    case .voiceLFOFrequency: return "LFO RATE"
-                    case .voiceLFOAmount: return "LFO DEPTH"
-                    case .delayTime: return "DLY TIME"
-                    case .delayMix: return "DLY MIX"
-                    }
-                }
-            )
-            
-            // Row 7 - Global LFO Amount (0-1, bipolar modulation but positive amount)
+            // Row 5 - Global LFO to Modulator Multiplier (FM ratio modulation)
             SliderRow(
-                label: "GLOBAL LFO AMOUNT",
+                label: "GLOB LFO → MOD MULT",
                 value: Binding(
-                    get: { paramManager.master.globalLFO.amount },
+                    get: { paramManager.master.globalLFO.amountToModulatorMultiplier },
                     set: { newValue in
-                        paramManager.updateGlobalLFOAmount(newValue)
+                        paramManager.updateGlobalLFOAmountToModulatorMultiplier(newValue)
                     }
                 ),
-                range: 0...1,
+                range: -2...2,
                 step: 0.01,
-                displayFormatter: { String(format: "%.2f", $0) }
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.2f", value) : String(format: "%.2f", value)
+                }
             )
             
-            // Row 8 - Empty (for UI consistency)
-            ZStack {
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
+            // Row 6 - Global LFO to Filter Frequency
+            SliderRow(
+                label: "GLOB LFO → FILTER",
+                value: Binding(
+                    get: { paramManager.master.globalLFO.amountToFilterFrequency },
+                    set: { newValue in
+                        paramManager.updateGlobalLFOAmountToFilter(newValue)
+                    }
+                ),
+                range: -2...2,
+                step: 0.01,
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.2f oct", value) : String(format: "%.2f oct", value)
+                }
+            )
             
-            // Row 9 - Empty (for UI consistency)
-            ZStack {
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
+            // Row 7 - Global LFO to Delay Time
+            SliderRow(
+                label: "GLOB LFO → DELAY TIME",
+                value: Binding(
+                    get: { paramManager.master.globalLFO.amountToDelayTime },
+                    set: { newValue in
+                        paramManager.updateGlobalLFOAmountToDelayTime(newValue)
+                    }
+                ),
+                range: -0.5...0.5,
+                step: 0.01,
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.2f s", value) : String(format: "%.2f s", value)
+                }
+            )
         }
     }
 }

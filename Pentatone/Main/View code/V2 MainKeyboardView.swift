@@ -356,22 +356,17 @@ private struct KeyTouchHandler: UIViewRepresentable {
             let voice = voicePool.allocateVoice(frequency: frequency, forKey: keyIndex, globalPitch: globalPitch)
             allocatedVoice = voice
             
-            // Store touch position in modulation state (for aftertouch, which is relative)
+            // Store touch position in modulation state (for aftertouch and initial touch)
             voice.modulationState.initialTouchX = normalized
             voice.modulationState.currentTouchX = normalized
             
-            // APPLY INITIAL TOUCH AS TRIGGER PARAMETER (zero-latency)
-            // This sets the starting value of the parameter based on touch position
+            // APPLY INITIAL TOUCH AS NOTE-ON PARAMETER (zero-latency)
+            // Initial touch has 4 fixed destinations, all meta-modulations
             // Read configuration from voice modulation parameters
             let touchInitial = voice.voiceModulation.touchInitial
             
-            if touchInitial.isEnabled {
-                applyInitialTouchParameter(
-                    normalized: normalized,
-                    destination: touchInitial.destination,
-                    amount: touchInitial.amount,
-                    to: voice
-                )
+            if touchInitial.isEnabled && touchInitial.hasActiveDestinations {
+                applyInitialTouchParameters(normalized: normalized, to: voice)
             }
             
             print("🎹 Key \(keyIndex): Touch at \(String(format: "%.2f", normalized)), freq \(String(format: "%.2f", frequency)) Hz")
@@ -417,113 +412,39 @@ private struct KeyTouchHandler: UIViewRepresentable {
             }
         }
         
-        // MARK: - Initial Touch Parameter Application
+        // MARK: - Initial Touch Parameter Application (Fixed Destinations)
         
-        /// Applies initial touch as a trigger parameter (zero-latency)
-        /// This sets the starting value of a parameter based on touch position
+        /// Applies initial touch as note-on meta-modulation (zero-latency)
+        /// Initial touch has 4 fixed destinations (Page 9, items 1-4):
+        /// 1. Oscillator amplitude (scales base amplitude)
+        /// 2. Mod envelope amount (scales modulation envelope amount)
+        /// 3. Aux envelope pitch amount (scales aux envelope pitch modulation)
+        /// 4. Aux envelope cutoff amount (scales aux envelope filter modulation)
+        ///
         /// - Parameters:
         ///   - normalized: Normalized touch X position (0.0 - 1.0)
-        ///   - destination: The parameter to modulate
-        ///   - amount: Modulation amount
         ///   - voice: The voice to apply to
-        private func applyInitialTouchParameter(
-            normalized: Double,
-            destination: ModulationDestination,
-            amount: Double,
-            to voice: PolyphonicVoice
-        ) {
-            // Only apply to voice-level destinations
-            guard destination.isVoiceLevel else { return }
+        private func applyInitialTouchParameters(normalized: Double, to voice: PolyphonicVoice) {
+            let touchInitial = voice.voiceModulation.touchInitial
             
-            // Get base value for the destination
-            let baseValue = getBaseValueForTrigger(destination: destination, voice: voice)
-            
-            // Calculate modulated value using envelope modulation logic (unipolar)
-            // Touch position (0.0 - 1.0) acts like an envelope value
-            let modulated = ModulationRouter.applyEnvelopeModulation(
-                baseValue: baseValue,
-                envelopeValue: normalized,
-                amount: amount,
-                destination: destination
-            )
-            
-            // Apply directly to destination for zero-latency response
-            applyValueDirectly(modulated, to: destination, voice: voice)
-        }
-        
-        /// Gets the base value for a destination at trigger time
-        private func getBaseValueForTrigger(destination: ModulationDestination, voice: PolyphonicVoice) -> Double {
-            switch destination {
-            case .oscillatorAmplitude:
-                return 0.1  // Default amplitude
-            case .filterCutoff:
-                return 1200.0  // Default filter cutoff
-            case .modulationIndex:
-                return Double(voice.oscLeft.modulationIndex)
-            case .modulatingMultiplier:
-                return Double(voice.oscLeft.modulatingMultiplier)
-            case .oscillatorBaseFrequency:
-                return voice.currentFrequency
-            case .stereoSpreadAmount:
-                return voice.detuneMode == .proportional ? voice.frequencyOffsetRatio : voice.frequencyOffsetHz
-            case .voiceLFOFrequency:
-                return voice.voiceModulation.voiceLFO.frequency
-            case .voiceLFOAmount:
-                return voice.voiceModulation.voiceLFO.amount
-            case .delayTime, .delayMix:
-                return 0.0  // These shouldn't be targeted by initial touch
-            }
-        }
-        
-        /// Applies a value directly to a destination (zero-latency)
-        private func applyValueDirectly(_ value: Double, to destination: ModulationDestination, voice: PolyphonicVoice) {
-            guard value.isFinite else { return }
-            
-            switch destination {
-            case .oscillatorAmplitude:
-                let clamped = max(0.0, min(1.0, value))
+            // Destination 1: Oscillator Amplitude (direct parameter control)
+            if touchInitial.amountToOscillatorAmplitude != 0.0 {
+                let baseAmplitude = 0.5  // Default base amplitude
+                let touchScaled = baseAmplitude * (normalized * touchInitial.amountToOscillatorAmplitude)
+                let clamped = max(0.0, min(1.0, touchScaled))
+                
                 voice.modulationState.baseAmplitude = clamped
-                // Use explicit zero-duration ramp to avoid slides between notes
                 voice.oscLeft.$amplitude.ramp(to: AUValue(clamped), duration: 0)
                 voice.oscRight.$amplitude.ramp(to: AUValue(clamped), duration: 0)
-                
-            case .filterCutoff:
-                let clamped = max(20.0, min(20000.0, value))
-                voice.modulationState.baseFilterCutoff = clamped
-                // Use explicit zero-duration ramp to avoid slides between notes
-                voice.filter.$cutoffFrequency.ramp(to: AUValue(clamped), duration: 0)
-                
-            case .modulationIndex:
-                let clamped = max(0.0, min(10.0, value))
-                // Use explicit zero-duration ramp to avoid slides between notes
-                voice.oscLeft.$modulationIndex.ramp(to: AUValue(clamped), duration: 0)
-                voice.oscRight.$modulationIndex.ramp(to: AUValue(clamped), duration: 0)
-                
-            case .modulatingMultiplier:
-                let clamped = max(0.1, min(20.0, value))
-                // Use explicit zero-duration ramp to avoid slides between notes
-                voice.oscLeft.$modulatingMultiplier.ramp(to: AUValue(clamped), duration: 0)
-                voice.oscRight.$modulatingMultiplier.ramp(to: AUValue(clamped), duration: 0)
-                
-            case .oscillatorBaseFrequency:
-                voice.setFrequency(value)
-                
-            case .stereoSpreadAmount:
-                if voice.detuneMode == .proportional {
-                    voice.frequencyOffsetRatio = value
-                } else {
-                    voice.frequencyOffsetHz = value
-                }
-                
-            case .voiceLFOFrequency:
-                voice.voiceModulation.voiceLFO.frequency = max(0.01, min(10.0, value))
-                
-            case .voiceLFOAmount:
-                voice.voiceModulation.voiceLFO.amount = max(0.0, min(1.0, value))
-                
-            case .delayTime, .delayMix:
-                break  // These are global, not voice-level
             }
+            
+            // Destinations 2-4: Meta-modulations (scale envelope amounts)
+            // These don't apply parameters directly - they're stored in modulation state
+            // and will be used by the control-rate modulation system
+            // The scaling happens in PolyphonicVoice when envelopes are calculated
+            
+            // Note: Meta-modulations are now handled internally by PolyphonicVoice.applyModulation()
+            // The initial touch value is stored in modulationState.initialTouchX and used there
         }
     }
     

@@ -6,15 +6,14 @@
 // SUBVIEW 7 - VOICE LFO
 
 /*
- TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
- PAGE 7 - VOICE LFO
+ PAGE 7 - VOICE LFO (REFACTORED - FIXED DESTINATIONS)
  √ 1) Voice LFO waveform
  √ 2) Voice LFO mode (free/trigger/sync)
  √ 3) Voice LFO frequency
- ! 4) Voice LFO to oscillator pitch amount
- ! 5) Voice LFO to filter frequency amount
- ! 6) Voice LFO to modulator level amount
- ! 7) Voice LFO delay (ramps amounts)
+ √ 4) Voice LFO to oscillator pitch amount
+ √ 5) Voice LFO to filter frequency amount
+ √ 6) Voice LFO to modulator level amount
+ √ 7) Voice LFO delay (ramps amounts)
  */
 
  
@@ -26,7 +25,7 @@ struct VoiceLFOView: View {
     
     var body: some View {
         Group {
-            // Row 3 - Voice LFO Waveform (sine, triangle, square, sawtooth, reverse sawtooth)
+            // Row 1 - Voice LFO Waveform (sine, triangle, square, sawtooth, reverse sawtooth)
             ParameterRow(
                 label: "VOICE LFO WAVEFORM",
                 value: Binding(
@@ -47,9 +46,9 @@ struct VoiceLFOView: View {
                 }
             )
             
-            // Row 4 - Voice LFO Reset Mode (free, trigger, sync)
+            // Row 2 - Voice LFO Reset Mode (free, trigger, sync)
             ParameterRow(
-                label: "VOICE LFO RESET MODE",
+                label: "VOICE LFO MODE",
                 value: Binding(
                     get: { paramManager.voiceTemplate.modulation.voiceLFO.resetMode },
                     set: { newValue in
@@ -66,9 +65,7 @@ struct VoiceLFOView: View {
                 }
             )
             
-            // Row 5 - Voice LFO Frequency (0-10 Hz)
-            // Note: For tempo sync mode, this would need different handling
-            // For now, implementing as Hz mode (0.01-10 Hz)
+            // Row 3 - Voice LFO Frequency (0.01-20 Hz)
             SliderRow(
                 label: "VOICE LFO FREQUENCY",
                 value: Binding(
@@ -78,66 +75,76 @@ struct VoiceLFOView: View {
                         applyModulationToAllVoices()
                     }
                 ),
-                range: 0.01...10,
+                range: 0.01...20,
+                step: 0.01,
+                displayFormatter: { String(format: "%.2f Hz", $0) }
+            )
+            
+            // Row 4 - Voice LFO to Oscillator Pitch (vibrato)
+            SliderRow(
+                label: "VOICE LFO → PITCH",
+                value: Binding(
+                    get: { paramManager.voiceTemplate.modulation.voiceLFO.amountToOscillatorPitch },
+                    set: { newValue in
+                        paramManager.updateVoiceLFOAmountToPitch(newValue)
+                        applyModulationToAllVoices()
+                    }
+                ),
+                range: -5...5,
                 step: 0.01,
                 displayFormatter: { value in
-                    String(format: "%.2f Hz", value)
+                    return value > 0 ? String(format: "+%.2f st", value) : String(format: "%.2f st", value)
                 }
             )
             
-            // Row 6 - Voice LFO Destination
-            ParameterRow(
-                label: "VOICE LFO DESTINATION",
-                value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.voiceLFO.destination },
-                    set: { newValue in
-                        paramManager.updateVoiceLFODestination(newValue)
-                        applyModulationToAllVoices()
-                    }
-                ),
-                displayText: { destination in
-                    // Shortened names to fit in UI
-                    switch destination {
-                    case .oscillatorAmplitude: return "OSC AMP"
-                    case .oscillatorBaseFrequency: return "OSC FREQ"
-                    case .modulationIndex: return "MOD IDX"
-                    case .modulatingMultiplier: return "MOD MULT"
-                    case .filterCutoff: return "FILTER"
-                    case .stereoSpreadAmount: return "SPREAD"
-                    case .voiceLFOFrequency: return "LFO RATE"
-                    case .voiceLFOAmount: return "LFO DEPTH"
-                    case .delayTime: return "DLY TIME"
-                    case .delayMix: return "DLY MIX"
-                    }
-                }
-            )
-            
-            // Row 7 - Voice LFO Amount (0-1, bipolar modulation but positive amount)
+            // Row 5 - Voice LFO to Filter Frequency
             SliderRow(
-                label: "VOICE LFO AMOUNT",
+                label: "VOICE LFO → FILTER",
                 value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.voiceLFO.amount },
+                    get: { paramManager.voiceTemplate.modulation.voiceLFO.amountToFilterFrequency },
                     set: { newValue in
-                        paramManager.updateVoiceLFOAmount(newValue)
+                        paramManager.updateVoiceLFOAmountToFilter(newValue)
                         applyModulationToAllVoices()
                     }
                 ),
-                range: 0...1,
+                range: -2...2,
                 step: 0.01,
-                displayFormatter: { String(format: "%.2f", $0) }
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.2f oct", value) : String(format: "%.2f oct", value)
+                }
             )
             
-            // Row 8 - Empty (for UI consistency)
-            ZStack {
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
+            // Row 6 - Voice LFO to Modulator Level (FM timbre modulation)
+            SliderRow(
+                label: "VOICE LFO → MOD IDX",
+                value: Binding(
+                    get: { paramManager.voiceTemplate.modulation.voiceLFO.amountToModulatorLevel },
+                    set: { newValue in
+                        paramManager.updateVoiceLFOAmountToModulatorLevel(newValue)
+                        applyModulationToAllVoices()
+                    }
+                ),
+                range: -5...5,
+                step: 0.01,
+                displayFormatter: { value in
+                    return value > 0 ? String(format: "+%.2f", value) : String(format: "%.2f", value)
+                }
+            )
             
-            // Row 9 - Empty (for UI consistency)
-            ZStack {
-                RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("BackgroundColour"))
-            }
+            // Row 7 - Voice LFO Delay (ramp time for amounts)
+            SliderRow(
+                label: "VOICE LFO DELAY",
+                value: Binding(
+                    get: { paramManager.voiceTemplate.modulation.voiceLFO.delayTime },
+                    set: { newValue in
+                        paramManager.updateVoiceLFODelayTime(newValue)
+                        applyModulationToAllVoices()
+                    }
+                ),
+                range: 0...5,
+                step: 0.01,
+                displayFormatter: { String(format: "%.2f s", $0) }
+            )
         }
     }
     
@@ -148,9 +155,6 @@ struct VoiceLFOView: View {
         let modulationParams = paramManager.voiceTemplate.modulation
         
         // Apply to all voices in the pool
-        // Note: This requires the voicePool to have an update method
-        // For now, this is a placeholder - the actual implementation
-        // will depend on how the voice pool exposes modulation updates
         for voice in voicePool.voices {
             voice.updateModulationParameters(modulationParams)
         }

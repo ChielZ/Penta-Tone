@@ -6,15 +6,14 @@
 // SUBVIEW 5 - MOD ENVELOPE + KEY TRACKING
 
 /*
- TODO: UPDATE THIS PAGE TO NEW, FIXED DESTINATION MODULATION STRUCTURE:
- PAGE 5 - MODULATOR ENVELOPE  + KEYBOARD TRACKING
+ PAGE 5 - MODULATOR ENVELOPE + KEYBOARD TRACKING (REFACTORED - FIXED DESTINATIONS)
  √ 1) Mod Envelope Attack time
  √ 2) Mod Envelope Decay time
  √ 3) Mod Envelope Sustain level
  √ 4) Mod Envelope Release time
- √ 5) Mod Envelope amount
- ! 6) Key track to filter frequency amount
- ! 7) Key track to voice lfo frequency amount
+ √ 5) Mod Envelope amount (to modulation index - fixed destination)
+ √ 6) Key track to filter frequency amount
+ √ 7) Key track to voice lfo frequency amount
 */
 
 import SwiftUI
@@ -25,7 +24,7 @@ struct ModEnvView: View {
     
     var body: some View {
         Group {
-            // Row 3 - Modulator Envelope Attack (0-5 seconds)
+            // Row 1 - Modulator Envelope Attack (0-5 seconds)
             SliderRow(
                 label: "MOD ENVELOPE ATTACK",
                 value: Binding(
@@ -40,7 +39,7 @@ struct ModEnvView: View {
                 displayFormatter: { String(format: "%.3f s", $0) }
             )
             
-            // Row 4 - Modulator Envelope Decay (0-5 seconds)
+            // Row 2 - Modulator Envelope Decay (0-5 seconds)
             SliderRow(
                 label: "MOD ENVELOPE DECAY",
                 value: Binding(
@@ -55,7 +54,7 @@ struct ModEnvView: View {
                 displayFormatter: { String(format: "%.3f s", $0) }
             )
             
-            // Row 5 - Modulator Envelope Sustain (0-1)
+            // Row 3 - Modulator Envelope Sustain (0-1)
             SliderRow(
                 label: "MOD ENVELOPE SUSTAIN",
                 value: Binding(
@@ -70,7 +69,7 @@ struct ModEnvView: View {
                 displayFormatter: { String(format: "%.3f", $0) }
             )
             
-            // Row 6 - Modulator Envelope Release (0-5 seconds)
+            // Row 4 - Modulator Envelope Release (0-5 seconds)
             SliderRow(
                 label: "MOD ENVELOPE RELEASE",
                 value: Binding(
@@ -85,67 +84,54 @@ struct ModEnvView: View {
                 displayFormatter: { String(format: "%.3f s", $0) }
             )
             
-            // Row 7 - Modulator Envelope Amount (-1.0 to +1.0)
+            // Row 5 - Modulator Envelope Amount to Modulation Index (-5.0 to +5.0)
+            // Fixed destination: modulation index only
             SliderRow(
-                label: "MOD ENVELOPE AMOUNT",
+                label: "MOD ENV → MOD INDEX",
                 value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.modulatorEnvelope.amount },
+                    get: { paramManager.voiceTemplate.modulation.modulatorEnvelope.amountToModulationIndex },
                     set: { newValue in
-                        paramManager.updateModulatorEnvelopeAmount(newValue)
+                        paramManager.updateModulatorEnvelopeAmountToModulationIndex(newValue)
                         applyModulationToAllVoices()
                     }
                 ),
                 range: -5...5,
                 step: 0.01,
                 displayFormatter: { value in
-                    let rounded = value
-                    return rounded > 0 ? String(format: "+%.2f", rounded) : String(format: "%.2f", rounded)
+                    return value > 0 ? String(format: "+%.2f", value) : String(format: "%.2f", value)
                 }
             )
             
-            // Row 8 - Key Tracking Destination (List of modulation destinations)
-            ParameterRow(
-                label: "KEY TRACK DESTINATION",
-                value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.keyTracking.destination },
-                    set: { newValue in
-                        paramManager.updateKeyTrackingDestination(newValue)
-                        applyModulationToAllVoices()
-                    }
-                ),
-                displayText: { destination in
-                    // Shortened names to fit in UI
-                    switch destination {
-                    case .oscillatorAmplitude: return "OSC AMP"
-                    case .oscillatorBaseFrequency: return "OSC FREQ"
-                    case .modulationIndex: return "MOD IDX"
-                    case .modulatingMultiplier: return "MOD MULT"
-                    case .filterCutoff: return "FILTER"
-                    case .stereoSpreadAmount: return "SPREAD"
-                    case .voiceLFOFrequency: return "LFO RATE"
-                    case .voiceLFOAmount: return "LFO DEPTH"
-                    case .delayTime: return "DLY TIME"
-                    case .delayMix: return "DLY MIX"
-                    }
-                }
-            )
-            
-            // Row 9 - Key Tracking Amount (-1.0 to +1.0)
+            // Row 6 - Key Tracking to Filter Frequency Amount (0.0 to 1.0)
+            // Fixed destination 1: filter frequency (scales envelope/aftertouch modulation)
             SliderRow(
-                label: "KEY TRACK AMOUNT",
+                label: "KEY TRACK → FILTER",
                 value: Binding(
-                    get: { paramManager.voiceTemplate.modulation.keyTracking.amount },
+                    get: { paramManager.voiceTemplate.modulation.keyTracking.amountToFilterFrequency },
                     set: { newValue in
-                        paramManager.updateKeyTrackingAmount(newValue)
+                        paramManager.updateKeyTrackingAmountToFilterFrequency(newValue)
                         applyModulationToAllVoices()
                     }
                 ),
-                range: -1...1,
+                range: 0...1,
                 step: 0.01,
-                displayFormatter: { value in
-                    let rounded = value
-                    return rounded > 0 ? String(format: "+%.2f", rounded) : String(format: "%.2f", rounded)
-                }
+                displayFormatter: { String(format: "%.2f", $0) }
+            )
+            
+            // Row 7 - Key Tracking to Voice LFO Frequency Amount (0.0 to 1.0)
+            // Fixed destination 2: voice LFO frequency (higher notes = faster LFO)
+            SliderRow(
+                label: "KEY TRACK → LFO RATE",
+                value: Binding(
+                    get: { paramManager.voiceTemplate.modulation.keyTracking.amountToVoiceLFOFrequency },
+                    set: { newValue in
+                        paramManager.updateKeyTrackingAmountToVoiceLFOFrequency(newValue)
+                        applyModulationToAllVoices()
+                    }
+                ),
+                range: 0...1,
+                step: 0.01,
+                displayFormatter: { String(format: "%.2f", $0) }
             )
         }
     }
@@ -157,9 +143,6 @@ struct ModEnvView: View {
         let modulationParams = paramManager.voiceTemplate.modulation
         
         // Apply to all voices in the pool
-        // Note: This requires the voicePool to have an update method
-        // For now, this is a placeholder - the actual implementation
-        // will depend on how the voice pool exposes modulation updates
         for voice in voicePool.voices {
             voice.updateModulationParameters(modulationParams)
         }
