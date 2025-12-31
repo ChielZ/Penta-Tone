@@ -233,31 +233,31 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
 
  PAGE 7 - VOICE LFO
  1) Voice LFO waveform
- 2) Voice LFO reset mode
+ 2) Voice LFO mode (free/trigger/sync)
  3) Voice LFO frequency
  4) Voice LFO to oscillator pitch amount
  5) Voice LFO to filter frequency amount
  6) Voice LFO to modulator level amount
- 7) -
+ 7) Voice LFO delay (ramps amounts)
  
  PAGE 8 - GLOBAL LFO
  1) Global LFO waveform
- 2) Global LFO reset mode
+ 2) Global LFO mode (free/sync)
  3) Global LFO frequency
  4) Global LFO to oscillator amplitude amount
- 5) Global LFO to filter frequency amount
- 6) Global LFO to delay time amount
- 7) -
+ 5) Global LFO to modulator multiplier (fine) amount
+ 6) Global LFO to filter frequency amount
+ 7) Global LFO to delay time amount
  
  PAGE 9 - TOUCH RESPONSE
  1) Initial touch to oscillator amplitude amount
- 2) Initial touch to filter frequency amount
- 3) Aftertouch mode (relative/absolute)
- 4) Aftertouch to filter frequency amount
- 5) Aftertouch to vibrato (voice lfo >> oscillator pitch) amount
- 6) -
- 7) -
- 
+ 2) Initial touch to mod envelope amount
+ 3) Initial touch to aux envelope pitch amount
+ 4) Initial touch to aux envelope cutoff amount
+ 5) Aftertouch to filter frequency amount
+ 6) Aftertouch to modulator level amount
+ 7) Aftertouch to vibrato (voice lfo >> oscillator pitch) amount
+
  PAGE 10 - PRESETS
  - Select and store presets
  
