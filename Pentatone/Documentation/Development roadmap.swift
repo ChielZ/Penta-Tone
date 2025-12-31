@@ -220,7 +220,7 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  4) Mod Envelope Release time
  5) Mod Envelope amount
  6) Key track to filter frequency amount
- 7) Key track to voice lfo frequency amount
+ 7) Key track to voice lfo frequency
  
  PAGE 6 - AUXILIARY ENVELOPE
  1) Aux envelope Attack time
@@ -276,6 +276,79 @@ CHECKLIST FOR LATER TROUBLESHOOTING/IMPROVEMENTS
  4) Delay Mix maximum
  5) Reverb mix minimum
  6) Reverb mix maximum
+ 
+ 
+ *** MODULATION PRIORITY/ORDER
+ 
+ IMPORTANT CONSIDERATION:
+ Initial touch is a note-on parameter, not a continuous modulator
+ 
+ Direct modulation destinations:
+ 
+ 1)  Oscillator pitch (FMOscillator baseFrequency)
+    Possible sources:
+    a) Aux envelope
+    b) Voice LFO
+    APPLICATION: base value SCALED BY [aux envelope value OFFSET BY voice lfo value]
+ 
+ 2)  Oscillator amplitude (FMOscillator amplitude)
+    Possible sources:
+    a) Global LFO
+    b) Initial touch
+    APPLICATION: base value SCALED BY [initial touch value OFFSET BY global lfo value]
+ 
+ 3)  Modulator level (FMOscillator modulationIndex)
+    Possible sources:
+    a) Mod envelope
+    b) Voice LFO
+    c) Aftertouch
+    APPLICATION: [base value + mod envelope value + aftertouch value] OFFSET BY voice lfo value
+ 
+ 4)  Modulator multiplier (FMOscillator modulatingMultiplier)
+    Possible sources:
+    a) Global LFO
+    APPLICATION: base value OFFSET BY global lfo value
+ 
+ 5)  Filter frequency (KorgLowPassFilter cutoffFrequency)
+    Possible sources:
+    a) key track
+    b) Aux envelope
+    c) Voice LFO
+    d) Global LFO
+    e) Aftertouch
+    APPLICATION: [base value + aux envelope value + aftertouch value] SCALED BY keytrack value OFFSET by [voice lfo value * global lfo value]
+ 
+ 6)  Delay time (StereoDelay time)
+    Possible sources:
+    a) Global LFO:
+    APPLICATION: base value OFFSET BY global lfo value
+ 
+ Meta modulation destinations
+ 7)  Voice lfo to oscillator pitch amount
+    Possible sources:
+    a) aux envelope
+    b) aftertouch
+    APPLICATION: base value SCALED by aux envelope value OFFSET BY aftertouch value
+ 
+ 8) Voice lfo frequency
+    Possible sources:
+    a) key track
+    APPLICATION: base value SCALED BY key track value
+    
+ 9)  Mod envelope amount
+    Possible sources:
+    a) initial touch
+    APPLICATION: base value SCALED BY initial touch value
+ 
+ 10)  Aux envelope to oscillator pitch amount
+    Possible sources:
+    a) initial touch
+    APPLICATION: base value SCALED BY initial touch value
+ 
+ 11) Aux envelope to filter frequency amount
+    Possible sources:
+    a) initial touch
+    APPLICATION: base value SCALED BY initial touch value
  
  
  */
