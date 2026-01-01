@@ -67,6 +67,12 @@ struct MainKeyboardView: View {
     @State private var currentMainView: MainViewMode = .options
     @State private var currentOptionsSubView: OptionsSubView = .scale
     
+    // Animation timing configurations
+    private let unfoldCenterDuration: Double = 0.75      // Center strip unfolds
+    private let unfoldKeysDuration: Double = 0.5       // Keys unfold (lags behind)
+    private let foldCenterDuration: Double = 0.5        // Center strip folds
+    private let foldKeysDuration: Double = 0.75         // Keys fold (lags behind)
+    
     // MARK: - Key Color Calculation
     
     /// Calculates the color name for a given key index (0-17) based on current rotation
@@ -129,7 +135,10 @@ struct MainKeyboardView: View {
                     }
                     .padding(5)
                 }
-                .animation(.easeInOut(duration: 0.75), value: showingOptions)
+                .animation(
+                    .easeInOut(duration: showingOptions ? unfoldKeysDuration : foldKeysDuration),
+                    value: showingOptions
+                )
                 
                 // Center strip layer (on top)
                 ZStack {
@@ -169,11 +178,17 @@ struct MainKeyboardView: View {
                             onNextScale: onNextScale,
                             stripWidth: centerConfig.width
                         )
-                        .transition(.scale)
+                        .transition(
+                            .scale//(scale: 0.8)
+                            //.combined(with: .identity)
+                        )
                     }
                 }
                 .frame(width: centerConfig.width)
-                .animation(.easeInOut(duration: 0.75), value: showingOptions)
+                .animation(
+                    .easeInOut(duration: showingOptions ? unfoldCenterDuration : foldCenterDuration),
+                    value: showingOptions
+                )
                 .animation(.easeInOut(duration: 0.0), value: currentMainView)
             }
             .statusBar(hidden: true)
