@@ -5,13 +5,13 @@
 //  Created by Chiel Zwinkels on 26/12/2025.
 // SUBVIEW 11 - MACROS
 /*
- 1) Tone ModulationIndex range
- 2) Tone Cutoff range
- 3) Tone Filter saturation range
- 4) Ambience Delay feedback range
- 5) Ambience Delay Mix range
- 6) Ambience Reverb size range
- 7) Ambience Reverb mix range
+ 1) Tone ModulationIndex range +/- 0...5
+ 2) Tone Cutoff range +/- 0-4 octaves
+ 3) Tone Filter saturation range +/- 0...2
+ 4) Ambience Delay feedback range +/- 0...1
+ 5) Ambience Delay Mix range +/- 0...1
+ 6) Ambience Reverb size range +/- 0...1
+ 7) Ambience Reverb mix range +/- 0...1
  */
 
 
