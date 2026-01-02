@@ -285,22 +285,52 @@ struct MacroControlState: Codable, Equatable {
     var basePreVolume: Double
     
     // Macro positions (-1.0 to +1.0, where 0 is center/neutral)
+    // Volume is absolute (0-1), tone and ambience are relative (-1 to +1)
     var volumePosition: Double
     var tonePosition: Double
     var ambiencePosition: Double
     
+    /// Initialize macro state from current parameters
+    /// This ensures base values always match the actual parameter state
+    init(from voiceParams: VoiceParameters, masterParams: MasterParameters) {
+        // Capture base values from parameters
+        self.baseModulationIndex = voiceParams.oscillator.modulationIndex
+        self.baseFilterCutoff = voiceParams.filter.cutoffFrequency
+        self.baseFilterSaturation = voiceParams.filter.saturation
+        self.baseDelayFeedback = masterParams.delay.feedback
+        self.baseDelayMix = masterParams.delay.dryWetMix
+        self.baseReverbFeedback = masterParams.reverb.feedback
+        self.baseReverbMix = masterParams.reverb.balance
+        self.basePreVolume = masterParams.output.preVolume
+        
+        // Initialize positions
+        // Volume matches preVolume (absolute), others start at neutral
+        self.volumePosition = masterParams.output.preVolume
+        self.tonePosition = 0.0
+        self.ambiencePosition = 0.0
+    }
+    
+    /// Convenience initializer for Codable (required for preset loading)
+    init(baseModulationIndex: Double, baseFilterCutoff: Double, baseFilterSaturation: Double,
+         baseDelayFeedback: Double, baseDelayMix: Double, baseReverbFeedback: Double, baseReverbMix: Double,
+         basePreVolume: Double, volumePosition: Double, tonePosition: Double, ambiencePosition: Double) {
+        self.baseModulationIndex = baseModulationIndex
+        self.baseFilterCutoff = baseFilterCutoff
+        self.baseFilterSaturation = baseFilterSaturation
+        self.baseDelayFeedback = baseDelayFeedback
+        self.baseDelayMix = baseDelayMix
+        self.baseReverbFeedback = baseReverbFeedback
+        self.baseReverbMix = baseReverbMix
+        self.basePreVolume = basePreVolume
+        self.volumePosition = volumePosition
+        self.tonePosition = tonePosition
+        self.ambiencePosition = ambiencePosition
+    }
+    
+    /// Default macro state derived from default parameters
     static let `default` = MacroControlState(
-        baseModulationIndex: 1.0,
-        baseFilterCutoff: 1200.0,
-        baseFilterSaturation: 2.0,
-        baseDelayFeedback: 0.5,      // Match DelayParameters.default.feedback
-        baseDelayMix: 0.5,            // Match DelayParameters.default.dryWetMix
-        baseReverbFeedback: 0.5,      // Match ReverbParameters.default.feedback
-        baseReverbMix: 0.5,           // Match ReverbParameters.default.balance
-        basePreVolume: 0.5,
-        volumePosition: 0.5,          // Match OutputParameters.default.preVolume
-        tonePosition: 0.0,
-        ambiencePosition: 0.0
+        from: VoiceParameters.default,
+        masterParams: MasterParameters.default
     )
 }
 
@@ -936,7 +966,15 @@ final class AudioParameterManager: ObservableObject {
     
     /// Capture current parameter values as base values for macro controls
     /// Should be called when loading a preset or when user edits parameters directly
+    /// This resets macro positions and uses current parameters as the new baseline
     func captureBaseValues() {
+        // Create a fresh macro state from current parameters
+        macroState = MacroControlState(from: voiceTemplate, masterParams: master)
+    }
+    
+    /// Update macro state to match current parameters without resetting positions
+    /// Use this when you want to sync base values but keep the current macro positions
+    func syncMacroBaseValues() {
         macroState.baseModulationIndex = voiceTemplate.oscillator.modulationIndex
         macroState.baseFilterCutoff = voiceTemplate.filter.cutoffFrequency
         macroState.baseFilterSaturation = voiceTemplate.filter.saturation
@@ -945,12 +983,7 @@ final class AudioParameterManager: ObservableObject {
         macroState.baseReverbFeedback = master.reverb.feedback
         macroState.baseReverbMix = master.reverb.balance
         macroState.basePreVolume = master.output.preVolume
-        
-        // Reset tone and ambience macro positions to neutral (center)
-        // Volume position should match the current preVolume (it's absolute, not relative)
-        macroState.volumePosition = master.output.preVolume
-        macroState.tonePosition = 0.0
-        macroState.ambiencePosition = 0.0
+        // Note: positions are NOT reset
     }
     
     // MARK: - Private Macro Application Methods
