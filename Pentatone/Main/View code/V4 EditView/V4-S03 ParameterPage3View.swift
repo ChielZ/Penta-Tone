@@ -77,18 +77,37 @@ struct EffectsView: View {
                 displayFormatter: { String(format: "%.2f", $0) }
             )
             
-            // Row 5 - Delay tone
+            // Row 5 - Delay Tone (cutoff frequency, logarithmic)
+            // Map 0-1 to 200-20000 Hz for user-friendly control
             SliderRow(
                 label: "DELAY TONE",
                 value: Binding(
-                    get: { paramManager.master.delay.toneCutoff },
+                    get: {
+                        // Convert cutoff frequency to 0-1 range (logarithmic)
+                        let cutoff = paramManager.master.delay.toneCutoff
+                        let logMin = log(200.0)
+                        let logMax = log(20000.0)
+                        let logValue = log(cutoff)
+                        return (logValue - logMin) / (logMax - logMin)
+                    },
                     set: { newValue in
-                        paramManager.updateDelayToneCutoff(newValue)
+                        // Convert 0-1 to cutoff frequency (logarithmic)
+                        let logMin = log(200.0)
+                        let logMax = log(20000.0)
+                        let logValue = logMin + newValue * (logMax - logMin)
+                        let cutoff = exp(logValue)
+                        paramManager.updateDelayToneCutoff(cutoff)
                     }
                 ),
-                range: 200...20_000,
-                step: 100,
-                displayFormatter: { cutoff in
+                range: 0...1,
+                step: 0.01,
+                displayFormatter: { value in
+                    // Display the actual frequency
+                    let logMin = log(200.0)
+                    let logMax = log(20000.0)
+                    let logValue = logMin + value * (logMax - logMin)
+                    let cutoff = exp(logValue)
+                    
                     if cutoff < 1000 {
                         return String(format: "%.0f Hz", cutoff)
                     } else {
