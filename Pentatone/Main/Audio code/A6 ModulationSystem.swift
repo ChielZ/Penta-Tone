@@ -128,6 +128,55 @@ enum LFOFrequencyMode: String, Codable, CaseIterable {
     }
 }
 
+// MARK: - LFO Tempo Sync Values
+
+/// Musical subdivisions for tempo-synced LFO frequency
+/// Represents how many cycles per 4 beats (one bar at 4/4)
+/// At 120 BPM, 1 bar = 2 seconds, so:
+/// - 1/32 = 0.0625 seconds per cycle = 16 Hz
+/// - 1/16 = 0.125 seconds per cycle = 8 Hz
+/// - 1/8 = 0.25 seconds per cycle = 4 Hz
+/// - 1/4 = 0.5 seconds per cycle = 2 Hz
+/// - 1/2 = 1 second per cycle = 1 Hz
+/// - 1 = 2 seconds per cycle = 0.5 Hz
+/// - 2 = 4 seconds per cycle = 0.25 Hz
+/// - 4 = 8 seconds per cycle = 0.125 Hz
+enum LFOSyncValue: Double, Codable, Equatable, CaseIterable {
+    case thirtySecond = 32.0    // 1/32 - very fast
+    case sixteenth = 16.0       // 1/16
+    case eighth = 8.0           // 1/8
+    case quarter = 4.0          // 1/4
+    case half = 2.0             // 1/2
+    case whole = 1.0            // 1 bar
+    case two = 0.5              // 2 bars
+    case four = 0.25            // 4 bars
+    
+    var displayName: String {
+        switch self {
+        case .thirtySecond: return "1/32"
+        case .sixteenth: return "1/16"
+        case .eighth: return "1/8"
+        case .quarter: return "1/4"
+        case .half: return "1/2"
+        case .whole: return "1"
+        case .two: return "2"
+        case .four: return "4"
+        }
+    }
+    
+    /// Convert to LFO frequency in Hz based on tempo
+    /// Formula: (tempo / 60) × (rawValue / 4)
+    /// Where rawValue represents cycles per 4 beats
+    /// At 120 BPM: 1 beat = 0.5s, 4 beats = 2s
+    /// - "1" (whole) = 1 cycle per 4 beats = 0.5 Hz
+    /// - "1/4" (quarter) = 4 cycles per 4 beats = 2 Hz
+    func frequencyInHz(tempo: Double) -> Double {
+        let beatsPerSecond = tempo / 60.0
+        let cyclesPerBeat = self.rawValue / 4.0
+        return beatsPerSecond * cyclesPerBeat
+    }
+}
+
 // MARK: - Voice LFO Parameters (Fixed Destinations)
 
 /// Voice LFO with fixed destinations and individual amounts
@@ -370,7 +419,8 @@ struct GlobalLFOParameters: Codable, Equatable {
     var waveform: LFOWaveform
     var resetMode: LFOResetMode             // Free or Sync (no trigger for global)
     var frequencyMode: LFOFrequencyMode
-    var frequency: Double                   // Hz (0.01 - 20 Hz) or tempo multiplier
+    var frequency: Double                   // Hz (0.01 - 20 Hz) when in hertz mode
+    var syncValue: LFOSyncValue             // Musical division when in sync mode
     
     // Fixed destinations with individual amounts (Page 8, items 4-7)
     var amountToOscillatorAmplitude: Double // ±amplitude (tremolo effect)
@@ -385,6 +435,7 @@ struct GlobalLFOParameters: Codable, Equatable {
         resetMode: .free,
         frequencyMode: .hertz,
         frequency: 1.0,
+        syncValue: .whole,                  // Default to 1 bar
         amountToOscillatorAmplitude: 0.0,   // No tremolo by default
         amountToModulatorMultiplier: 0.0,   // No FM ratio modulation by default
         amountToFilterFrequency: 0.0,       // No global filter modulation by default
@@ -398,6 +449,20 @@ struct GlobalLFOParameters: Codable, Equatable {
             || amountToModulatorMultiplier != 0.0
             || amountToFilterFrequency != 0.0
             || amountToDelayTime != 0.0
+    }
+    
+    /// Get the actual frequency in Hz based on mode and tempo
+    /// - Parameter tempo: Current tempo in BPM
+    /// - Returns: Frequency in Hz
+    func actualFrequency(tempo: Double) -> Double {
+        switch resetMode {
+        case .sync:
+            // When in sync mode, always use tempo-based frequency
+            return syncValue.frequencyInHz(tempo: tempo)
+        case .free, .trigger:
+            // When in free or trigger mode, use the Hz frequency
+            return frequency
+        }
     }
     
     /// Calculate the raw LFO waveform value at a given phase

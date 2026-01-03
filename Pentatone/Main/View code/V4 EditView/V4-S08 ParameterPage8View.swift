@@ -55,19 +55,34 @@ struct GlobLFOView: View {
                 )
             )
             
-            // Row 3 - Global LFO Frequency (0.01-20 Hz)
-            SliderRow(
-                label: "LFO FREQUENCY",
-                value: Binding(
-                    get: { paramManager.master.globalLFO.frequency },
-                    set: { newValue in
-                        paramManager.updateGlobalLFOFrequency(newValue)
-                    }
-                ),
-                range: 0.01...20,
-                step: 0.01,
-                displayFormatter: { String(format: "%.2f Hz", $0) }
-            )
+            // Row 3 - Global LFO Frequency (Hz or Sync Value based on mode)
+            if paramManager.master.globalLFO.resetMode == .sync {
+                // Sync mode: Show tempo-synced divisions
+                ParameterRow(
+                    label: "LFO FREQUENCY",
+                    value: Binding(
+                        get: { paramManager.master.globalLFO.syncValue },
+                        set: { newValue in
+                            paramManager.updateGlobalLFOSyncValue(newValue)
+                        }
+                    ),
+                    displayText: { $0.displayName }
+                )
+            } else {
+                // Free mode: Show Hz slider
+                SliderRow(
+                    label: "LFO FREQUENCY",
+                    value: Binding(
+                        get: { paramManager.master.globalLFO.frequency },
+                        set: { newValue in
+                            paramManager.updateGlobalLFOFrequency(newValue)
+                        }
+                    ),
+                    range: 0.01...20,
+                    step: 0.01,
+                    displayFormatter: { String(format: "%.2f Hz", $0) }
+                )
+            }
             
             // Row 4 - Global LFO to Oscillator Amplitude (tremolo)
             SliderRow(

@@ -515,6 +515,12 @@ final class AudioParameterManager: ObservableObject {
         fxDelay?.time = AUValue(timeInSeconds)
         // Update base delay time in voice pool for LFO modulation
         voicePool?.updateBaseDelayTime(timeInSeconds)
+        
+        // Recalculate and apply global LFO frequency if in sync mode
+        if master.globalLFO.resetMode == .sync {
+            let lfoFrequency = master.globalLFO.actualFrequency(tempo: tempo)
+            voicePool?.updateGlobalLFOFrequency(lfoFrequency)
+        }
     }
     
     // MARK: - Voice Mode Updates
@@ -851,6 +857,12 @@ final class AudioParameterManager: ObservableObject {
     /// Update global LFO reset mode
     func updateGlobalLFOResetMode(_ mode: LFOResetMode) {
         master.globalLFO.resetMode = mode
+        // When switching to sync mode, recalculate frequency from sync value
+        // When switching from sync mode, keep the current Hz frequency
+        if mode == .sync {
+            let lfoFrequency = master.globalLFO.actualFrequency(tempo: master.tempo)
+            voicePool?.updateGlobalLFOFrequency(lfoFrequency)
+        }
         voicePool?.updateGlobalLFO(master.globalLFO)
     }
     
@@ -860,9 +872,22 @@ final class AudioParameterManager: ObservableObject {
         voicePool?.updateGlobalLFO(master.globalLFO)
     }
     
-    /// Update global LFO frequency
+    /// Update global LFO frequency (Hz value for free mode)
     func updateGlobalLFOFrequency(_ value: Double) {
         master.globalLFO.frequency = value
+        // Only apply if not in sync mode
+        if master.globalLFO.resetMode != .sync {
+            voicePool?.updateGlobalLFOFrequency(value)
+        }
+        voicePool?.updateGlobalLFO(master.globalLFO)
+    }
+    
+    /// Update global LFO sync value (for sync mode)
+    func updateGlobalLFOSyncValue(_ syncValue: LFOSyncValue) {
+        master.globalLFO.syncValue = syncValue
+        // Calculate actual frequency from sync value and apply
+        let lfoFrequency = syncValue.frequencyInHz(tempo: master.tempo)
+        voicePool?.updateGlobalLFOFrequency(lfoFrequency)
         voicePool?.updateGlobalLFO(master.globalLFO)
     }
     

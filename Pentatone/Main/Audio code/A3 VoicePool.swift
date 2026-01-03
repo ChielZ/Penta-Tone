@@ -426,6 +426,12 @@ final class VoicePool {
         globalLFO = parameters
     }
     
+    /// Updates just the global LFO frequency (used for tempo sync recalculation)
+    /// - Parameter frequency: The new frequency in Hz
+    func updateGlobalLFOFrequency(_ frequency: Double) {
+        globalLFO.frequency = frequency
+    }
+    
     /// Updates the base delay time (tempo-synced value before LFO modulation)
     /// Should be called whenever tempo or delay time value changes
     /// - Parameter delayTime: The delay time in seconds (already calculated from tempo and time value)
