@@ -113,9 +113,20 @@ struct EditView: View {
                 }
                 .frame(maxHeight: .infinity)
                 
-                ZStack { // Row 9
+                ZStack { // Row 4
                     RoundedRectangle(cornerRadius: radius)
                         .fill(Color("BackgroundColour"))
+                    GeometryReader { geometry in
+                        Text("Pentatone")
+                            .foregroundColor(Color("KeyColour1"))
+                            .adaptiveFont("Signpainter", size: 55)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .contentShape(Rectangle())
+                            //.offset(y: -(geometry.size.height/2 + 11))
+                            .padding(0)
+                            //.onTapGesture {
+                            //    onSwitchToEdit?()
+                            }
                     
                 }
 
@@ -175,7 +186,7 @@ struct EditView: View {
                 
                 ZStack { // Row 9
                     RoundedRectangle(cornerRadius: radius)
-                        .fill(Color("SupportColour"))
+                        .fill(Color("HighlightColour"))
                     GeometryReader { geometry in
                         Text("•CLOSE EDITOR•")
                             .foregroundColor(Color("BackgroundColour"))

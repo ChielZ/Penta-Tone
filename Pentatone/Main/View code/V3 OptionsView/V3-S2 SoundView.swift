@@ -180,11 +180,11 @@ struct SoundView: View {
                 HStack {
                    
                         RoundedRectangle(cornerRadius: radius)
-                            .fill(Color("SupportColour"))
+                            .fill(Color("HighlightColour"))
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
                                 Text("1")
-                                    .foregroundColor(Color("HighlightColour"))
+                                    .foregroundColor(Color("BackgroundColour"))
                                     .adaptiveFont("Futura", size: 30)
                             )
                     

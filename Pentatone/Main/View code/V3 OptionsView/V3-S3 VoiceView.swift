@@ -183,7 +183,7 @@ struct VoiceView: View {
             
             ZStack { // Row 9
                 RoundedRectangle(cornerRadius: radius)
-                    .fill(Color("SupportColour"))
+                    .fill(Color("HighlightColour"))
                 GeometryReader { geometry in
                     Text("•EDITOR•")
                         .foregroundColor(Color("BackgroundColour"))
