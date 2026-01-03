@@ -519,6 +519,7 @@ final class AudioParameterManager: ObservableObject {
         // Recalculate and apply global LFO frequency if in sync mode
         if master.globalLFO.resetMode == .sync {
             let lfoFrequency = master.globalLFO.actualFrequency(tempo: tempo)
+            master.globalLFO.frequency = lfoFrequency  // Update the master copy too!
             voicePool?.updateGlobalLFOFrequency(lfoFrequency)
         }
     }
@@ -861,6 +862,7 @@ final class AudioParameterManager: ObservableObject {
         // When switching from sync mode, keep the current Hz frequency
         if mode == .sync {
             let lfoFrequency = master.globalLFO.actualFrequency(tempo: master.tempo)
+            master.globalLFO.frequency = lfoFrequency  // Update the master copy too!
             voicePool?.updateGlobalLFOFrequency(lfoFrequency)
         }
         voicePool?.updateGlobalLFO(master.globalLFO)
@@ -887,6 +889,7 @@ final class AudioParameterManager: ObservableObject {
         master.globalLFO.syncValue = syncValue
         // Calculate actual frequency from sync value and apply
         let lfoFrequency = syncValue.frequencyInHz(tempo: master.tempo)
+        master.globalLFO.frequency = lfoFrequency  // Update the master copy too!
         voicePool?.updateGlobalLFOFrequency(lfoFrequency)
         voicePool?.updateGlobalLFO(master.globalLFO)
     }

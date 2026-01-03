@@ -509,21 +509,11 @@ final class VoicePool {
     private func updateGlobalLFOPhase(deltaTime: Double) -> Double {
         guard globalLFO.isEnabled else { return 0.0 }
         
-        // Calculate phase increment based on frequency mode
-        let phaseIncrement: Double
-        
-        switch globalLFO.frequencyMode {
-        case .hertz:
-            // Direct Hz: phase increment = frequency * deltaTime
-            phaseIncrement = globalLFO.frequency * deltaTime
-            
-        case .tempoSync:
-            // Tempo sync: globalLFO.frequency is a tempo multiplier
-            // e.g., 1.0 = quarter note, 2.0 = eighth note, 0.5 = half note
-            let beatsPerSecond = currentTempo / 60.0
-            let cyclesPerSecond = beatsPerSecond * globalLFO.frequency
-            phaseIncrement = cyclesPerSecond * deltaTime
-        }
+        // Phase increment calculation
+        // Note: globalLFO.frequency is always in Hz (pre-calculated based on mode)
+        // In free mode: direct Hz value from user
+        // In sync mode: calculated Hz from syncValue and tempo
+        let phaseIncrement = globalLFO.frequency * deltaTime
         
         // Update phase (global LFO is always free-running or sync, never trigger)
         globalModulationState.globalLFOPhase += phaseIncrement
