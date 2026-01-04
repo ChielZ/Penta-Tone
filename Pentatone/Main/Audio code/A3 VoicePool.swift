@@ -432,6 +432,20 @@ final class VoicePool {
         globalLFO.frequency = frequency
     }
     
+    /// Resets the delay time to its base (unmodulated) value
+    /// Called when LFO modulation amount is set to zero
+    func resetDelayTimeToBase() {
+        delay?.$time.ramp(to: AUValue(baseDelayTime), duration: 0.05)
+    }
+    
+    /// Resets modulator multiplier to base for all voices
+    /// Called when global LFO modulation amount is set to zero
+    func resetModulatorMultiplierToBase() {
+        for voice in voices {
+            voice.resetModulatorMultiplierToBase()
+        }
+    }
+    
     /// Updates the base delay time (tempo-synced value before LFO modulation)
     /// Should be called whenever tempo or delay time value changes
     /// - Parameter delayTime: The delay time in seconds (already calculated from tempo and time value)

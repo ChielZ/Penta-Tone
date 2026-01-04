@@ -78,7 +78,7 @@ struct GlobLFOView: View {
                             paramManager.updateGlobalLFOFrequency(newValue)
                         }
                     ),
-                    range: 0.01...20,
+                    range: 0.01...32,  // Raised to match max sync mode frequency
                     step: 0.01,
                     displayFormatter: { String(format: "%.2f Hz", $0) }
                 )

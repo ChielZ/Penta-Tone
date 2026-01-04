@@ -902,8 +902,14 @@ final class AudioParameterManager: ObservableObject {
     
     /// Update global LFO amount to modulator multiplier
     func updateGlobalLFOAmountToModulatorMultiplier(_ value: Double) {
+        let wasZero = master.globalLFO.amountToModulatorMultiplier == 0.0
         master.globalLFO.amountToModulatorMultiplier = value
         voicePool?.updateGlobalLFO(master.globalLFO)
+        
+        // If amount changed from non-zero to zero, reset parameter to base value
+        if !wasZero && value == 0.0 {
+            voicePool?.resetModulatorMultiplierToBase()
+        }
     }
     
     /// Update global LFO amount to filter frequency
@@ -914,8 +920,14 @@ final class AudioParameterManager: ObservableObject {
     
     /// Update global LFO amount to delay time
     func updateGlobalLFOAmountToDelayTime(_ value: Double) {
+        let wasZero = master.globalLFO.amountToDelayTime == 0.0
         master.globalLFO.amountToDelayTime = value
         voicePool?.updateGlobalLFO(master.globalLFO)
+        
+        // If amount changed from non-zero to zero, reset parameter to base value
+        if !wasZero && value == 0.0 {
+            voicePool?.resetDelayTimeToBase()
+        }
     }
     
     /// Update global LFO destination (deprecated - destinations are now fixed)

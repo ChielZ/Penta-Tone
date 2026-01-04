@@ -405,6 +405,7 @@ final class PolyphonicVoice {
     // MARK: - Parameter Updates
     
     /// Updates oscillator parameters
+    /// Updates oscillator parameters
     func updateOscillatorParameters(_ parameters: OscillatorParameters) {
         // Use zero-duration ramps to avoid AudioKit parameter ramping artifacts
         oscLeft.$carrierMultiplier.ramp(to: AUValue(parameters.carrierMultiplier), duration: 0)
@@ -416,6 +417,9 @@ final class PolyphonicVoice {
         oscRight.$modulatingMultiplier.ramp(to: AUValue(parameters.modulatingMultiplier), duration: 0)
         oscRight.$modulationIndex.ramp(to: AUValue(parameters.modulationIndex), duration: 0)
         oscRight.$amplitude.ramp(to: AUValue(parameters.amplitude), duration: 0)
+        
+        // Store base modulator multiplier for global LFO modulation
+        modulationState.baseModulatorMultiplier = parameters.modulatingMultiplier
         
         // Update the base modulation index in modulation state
         // This ensures the modulation system uses the new value as the base
@@ -430,8 +434,12 @@ final class PolyphonicVoice {
         // Waveform changes require voice recreation (handled by VoicePool.recreateVoices)
     }
     
-   
-    /// Updates filter parameters
+    /// Resets modulator multiplier to base (unmodulated) value
+    /// Called when global LFO modulation amount is set to zero
+    func resetModulatorMultiplierToBase() {
+        oscLeft.$modulatingMultiplier.ramp(to: AUValue(modulationState.baseModulatorMultiplier), duration: 0.05)
+        oscRight.$modulatingMultiplier.ramp(to: AUValue(modulationState.baseModulatorMultiplier), duration: 0.05)
+    }
     func updateFilterParameters(_ parameters: FilterParameters) {
         // Use zero-duration ramps to avoid AudioKit parameter ramping artifacts
         filter.$cutoffFrequency.ramp(to: AUValue(parameters.clampedCutoff), duration: 0)
@@ -787,9 +795,8 @@ final class PolyphonicVoice {
         
         // Destination 2: Modulator multiplier (FM ratio modulation)
         if parameters.amountToModulatorMultiplier != 0.0 {
-            let baseMultiplier = Double(oscLeft.modulatingMultiplier)
             let finalMultiplier = ModulationRouter.calculateModulatorMultiplier(
-                baseMultiplier: baseMultiplier,
+                baseMultiplier: modulationState.baseModulatorMultiplier,  // Use stored base value
                 globalLFOValue: rawValue,
                 globalLFOAmount: parameters.amountToModulatorMultiplier
             )
