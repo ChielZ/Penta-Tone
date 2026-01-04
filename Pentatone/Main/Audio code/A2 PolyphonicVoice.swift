@@ -408,15 +408,15 @@ final class PolyphonicVoice {
     /// Updates oscillator parameters
     func updateOscillatorParameters(_ parameters: OscillatorParameters) {
         // Use zero-duration ramps to avoid AudioKit parameter ramping artifacts
-        oscLeft.$carrierMultiplier.ramp(to: AUValue(parameters.carrierMultiplier), duration: 0)
-        oscLeft.$modulatingMultiplier.ramp(to: AUValue(parameters.modulatingMultiplier), duration: 0)
-        oscLeft.$modulationIndex.ramp(to: AUValue(parameters.modulationIndex), duration: 0)
-        oscLeft.$amplitude.ramp(to: AUValue(parameters.amplitude), duration: 0)
+        oscLeft.$carrierMultiplier.ramp(to: AUValue(parameters.carrierMultiplier), duration: 0.005)
+        oscLeft.$modulatingMultiplier.ramp(to: AUValue(parameters.modulatingMultiplier), duration: 0.005)
+        oscLeft.$modulationIndex.ramp(to: AUValue(parameters.modulationIndex), duration: 0.005)
+        oscLeft.$amplitude.ramp(to: AUValue(parameters.amplitude), duration: 0.005)
         
-        oscRight.$carrierMultiplier.ramp(to: AUValue(parameters.carrierMultiplier), duration: 0)
-        oscRight.$modulatingMultiplier.ramp(to: AUValue(parameters.modulatingMultiplier), duration: 0)
-        oscRight.$modulationIndex.ramp(to: AUValue(parameters.modulationIndex), duration: 0)
-        oscRight.$amplitude.ramp(to: AUValue(parameters.amplitude), duration: 0)
+        oscRight.$carrierMultiplier.ramp(to: AUValue(parameters.carrierMultiplier), duration: 0.005)
+        oscRight.$modulatingMultiplier.ramp(to: AUValue(parameters.modulatingMultiplier), duration: 0.005)
+        oscRight.$modulationIndex.ramp(to: AUValue(parameters.modulationIndex), duration: 0.005)
+        oscRight.$amplitude.ramp(to: AUValue(parameters.amplitude), duration: 0.005)
         
         // Store base modulator multiplier for global LFO modulation
         modulationState.baseModulatorMultiplier = parameters.modulatingMultiplier
@@ -648,8 +648,8 @@ final class PolyphonicVoice {
             aftertouchAmount: voiceModulation.touchAftertouch.amountToModulatorLevel
         )
         
-        oscLeft.$modulationIndex.ramp(to: AUValue(finalModIndex), duration: 0)
-        oscRight.$modulationIndex.ramp(to: AUValue(finalModIndex), duration: 0)
+        oscLeft.$modulationIndex.ramp(to: AUValue(finalModIndex), duration: 0.005)
+        oscRight.$modulationIndex.ramp(to: AUValue(finalModIndex), duration: 0.005)
     }
     
     /// Applies combined pitch modulation from all sources
@@ -796,8 +796,8 @@ final class PolyphonicVoice {
                 globalLFOValue: rawValue,
                 globalLFOAmount: parameters.amountToOscillatorAmplitude
             )
-            oscLeft.$amplitude.ramp(to: AUValue(finalAmp), duration: 0)
-            oscRight.$amplitude.ramp(to: AUValue(finalAmp), duration: 0)
+            oscLeft.$amplitude.ramp(to: AUValue(finalAmp), duration: 0.005)
+            oscRight.$amplitude.ramp(to: AUValue(finalAmp), duration: 0.005)
         }
         
         // Destination 2: Modulator multiplier (FM ratio modulation)
@@ -807,8 +807,8 @@ final class PolyphonicVoice {
                 globalLFOValue: rawValue,
                 globalLFOAmount: parameters.amountToModulatorMultiplier
             )
-            oscLeft.$modulatingMultiplier.ramp(to: AUValue(finalMultiplier), duration: 0)
-            oscRight.$modulatingMultiplier.ramp(to: AUValue(finalMultiplier), duration: 0)
+            oscLeft.$modulatingMultiplier.ramp(to: AUValue(finalMultiplier), duration: 0.005)
+            oscRight.$modulatingMultiplier.ramp(to: AUValue(finalMultiplier), duration: 0.005)
         }
         
         // Destination 3: Filter frequency
